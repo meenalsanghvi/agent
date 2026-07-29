@@ -1,0 +1,179 @@
+{
+  "reportType": "INTERNAL_PERF_SEARCH_QUERY_PERFORMANCE",
+  "externalReportType": "INTERNAL_SEARCH_QUERY_PERF_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:search_queries",
+    "report_group:click_through",
+    "report_group:keywords"
+  ],
+  "externalRequiredFilters": [],
+  "description": "PLA search-query performance (what users actually typed) for a marketplace over a period, from the timezone-aware search-query performance report: impressions, clicks, spend, CTR, and the AUTO-vs-manual match-type split of both impressions and clicks. Group by search_query alone for the marketplace-wide view, or by search_query + seller_id / os_client_id for the per-keyword-per-seller breakdown. Merchant name comes from a LEFT JOIN on clients, so rows survive when the client record is missing. Spend is in the source currency of the search-query report.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "search_query": {
+      "key": "search_query",
+      "selector": "p.search_query",
+      "type": "STRING",
+      "externalColumnName": "perf_search_query",
+      "description": "The search term the shopper typed that these ads served against.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    },
+    "os_client_id": {
+      "key": "os_client_id",
+      "selector": "p.client_id",
+      "type": "STRING",
+      "externalColumnName": "perf_os_client_id",
+      "description": "OnlineSales client id of the advertiser (working id for internal analysis).",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    },
+    "seller_id": {
+      "key": "seller_id",
+      "selector": "p.merchant_id",
+      "type": "STRING",
+      "externalColumnName": "perf_seller_id",
+      "description": "Seller (merchant) id (working id for internal analysis).",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    },
+    "merchant_name": {
+      "key": "merchant_name",
+      "selector": "cl.alias",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_name",
+      "description": "Human-readable seller (merchant) name.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    }
+  },
+  "metrics": {
+    "impressions": {
+      "key": "impressions",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.impressions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_impressions",
+      "description": "Ad impressions for this search query.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    },
+    "clicks": {
+      "key": "clicks",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.clicks ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_clicks",
+      "description": "Ad clicks for this search query.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    },
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.cost ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "Ad spend for this search query, in the currency stored on the search-query report (p.cost).",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    },
+    "ctr": {
+      "key": "ctr",
+      "selector": "COALESCE(SAFE_DIVIDE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.clicks ELSE 0 END) * 100.0, NULLIF(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.impressions ELSE 0 END), 0)), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_ctr",
+      "description": "Click-through rate (%) = clicks / impressions * 100 for this search query.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    },
+    "auto_impressions": {
+      "key": "auto_impressions",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type = 'AUTO' THEN p.impressions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_auto_impressions",
+      "description": "Impressions served via AUTO (auto-targeted) match type for this search query.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    },
+    "auto_clicks": {
+      "key": "auto_clicks",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type = 'AUTO' THEN p.clicks ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_auto_clicks",
+      "description": "Clicks on ads served via AUTO (auto-targeted) match type for this search query.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    },
+    "manual_impressions": {
+      "key": "manual_impressions",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type != 'AUTO' THEN p.impressions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_manual_impressions",
+      "description": "Impressions served via non-AUTO (manual / broad / phrase / exact) match types for this search query.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    },
+    "manual_clicks": {
+      "key": "manual_clicks",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type != 'AUTO' THEN p.clicks ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_manual_clicks",
+      "description": "Clicks on ads served via non-AUTO (manual / broad / phrase / exact) match types for this search query.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:click_through",
+        "report_group:keywords"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_search_query_performance_report` AS p LEFT JOIN `prj-onlinesales-prod-01.reporting.clients` AS cl ON cl.client_id = p.client_id JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON p.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

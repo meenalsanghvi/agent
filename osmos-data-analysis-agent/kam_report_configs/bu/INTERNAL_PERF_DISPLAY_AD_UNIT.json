@@ -1,0 +1,177 @@
+{
+  "reportType": "INTERNAL_PERF_DISPLAY_AD_UNIT",
+  "externalReportType": "DISPLAY_AD_UNIT_PERFORMANCE_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:budget_utilisation",
+    "report_group:response_rate"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Display ad-unit funnel for a marketplace over a period: requests, non-zero responses, response rate, impressions, clicks, marketplace-currency spend and revenue, and the program funnel events (view-product, add-to-cart, conversions). Group by ad_unit_name and/or page_type for the ad-unit and page-type breakdowns, or by date for the daily request / response trend used in budget-utilisation debugging. Pass a page_type NOT IN ('', 'NA') filter to reproduce the guard the retired page-type and daily-requests reports hardcoded.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "ad_unit_name": {
+      "key": "ad_unit_name",
+      "selector": "auf.ad_unit_name",
+      "type": "STRING",
+      "externalColumnName": "perf_ad_unit_name",
+      "description": "Name of the display ad unit (placement slot) the ads served in.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    },
+    "page_type": {
+      "key": "page_type",
+      "selector": "auf.page_type",
+      "type": "STRING",
+      "externalColumnName": "perf_page_type",
+      "description": "The surface the ad unit served on (SEARCH, CATEGORY, PRODUCT, HOME, ...).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    },
+    "date": {
+      "selector": "auf.date",
+      "type": "DATE",
+      "description": "Calendar date of the Display ad-unit facts row. Group by this for the daily request / response trend.",
+      "key": "date",
+      "externalColumnName": "perf_date",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    }
+  },
+  "metrics": {
+    "requests": {
+      "key": "requests",
+      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.requests ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_requests",
+      "description": "Ad requests received on this ad unit.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    },
+    "responses": {
+      "key": "responses",
+      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.non_zero_responses ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_responses",
+      "description": "Requests that returned at least one ad (non-zero responses).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    },
+    "response_rate": {
+      "selector": "ROUND(SAFE_DIVIDE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.non_zero_responses ELSE 0 END) * 100, NULLIF(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.requests ELSE 0 END), 0)), 2)",
+      "type": "FLOAT",
+      "description": "Non-zero responses as a percentage of requests for this grouping.",
+      "key": "response_rate",
+      "externalColumnName": "perf_response_rate",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    },
+    "impressions": {
+      "key": "impressions",
+      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.impressions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_impressions",
+      "description": "Ad impressions served on this ad unit.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    },
+    "clicks": {
+      "key": "clicks",
+      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.clicks ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_clicks",
+      "description": "Ad clicks on this ad unit.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    },
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.cost * scc.conversion_factor ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "Ad spend on this ad unit, converted to the marketplace currency.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    },
+    "revenue": {
+      "key": "revenue",
+      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.program_per_click_timestamp_sales * scc.conversion_factor ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_revenue",
+      "description": "Attributed sales (per-click-timestamp) for this ad unit, converted to the marketplace currency. Python divides by spend for ROI.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    },
+    "view_product": {
+      "key": "view_product",
+      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.program_per_click_timestamp_viewproduct ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_view_product",
+      "description": "View-product funnel events (per-click-timestamp) attributed to this ad unit.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    },
+    "add_to_cart": {
+      "key": "add_to_cart",
+      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.program_per_click_timestamp_add_to_cart ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_add_to_cart",
+      "description": "Add-to-cart funnel events (per-click-timestamp) attributed to this ad unit.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    },
+    "conversions": {
+      "key": "conversions",
+      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.program_per_click_timestamp_conversions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_conversions",
+      "description": "Conversion funnel events (per-click-timestamp) attributed to this ad unit.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:response_rate"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_display_ads_ad_unit_facts` AS auf INNER JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON auf.marketplace_client_id = mc.marketplace_client_id LEFT JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE mc.agency_id = '__AGENCY_ID__' AND auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

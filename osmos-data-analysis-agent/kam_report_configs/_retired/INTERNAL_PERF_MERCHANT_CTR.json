@@ -1,0 +1,144 @@
+{
+    "reportType": "INTERNAL_PERF_MERCHANT_CTR",
+    "externalReportType": "MERCHANT_CTR_BREAKDOWN_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:merchant_breakdown",
+        "report_group:ctr"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Per-merchant clicks / impressions / spend / CTR / CPC / CPM for a marketplace over a period, grouped by merchant (os_client_id + merchant name). Spend is converted to the marketplace currency; CTR (%), CPC and CPM are computed per merchant. Filter by channel to isolate PLA (os_product_ads) vs Display (guaranteed_display_ads / auction_display_ads).",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "os_client_id": {
+            "key": "os_client_id",
+            "selector": "mmd.client_id",
+            "type": "STRING",
+            "externalColumnName": "os_client_id",
+            "description": "OnlineSales client id of the merchant (working id for internal analysis).",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:ctr"
+            ]
+        },
+        "merchant_name": {
+            "key": "merchant_name",
+            "selector": "mmd.merchant_name",
+            "type": "STRING",
+            "externalColumnName": "merchant_name",
+            "description": "Human-readable merchant (seller) name.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:ctr"
+            ]
+        },
+        "merchant_id": {
+            "key": "merchant_id",
+            "selector": "mmd.merchant_id",
+            "type": "STRING",
+            "externalColumnName": "merchant_id",
+            "description": "Merchant (seller) id (working id for internal analysis).",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:ctr"
+            ]
+        },
+        "channel": {
+            "key": "channel",
+            "selector": "cvcpf.channel",
+            "type": "STRING",
+            "externalColumnName": "channel",
+            "description": "Ad program channel: os_product_ads (PLA), guaranteed_display_ads / auction_display_ads (Display). Use as a filter to scope the breakdown to a program type.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:ctr"
+            ]
+        }
+    },
+    "metrics": {
+        "clicks": {
+            "key": "clicks",
+            "selector": "COALESCE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.clicks ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "clicks",
+            "description": "Ad clicks for this merchant.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:ctr"
+            ]
+        },
+        "impressions": {
+            "key": "impressions",
+            "selector": "COALESCE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.impressions ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "impressions",
+            "description": "Ad impressions for this merchant.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:ctr"
+            ]
+        },
+        "spend": {
+            "key": "spend",
+            "selector": "COALESCE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.cost * scc.conversion_factor ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "spend",
+            "description": "Ad spend for this merchant, converted to the marketplace currency.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:ctr"
+            ]
+        },
+        "ctr": {
+            "key": "ctr",
+            "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.clicks ELSE 0 END) * 100.0, NULLIF(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.impressions ELSE 0 END), 0)), 2), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "ctr",
+            "description": "Click-through rate (%) = clicks / impressions * 100 for this merchant.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:ctr"
+            ]
+        },
+        "cpc": {
+            "key": "cpc",
+            "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.cost * scc.conversion_factor ELSE 0 END), NULLIF(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.clicks ELSE 0 END), 0)), 4), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "cpc",
+            "description": "Cost per click = spend / clicks for this merchant, in the marketplace currency.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:ctr"
+            ]
+        },
+        "cpm": {
+            "key": "cpm",
+            "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.cost * scc.conversion_factor ELSE 0 END) * 1000, NULLIF(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.impressions ELSE 0 END), 0)), 4), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "cpm",
+            "description": "Cost per mille = spend / impressions * 1000 for this merchant, in the marketplace currency.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:ctr"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.client_vendor_channel_performance_facts` AS cvcpf INNER JOIN `prj-onlinesales-prod-01.reporting.clients` AS clients ON clients.client_id = cvcpf.client_id AND clients.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.agency_id = clients.agency_id AND clients.client_id != mc.marketplace_client_id INNER JOIN `prj-onlinesales-prod-01.reporting.monetize_merchant_dimensions` AS mmd ON mmd.merchant_id = clients.seller_id AND mmd.agency_id = clients.agency_id LEFT JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = cvcpf.currency AND scc.to_currency = mc.currency WHERE cvcpf.vendor = 'os_ads' AND cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

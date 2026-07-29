@@ -1,0 +1,163 @@
+{
+    "reportType": "INTERNAL_PERF_RR_BY_DIMENSION_PLA",
+    "externalReportType": "RR_BY_DIMENSION_PLA_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:rr"
+    ],
+    "externalRequiredFilters": [],
+    "description": "PLA response rate for a marketplace over a period, grouped by one or more caller-chosen dimensions: network, store_id, page_type, page_name, device, and category hierarchy (category_l1..category_l5). Returns raw ad requests, non-zero responses, and response rate (%). Pick which dimension(s) to group by via the requested attributes; all dimensions are filterable. No spend / no currency conversion.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "network": {
+            "key": "network",
+            "selector": "r.network",
+            "type": "STRING",
+            "externalColumnName": "network",
+            "description": "The supply network / channel the ad request came from.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "store_id": {
+            "key": "store_id",
+            "selector": "r.store_id",
+            "type": "STRING",
+            "externalColumnName": "store_id",
+            "description": "The store the ad request was attributed to.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "page_type": {
+            "key": "page_type",
+            "selector": "r.page_type",
+            "type": "STRING",
+            "externalColumnName": "page_type",
+            "description": "The surface the ad served on (SEARCH, CATEGORY, PRODUCT, HOME, ...).",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "page_name": {
+            "key": "page_name",
+            "selector": "r.page_name",
+            "type": "STRING",
+            "externalColumnName": "page_name",
+            "description": "The specific page name the ad request was attributed to.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "device": {
+            "key": "device",
+            "selector": "r.device",
+            "type": "STRING",
+            "externalColumnName": "device",
+            "description": "The device type the ad request came from (mobile, desktop, app, ...).",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "category_l1": {
+            "key": "category_l1",
+            "selector": "r.category_l1",
+            "type": "STRING",
+            "externalColumnName": "category_l1",
+            "description": "Top-level (L1) product category the requests/responses were attributed to.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "category_l2": {
+            "key": "category_l2",
+            "selector": "r.category_l2",
+            "type": "STRING",
+            "externalColumnName": "category_l2",
+            "description": "Second-level (L2) product category.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "category_l3": {
+            "key": "category_l3",
+            "selector": "r.category_l3",
+            "type": "STRING",
+            "externalColumnName": "category_l3",
+            "description": "Third-level (L3) product category.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "category_l4": {
+            "key": "category_l4",
+            "selector": "r.category_l4",
+            "type": "STRING",
+            "externalColumnName": "category_l4",
+            "description": "Fourth-level (L4) product category.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "category_l5": {
+            "key": "category_l5",
+            "selector": "r.category_l5",
+            "type": "STRING",
+            "externalColumnName": "category_l5",
+            "description": "Fifth-level (L5) product category.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Ad requests received for this dimension grouping.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.non_zero_responses ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "Requests that returned at least one ad (non-zero responses) for this dimension grouping.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "response_rate": {
+            "key": "response_rate",
+            "selector": "SAFE_DIVIDE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.non_zero_responses ELSE 0 END) * 100, NULLIF(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0))",
+            "type": "FLOAT",
+            "externalColumnName": "response_rate",
+            "description": "Response rate (%) = non-zero responses / requests * 100 for this dimension grouping.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_filtered_level_report` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

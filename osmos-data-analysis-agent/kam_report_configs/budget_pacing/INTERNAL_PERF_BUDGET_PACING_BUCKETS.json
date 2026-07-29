@@ -1,0 +1,63 @@
+{
+  "reportType": "INTERNAL_PERF_BUDGET_PACING_BUCKETS",
+  "externalReportType": "BUDGET_PACING_BUCKETS_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:budget_pacings"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Raw budget-pacing configuration for a marketplace on a given date: the budget_pacing_json blob of cumulative spend-% targets by time-of-day, one row per date. The Python layer parses the JSON and derives per-bucket spend %, bucket start/end times, and bucket count. Single-date lookup (set start_date = end_date to the target date).",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "date": {
+      "key": "date",
+      "selector": "bpc.date",
+      "type": "STRING",
+      "externalColumnName": "perf_date",
+      "description": "The date the budget-pacing configuration applies to. Scope with start_date = end_date to fetch a single day's config.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    },
+    "budget_pacing_json": {
+      "key": "budget_pacing_json",
+      "selector": "bpc.budget_pacing_json",
+      "type": "STRING",
+      "externalColumnName": "perf_budget_pacing_json",
+      "description": "Raw budget-pacing JSON blob: cumulative spend-% targets keyed by time-of-day. Passed through verbatim; the Python layer json.loads it and derives per-bucket pct, start/end times, and bucket count.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "description": "Constant 0. Row-level passthrough report with no aggregated metric; KAM requires at least one metric to fetch.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_marketplace_budget_pacing_configurations` AS bpc JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON SAFE_CAST(bpc.marketplace_client_id AS STRING) = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND bpc.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

@@ -1,0 +1,184 @@
+[
+  {
+    "reportType": "INTERNAL_PERF_BUDGET_DELIVERY_MODE",
+    "externalReportType": "BUDGET_DELIVERY_MODE_REPORT",
+    "path": "budget_pacing/INTERNAL_PERF_BUDGET_DELIVERY_MODE.json",
+    "verdict": "OK",
+    "note": "1 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_BUDGET_PACING_BUCKETS",
+    "externalReportType": "BUDGET_PACING_BUCKETS_REPORT",
+    "path": "budget_pacing/INTERNAL_PERF_BUDGET_PACING_BUCKETS.json",
+    "verdict": "OK",
+    "note": "3 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_CAMPAIGNS_IN_CATEGORY",
+    "externalReportType": "CAMPAIGNS_IN_CATEGORY_REPORT",
+    "path": "shared/INTERNAL_PERF_CAMPAIGNS_IN_CATEGORY.json",
+    "verdict": "OK",
+    "note": "68474 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_CAMPAIGN_DAILY_BUDGET_AVG",
+    "externalReportType": "CAMPAIGN_DAILY_BUDGET_AVG_REPORT",
+    "path": "budget_pacing/INTERNAL_PERF_CAMPAIGN_DAILY_BUDGET_AVG.json",
+    "verdict": "OK",
+    "note": "1 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_CAMPAIGN_DAILY_BUDGET_FLEXI",
+    "externalReportType": "CAMPAIGN_DAILY_BUDGET_FLEXI_REPORT",
+    "path": "budget_pacing/INTERNAL_PERF_CAMPAIGN_DAILY_BUDGET_FLEXI.json",
+    "verdict": "OK",
+    "note": "1 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_CAMPAIGN_INVENTORY",
+    "externalReportType": "CAMPAIGN_INVENTORY_REPORT",
+    "path": "bu/INTERNAL_PERF_CAMPAIGN_INVENTORY.json",
+    "verdict": "OK",
+    "note": "536 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_CAMPAIGN_PRODUCT_SELECTION",
+    "externalReportType": "CAMPAIGN_PRODUCT_SELECTION_REPORT",
+    "path": "shared/INTERNAL_PERF_CAMPAIGN_PRODUCT_SELECTION.json",
+    "verdict": "OK",
+    "note": "26 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_CAMPAIGN_SUBTYPE_CPC",
+    "externalReportType": "CAMPAIGN_SUBTYPE_CPC_REPORT",
+    "path": "cpc/INTERNAL_PERF_CAMPAIGN_SUBTYPE_CPC.json",
+    "verdict": "OK",
+    "note": "2 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_CATEGORY_QUADRANT",
+    "externalReportType": "CATEGORY_QUADRANT_REPORT",
+    "path": "bu/INTERNAL_PERF_CATEGORY_QUADRANT.json",
+    "verdict": "OK",
+    "note": "528 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_CATEGORY_REQUEST_VOLUME",
+    "externalReportType": "CATEGORY_REQUEST_VOLUME_REPORT",
+    "path": "rr/INTERNAL_PERF_CATEGORY_REQUEST_VOLUME.json",
+    "verdict": "ERROR",
+    "note": "Error: unable to fetch GCP BigQuery result - Access Denied: Table prj-onlinesales-prod-01:reporting_belgium.os_product_ads_request_report: User does not have permission to query table prj-onlinesales-prod-01:reporting_belgium.os_product_ads_request_report, or perhaps it does not exist."
+  },
+  {
+    "reportType": "INTERNAL_PERF_CTR_OVERALL",
+    "externalReportType": "CTR_OVERALL_REPORT",
+    "path": "ctr/INTERNAL_PERF_CTR_OVERALL.json",
+    "verdict": "OK",
+    "note": "1 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_DAILY_ORDER_TRENDS",
+    "externalReportType": "DAILY_ORDER_TRENDS_REPORT",
+    "path": "roas/INTERNAL_PERF_DAILY_ORDER_TRENDS.json",
+    "verdict": "ERROR",
+    "note": "Error: unable to fetch GCP BigQuery result - Unrecognized name: cvcpf at [1:42]"
+  },
+  {
+    "reportType": "INTERNAL_PERF_DISPLAY_INVENTORY_CAMPAIGNS",
+    "externalReportType": "DISPLAY_INVENTORY_CAMPAIGNS_REPORT",
+    "path": "bu/INTERNAL_PERF_DISPLAY_INVENTORY_CAMPAIGNS.json",
+    "verdict": "OK",
+    "note": "534 rows \u00b7 all columns \u00b7 required filter with no known test value: ['ad_unit']"
+  },
+  {
+    "reportType": "INTERNAL_PERF_DISPLAY_QUADRANT",
+    "externalReportType": "DISPLAY_QUADRANT_REPORT",
+    "path": "bu/INTERNAL_PERF_DISPLAY_QUADRANT.json",
+    "verdict": "OK",
+    "note": "31 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_FILTER_PRESENCE_RR",
+    "externalReportType": "FILTER_PRESENCE_RR_REPORT",
+    "path": "rr/INTERNAL_PERF_FILTER_PRESENCE_RR.json",
+    "verdict": "ERROR",
+    "note": "Error: report type 'FILTER_PRESENCE_RR_REPORT' is not configured yet."
+  },
+  {
+    "reportType": "INTERNAL_PERF_MARKETPLACE_DIRECTORY",
+    "externalReportType": "MARKETPLACE_DIRECTORY_REPORT",
+    "path": "shared/INTERNAL_PERF_MARKETPLACE_DIRECTORY.json",
+    "verdict": "OK",
+    "note": "64 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_MERCHANT_CATEGORY",
+    "externalReportType": "MERCHANT_CATEGORY_PERFORMANCE_REPORT",
+    "path": "shared/INTERNAL_PERF_MERCHANT_CATEGORY.json",
+    "verdict": "OK",
+    "note": "296 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_MINUTE_CPC",
+    "externalReportType": "MINUTE_LEVEL_CPC_REPORT",
+    "path": "budget_pacing/INTERNAL_PERF_MINUTE_CPC.json",
+    "verdict": "OK",
+    "note": "953 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_MINUTE_CPM",
+    "externalReportType": "MINUTE_LEVEL_CPM_REPORT",
+    "path": "budget_pacing/INTERNAL_PERF_MINUTE_CPM.json",
+    "verdict": "OK",
+    "note": "192280 rows \u00b7 reduced grain (first 2 attrs)"
+  },
+  {
+    "reportType": "INTERNAL_PERF_PROBLEM_METRICS",
+    "externalReportType": "PROBLEM_METRICS_REPORT",
+    "path": "shared/INTERNAL_PERF_PROBLEM_METRICS.json",
+    "verdict": "EMPTY",
+    "note": "0 rows in scope \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_RESPONDED_SKUS",
+    "externalReportType": "RESPONDED_SKUS_REPORT",
+    "path": "irrelevancy/INTERNAL_PERF_RESPONDED_SKUS.json",
+    "verdict": "ERROR",
+    "note": "ReadTimeout"
+  },
+  {
+    "reportType": "INTERNAL_PERF_SEARCH_QUERY_CAMPAIGNS",
+    "externalReportType": "SEARCH_QUERY_CAMPAIGNS_REPORT",
+    "path": "rr/INTERNAL_PERF_SEARCH_QUERY_CAMPAIGNS.json",
+    "verdict": "OK",
+    "note": "2 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_SEARCH_QUERY_MATCH",
+    "externalReportType": "SEARCH_QUERY_MATCH_PERFORMANCE_REPORT",
+    "path": "ctr/INTERNAL_PERF_SEARCH_QUERY_MATCH.json",
+    "verdict": "EMPTY",
+    "note": "0 rows in scope \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_TARGET_ROI",
+    "externalReportType": "TARGET_ROI_REPORT",
+    "path": "roas/INTERNAL_PERF_TARGET_ROI.json",
+    "verdict": "OK",
+    "note": "1 rows \u00b7 all columns"
+  },
+  {
+    "reportType": "INTERNAL_PERF_TRUE_BU",
+    "externalReportType": "TRUE_BU_CAMPAIGN_REPORT",
+    "path": "bu/INTERNAL_PERF_TRUE_BU.json",
+    "verdict": "OK",
+    "note": "7745 rows \u00b7 reduced grain (first 2 attrs)"
+  },
+  {
+    "reportType": "INTERNAL_PERF_WALLET_BALANCE",
+    "externalReportType": "WALLET_BALANCE_REPORT",
+    "path": "bu/INTERNAL_PERF_WALLET_BALANCE.json",
+    "verdict": "OK",
+    "note": "42068 rows \u00b7 all columns"
+  }
+]

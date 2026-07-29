@@ -1,0 +1,14 @@
+{
+  "name": "osmos-agents",
+  "description": "Internal Osmos agents for Claude Code — marketplace ad-performance analysis over KAM reports.",
+  "owner": {
+    "name": "Osmos KAM"
+  },
+  "plugins": [
+    {
+      "name": "osmos-data-analysis",
+      "source": "./",
+      "description": "Marketplace ad-performance debugging agent (ROAS, CPC, CTR, BU, RR, keywords, campaigns, pacing) over KAM reports."
+    }
+  ]
+}

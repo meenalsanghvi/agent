@@ -1,0 +1,143 @@
+{
+    "reportType": "INTERNAL_PERF_PRODUCT_SELECTION_CHANGES",
+    "externalReportType": "PRODUCT_SELECTION_CHANGES_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:campaign"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Product-selection audit events (action_type_id 50=added / 51=removed) for a period: sku_id + action, who and when. Filter by os_client_id and/or campaign_id.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS_EXTERNAL_DATASET"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "os_client_id": {
+            "key": "os_client_id",
+            "selector": "al.entity_id",
+            "type": "STRING",
+            "externalColumnName": "os_client_id",
+            "description": "Advertiser client id (entity_id). Optional filter.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        },
+        "campaign_id": {
+            "key": "campaign_id",
+            "selector": "al.scope_id",
+            "type": "STRING",
+            "externalColumnName": "campaign_id",
+            "description": "Marketing campaign id (scope_id). Optional filter.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        },
+        "campaign_name": {
+            "key": "campaign_name",
+            "selector": "JSON_EXTRACT_SCALAR(al.scope_metadata, '$.campaignName')",
+            "type": "STRING",
+            "externalColumnName": "campaign_name",
+            "description": "Campaign name.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        },
+        "campaign_type": {
+            "key": "campaign_type",
+            "selector": "JSON_EXTRACT_SCALAR(al.scope_metadata, '$.campaignType')",
+            "type": "STRING",
+            "externalColumnName": "campaign_type",
+            "description": "Campaign type.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        },
+        "campaign_subtype": {
+            "key": "campaign_subtype",
+            "selector": "JSON_EXTRACT_SCALAR(al.scope_metadata, '$.campaignSubType')",
+            "type": "STRING",
+            "externalColumnName": "campaign_subtype",
+            "description": "Campaign subtype.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        },
+        "sku_id": {
+            "key": "sku_id",
+            "selector": "JSON_EXTRACT_SCALAR(al.metadata, '$.skuId')",
+            "type": "STRING",
+            "externalColumnName": "sku_id",
+            "description": "SKU added/removed.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        },
+        "action": {
+            "key": "action",
+            "selector": "CASE WHEN al.action_type_id = 50 THEN 'added' ELSE 'removed' END",
+            "type": "STRING",
+            "externalColumnName": "action",
+            "description": "'added' (50) or 'removed' (51).",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        },
+        "changed_by": {
+            "key": "changed_by",
+            "selector": "JSON_EXTRACT_SCALAR(al.user, '$.name')",
+            "type": "STRING",
+            "externalColumnName": "changed_by",
+            "description": "Actor name.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        },
+        "changed_by_type": {
+            "key": "changed_by_type",
+            "selector": "JSON_EXTRACT_SCALAR(al.user, '$.userType')",
+            "type": "STRING",
+            "externalColumnName": "changed_by_type",
+            "description": "Actor type.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        },
+        "change_timestamp": {
+            "key": "change_timestamp",
+            "selector": "DATETIME(al.timestamp, '__SP_TIMEZONE__')",
+            "type": "STRING",
+            "externalColumnName": "change_timestamp",
+            "description": "Local time of the change.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        }
+    },
+    "metrics": {
+        "placeholder_metric": {
+            "key": "placeholder_metric",
+            "selector": "0",
+            "type": "FLOAT",
+            "externalColumnName": "placeholder_metric",
+            "description": "Row-level passthrough placeholder.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.audit.audit_logs_v2` AS al WHERE al.agency_id = '__AGENCY_ID__' AND al.action_type_id IN (50, 51) AND al.timestamp >= TIMESTAMP('__START_DATE_1__', '__SP_TIMEZONE__') AND al.timestamp < TIMESTAMP(DATE_ADD('__END_DATE_1__', INTERVAL 1 DAY), '__SP_TIMEZONE__') AND __FILTER__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

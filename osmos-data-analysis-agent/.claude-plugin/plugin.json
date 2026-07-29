@@ -1,0 +1,12 @@
+{
+  "name": "osmos-data-analysis",
+  "description": "Debugs OnlineSales marketplace ad performance (ROAS, CPC, CTR, Budget Utilisation, Response Rate, keywords, campaigns, pacing) against KAM reports. Invoke with /osmos-data-analysis:analyze.",
+  "author": {
+    "name": "Osmos KAM"
+  },
+  "keywords": ["osmos", "kam", "marketplace", "ads", "roas", "analysis"],
+  "skills": ["./.claude/skills"],
+  "agents": ["./.claude/agents/sku-drilldown.md"],
+  "hooks": "./.claude/hooks/hooks.json",
+  "mcpServers": "./.mcp.json"
+}

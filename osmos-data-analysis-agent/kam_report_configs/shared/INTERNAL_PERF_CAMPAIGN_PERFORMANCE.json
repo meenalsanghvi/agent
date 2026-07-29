@@ -1,0 +1,215 @@
+{
+  "reportType": "INTERNAL_PERF_CAMPAIGN_PERFORMANCE",
+  "externalReportType": "INTERNAL_CAMPAIGN_PERFORMANCE_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:campaigns"
+  ],
+  "externalRequiredFilters": [
+    "perf_campaign_id"
+  ],
+  "description": "Campaign-group performance for a marketplace over a period: impressions, clicks, marketplace-currency spend, attributed orders and revenue. Omit `date` for the period aggregate, or group by `date` for the day-by-day series. Group by campaign_group_id / campaign_id and any of the campaign, merchant and budget attributes below. The retired daily report hardcoded campaign_type IN ('PERFORMANCE', 'INVENTORY', 'OFFSITE') -- pass that as a campaign_type IN filter to reproduce it. Package-based campaigns and null-merchant rows are always excluded. Scope with a campaign_id filter for campaign-level work.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "date": {
+      "key": "date",
+      "selector": "cpf.date",
+      "type": "STRING",
+      "externalColumnName": "perf_date",
+      "description": "The calendar date (from campaign_performance_facts) the performance is bucketed on, enabling per-day grouping.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_id": {
+      "key": "campaign_id",
+      "selector": "ctd.marketing_campaign_id",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_id",
+      "description": "Marketing campaign id. REQUIRED per-call filter: this report targets specific campaign(s) (legacy marketing_campaign_ids filter).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_id": {
+      "key": "campaign_group_id",
+      "selector": "mcgd.marketing_campaign_group_id",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_id",
+      "description": "Marketing campaign group id (the grouping grain of this report).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_name": {
+      "key": "campaign_group_name",
+      "selector": "mcgd.marketing_campaign_group_alias",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_name",
+      "description": "Human-readable alias/name of the campaign group.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_type": {
+      "key": "campaign_group_type",
+      "selector": "CASE WHEN JSON_EXTRACT_SCALAR(mcgd.metadata, '$.isEanEnabled') = 'true' AND ctd.vendor IN ('google', 'facebook', 'tiktok') THEN 'Offsite Ad' WHEN mcgd.campaign_type = 'PERFORMANCE' THEN 'Sponsored Product Ad' WHEN mcgd.campaign_type IN ('AWARENESS', 'INVENTORY') THEN 'Sponsored Display Ad' WHEN mcgd.campaign_type IN ('OFFSITE') THEN 'Offsite Ad' ELSE 'Other' END",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_type",
+      "description": "Derived campaign-group program label: Sponsored Product Ad (PERFORMANCE), Sponsored Display Ad (AWARENESS/INVENTORY), Offsite Ad (OFFSITE or EAN-enabled google/facebook/tiktok), else Other.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_subtype": {
+      "key": "campaign_group_subtype",
+      "selector": "CASE WHEN JSON_EXTRACT_SCALAR(mcgd.metadata, '$.isEanEnabled') = 'true' AND ctd.vendor IN ('google', 'facebook', 'tiktok') THEN 'Manual' WHEN mcgd.campaign_type = 'PERFORMANCE' AND mcgd.campaign_subtype = 'SMART_SHOPPING' AND ((mcgd.bidding_strategy IN ('AUTO_CPC', 'AUTO_CPM') AND mcgd.objective_name IN ('Visitors', 'Visibility')) OR mcgd.objective_name = 'Absolute Revenue') THEN 'Smart Shopping' WHEN mcgd.campaign_type = 'PERFORMANCE' AND mcgd.objective_name IN ('Visitors', 'Visibility') AND mcgd.bidding_strategy IN ('CPC', 'CPM') THEN 'Manual' WHEN mcgd.campaign_type = 'PERFORMANCE' AND mcgd.campaign_subtype = 'OS_ADS_SEARCH' THEN 'Search-Only' WHEN mcgd.campaign_type IN ('AWARENESS', 'INVENTORY') AND mcgd.campaign_subtype = 'AUCTION' THEN 'Auction' WHEN mcgd.campaign_type IN ('AWARENESS', 'INVENTORY') AND mcgd.campaign_subtype = 'BLOCK_BUY' THEN 'Guaranteed' WHEN mcgd.campaign_type IN ('AWARENESS', 'INVENTORY') AND mcgd.campaign_subtype = 'PRE_AUCTION' THEN 'Auction Packages' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('FACEBOOK_PRODUCT_AD', 'FACEBOOK', 'FACEBOOK_CAROUSEL_AD') THEN 'Facebook' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('FACEBOOK_DPA') THEN 'Facebook DPA' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('GOOGLE_PERFORMANCE_MAX_SHOPPING', 'GOOGLE_PERFORMANCE_MAX') THEN 'Google Performance Max' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('GOOGLE_PRODUCT_AD', 'GOOGLE_SEARCH_TEXT_AD') THEN 'Google' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('TIKTOK_TRAFFIC') THEN 'Tiktok Traffic' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('TIKTOK_REACH') THEN 'Tiktok Reach' ELSE mcgd.campaign_subtype END",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_subtype",
+      "description": "Derived campaign-group subtype label (Smart Shopping, Manual, Search-Only, Auction, Guaranteed, Facebook, Google Performance Max, ...), falling back to the raw campaign_subtype.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_status": {
+      "key": "campaign_group_status",
+      "selector": "REPLACE(mcgd.effective_status, '_', ' ')",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_status",
+      "description": "Effective status of the campaign group, with underscores replaced by spaces (e.g. 'CAMPAIGN ACTIVE').",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_type": {
+      "key": "campaign_type",
+      "selector": "mcgd.campaign_type",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_type",
+      "description": "Program type of the campaign group used to scope PLA vs Display vs Offsite: PERFORMANCE (PLA), AWARENESS / INVENTORY (Display), OFFSITE. Per-call filter, not hardcoded.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_subtype": {
+      "key": "campaign_subtype",
+      "selector": "mcgd.campaign_subtype",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_subtype",
+      "description": "Raw campaign subtype from marketing_campaign_group_dimensions (e.g. SMART_SHOPPING, OS_ADS_SEARCH, AUCTION).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "daily_budget": {
+      "key": "daily_budget",
+      "selector": "CASE WHEN mcgd.budget_type = 'LIFETIME_BUDGET' THEN NULL ELSE mcgd.daily_budget END",
+      "type": "FLOAT",
+      "externalColumnName": "perf_daily_budget",
+      "description": "Daily budget of the campaign group (NULL when the group uses a LIFETIME_BUDGET). Not currency-converted; in the group's own currency.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "merchant_id": {
+      "key": "merchant_id",
+      "selector": "mmd.merchant_id",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_id",
+      "description": "Seller / merchant id owning the campaign group. Filterable (legacy seller_ids filter).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "merchant_name": {
+      "key": "merchant_name",
+      "selector": "mmd.merchant_name",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_name",
+      "description": "Seller / merchant display name owning the campaign group.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "os_client_id": {
+      "key": "os_client_id",
+      "selector": "mcd.client_id",
+      "type": "STRING",
+      "externalColumnName": "perf_os_client_id",
+      "description": "OnlineSales client id (the advertiser account). Filterable (legacy client_ids filter).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    }
+  },
+  "metrics": {
+    "impressions": {
+      "key": "impressions",
+      "selector": "COALESCE(SUM(CASE WHEN cpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cpf.impressions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_impressions",
+      "description": "Ad impressions for the campaign group over the period (raw campaign_performance_facts.impressions).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "clicks": {
+      "key": "clicks",
+      "selector": "COALESCE(SUM(CASE WHEN cpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cpf.clicks ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_clicks",
+      "description": "Ad clicks for the campaign group over the period (raw campaign_performance_facts.clicks).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(SUM(CASE WHEN cpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cpf.cost * scc.conversion_factor ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "Ad spend (cost) for the campaign group over the period, converted from cpf.currency to the marketplace currency.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "orders": {
+      "key": "orders",
+      "selector": "COALESCE(SUM(CASE WHEN cpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cpf.program_per_click_timestamp_conversions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_orders",
+      "description": "Program orders (per-click-timestamp conversions) attributed to the campaign group over the period.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "revenue": {
+      "key": "revenue",
+      "selector": "COALESCE(SUM(CASE WHEN cpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cpf.program_per_click_timestamp_sales * scc.conversion_factor ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_revenue",
+      "description": "Program revenue / GMV (per-click-timestamp sales) attributed to the campaign group over the period, converted from cpf.currency to the marketplace currency.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.campaign_performance_facts` AS cpf JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON cpf.campaign_id = ctd.campaign_id AND cpf.client_id = ctd.client_id JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd ON ctd.marketing_campaign_id = mcd.marketing_campaign_id AND ctd.client_id = mcd.client_id JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_group_dimensions` AS mcgd ON mcd.marketing_campaign_group_id = mcgd.marketing_campaign_group_id AND mcd.client_id = mcgd.client_id AND mcgd.marketing_campaign_group_id = ctd.marketing_campaign_group_id AND mcgd.client_id = ctd.client_id JOIN `prj-onlinesales-prod-01.reporting.monetize_merchant_dimensions` AS mmd ON mcgd.client_id = mmd.client_id AND mmd.agency_id = '__AGENCY_ID__' JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.agency_id = mmd.agency_id AND mc.marketplace_type = 'monetize' JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = cpf.currency AND scc.to_currency = mc.currency WHERE cpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (mcgd.campaign_origin != 'PACKAGE_BASED' OR mcgd.campaign_origin IS NULL) AND mmd.merchant_id NOT LIKE 'NULL' AND mc.agency_id = '__AGENCY_ID__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

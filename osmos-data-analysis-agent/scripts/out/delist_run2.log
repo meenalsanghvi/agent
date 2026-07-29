@@ -1,0 +1,95 @@
+/Users/manav.kumawat/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+42 retired reportTypes in scope (3 on the keep-denylist)
+
+WILL DE-LIST (38):
+  INTERNAL_PERF_BU_REQUESTS_PLA                    id=6a6322360bf96af0e1d13450  unset externalReportType (BU_REQUESTS_PLA_REPORT)
+  INTERNAL_PERF_CAMPAIGN_KW_NEGATIVE               id=6a632e8e0bf96af0e1d13626  unset externalReportType (CAMPAIGN_NEGATIVE_KEYWORDS_REPORT)
+  INTERNAL_PERF_CAMPAIGN_KW_TARGETED               id=6a632d2b0bf96af0e1d1360a  unset externalReportType (CAMPAIGN_TARGETED_KEYWORDS_REPORT)
+  INTERNAL_PERF_CAMPAIGN_NETWORKS_BY_ID            id=6a632f1e0bf96af0e1d1363f  unset externalReportType (CAMPAIGN_NETWORKS_BY_ID_REPORT)
+  INTERNAL_PERF_CAMPAIGN_NETWORKS_VIA_CTD          id=6a632f000bf96af0e1d13633  unset externalReportType (CAMPAIGN_NETWORKS_VIA_CTD_REPORT)
+  INTERNAL_PERF_CAMPAIGN_PERF_AGG                  id=6a632c4f0bf96af0e1d135a7  unset externalReportType (CAMPAIGN_PERF_AGGREGATED_REPORT)
+  INTERNAL_PERF_CAMPAIGN_PERF_DAILY                id=6a632ced0bf96af0e1d135e4  unset externalReportType (CAMPAIGN_PERF_DAILY_REPORT)
+  INTERNAL_PERF_CATEGORY_LEVEL                     id=6a632c250bf96af0e1d1358d  unset externalReportType (CATEGORY_LEVEL_PERFORMANCE_REPORT)
+  INTERNAL_PERF_CATEGORY_RR                        id=6a62dfd27b8ae2a62e20a21c  unset externalReportType (CATEGORY_RESPONSE_RATES_REPORT)
+  INTERNAL_PERF_KEYWORD_SELLER                     id=6a62ea607b8ae2a62e20a38f  unset externalReportType (KEYWORD_SELLER_BREAKDOWN_REPORT)
+  INTERNAL_PERF_KW_COMPETITION                     id=6a6324ce0bf96af0e1d134d5  unset externalReportType (KW_COMPETITION_REPORT)
+  INTERNAL_PERF_KW_PERF_IN_CAMPAIGNS               id=6a6320df0bf96af0e1d133f3  unset externalReportType (KW_PERF_IN_CAMPAIGNS_REPORT)
+  INTERNAL_PERF_KW_REQUEST_VOLUME                  id=6a63258a0bf96af0e1d134e1  unset externalReportType (KW_REQUEST_VOLUME_REPORT)
+  INTERNAL_PERF_MERCHANT_BU                        id=6a62ef047b8ae2a62e20a3e7  unset externalReportType (MERCHANT_BU_BREAKDOWN_REPORT)
+  INTERNAL_PERF_MERCHANT_CATEGORY_CPC              id=6a62e8a87b8ae2a62e20a334  unset externalReportType (MERCHANT_CATEGORY_CPC_COMPARISON_REPORT)
+  INTERNAL_PERF_MERCHANT_CPC                       id=6a62e8037b8ae2a62e20a2ff  unset externalReportType (MERCHANT_CPC_BREAKDOWN_REPORT)
+  INTERNAL_PERF_MERCHANT_CTR                       id=6a62e02d7b8ae2a62e20a22e  unset externalReportType (MERCHANT_CTR_BREAKDOWN_REPORT)
+  INTERNAL_PERF_MERCHANT_KEYWORD                   id=6a632c8f0bf96af0e1d135ba  unset externalReportType (MERCHANT_KEYWORD_PERFORMANCE_REPORT)
+  INTERNAL_PERF_MERCHANT_ROAS                      id=6a62e5397b8ae2a62e20a265  unset externalReportType (MERCHANT_ROAS_BREAKDOWN_REPORT)
+  INTERNAL_PERF_MERCHANT_RR                        id=6a631cf70bf96af0e1d133cc  unset externalReportType (MERCHANT_RR_BREAKDOWN_REPORT)
+  INTERNAL_PERF_PAGE_LEVEL                         id=6a62dd367b8ae2a62e20a1ff  unset externalReportType (PAGE_LEVEL_PERFORMANCE_REPORT)
+  INTERNAL_PERF_PROGRAM_SPEND                      id=6a62dfbb7b8ae2a62e20a20d  unset externalReportType (PROGRAM_SPEND_REPORT)
+  INTERNAL_PERF_RR_BY_DIMENSION_DISPLAY            id=6a6322180bf96af0e1d1341d  unset externalReportType (RR_BY_DIMENSION_DISPLAY_REPORT)
+  INTERNAL_PERF_RR_BY_DIMENSION_PLA                id=6a631d670bf96af0e1d133e2  unset externalReportType (RR_BY_DIMENSION_PLA_REPORT)
+  INTERNAL_PERF_RR_BY_PAGE_DISPLAY                 id=6a63222e0bf96af0e1d13437  unset externalReportType (RR_BY_PAGE_DISPLAY_REPORT)
+  INTERNAL_PERF_RR_BY_PAGE_PLA                     id=6a63221c0bf96af0e1d1342a  unset externalReportType (RR_BY_PAGE_PLA_REPORT)
+  INTERNAL_PERF_RR_DISPLAY_PAGE_TYPE               id=6a6322320bf96af0e1d13444  unset externalReportType (RR_DISPLAY_PAGE_TYPE_REPORT)
+  INTERNAL_PERF_RR_HOURLY                          id=6a6327f10bf96af0e1d13549  unset externalReportType (RR_HOURLY_REPORT)
+  INTERNAL_PERF_RR_HOURLY_AD_UNIT                  id=6a6328200bf96af0e1d13555  unset externalReportType (RR_HOURLY_AD_UNIT_REPORT)
+  INTERNAL_PERF_SEARCH_QUERY_PERF                  id=6a63259c0bf96af0e1d134f3  unset externalReportType (INTERNAL_SEARCH_QUERY_PERFORMANCE_REPORT)
+  INTERNAL_PERF_SEARCH_QUERY_RR_BUCKETS            id=6a6327060bf96af0e1d13530  unset externalReportType (SEARCH_QUERY_RR_BUCKETS_REPORT)
+  INTERNAL_PERF_SEARCH_QUERY_RR_DISPLAY            id=6a6327340bf96af0e1d1353d  unset externalReportType (SEARCH_QUERY_RR_DISPLAY_REPORT)
+  INTERNAL_PERF_SEARCH_QUERY_RR_DISPLAY_AD_UNIT    id=6a66cc34101fa8f0726dbd6f  unset externalReportType (SEARCH_QUERY_RR_DISPLAY_AD_UNIT_REPORT)
+  INTERNAL_PERF_SEARCH_QUERY_RR_PLA                id=6a6326d60bf96af0e1d13524  unset externalReportType (SEARCH_QUERY_RR_PLA_REPORT)
+  INTERNAL_PERF_SKU_CPC                            id=6a62e8327b8ae2a62e20a31c  unset externalReportType (SKU_CPC_PERFORMANCE_REPORT)
+  INTERNAL_PERF_SKU_CTR                            id=6a62ea5f7b8ae2a62e20a37f  unset externalReportType (SKU_CTR_PERFORMANCE_REPORT)
+  INTERNAL_PERF_SKU_ROAS                           id=6a62e5757b8ae2a62e20a294  unset externalReportType (SKU_ROAS_PERFORMANCE_REPORT)
+  INTERNAL_PERF_STORE_LEVEL_RR                     id=6a6328480bf96af0e1d13565  unset externalReportType (STORE_LEVEL_RR_REPORT)
+
+SKIPPED (4):
+  INTERNAL_PERF_BUDGET_CHANGES                     DENYLIST — infra-blocked, keeping
+  INTERNAL_PERF_BU_REQUESTS_DISPLAY                already de-listed
+  INTERNAL_PERF_CAMPAIGN_STATUS_CHANGES            DENYLIST — infra-blocked, keeping
+  INTERNAL_PERF_PRODUCT_SELECTION_CHANGES          DENYLIST — infra-blocked, keeping
+
+executing — 38 de-lists, one at a time
+  [ 1/38] INTERNAL_PERF_BU_REQUESTS_PLA                    200
+  [ 2/38] INTERNAL_PERF_CAMPAIGN_KW_NEGATIVE               200
+  [ 3/38] INTERNAL_PERF_CAMPAIGN_KW_TARGETED               200
+  [ 4/38] INTERNAL_PERF_CAMPAIGN_NETWORKS_BY_ID            200
+  [ 5/38] INTERNAL_PERF_CAMPAIGN_NETWORKS_VIA_CTD          200
+  [ 6/38] INTERNAL_PERF_CAMPAIGN_PERF_AGG                  200
+  [ 7/38] INTERNAL_PERF_CAMPAIGN_PERF_DAILY                200
+  [ 8/38] INTERNAL_PERF_CATEGORY_LEVEL                     200
+  [ 9/38] INTERNAL_PERF_CATEGORY_RR                        200
+  [10/38] INTERNAL_PERF_KEYWORD_SELLER                     200
+        … catalogue now 141 reports
+  [11/38] INTERNAL_PERF_KW_COMPETITION                     200
+  [12/38] INTERNAL_PERF_KW_PERF_IN_CAMPAIGNS               200
+  [13/38] INTERNAL_PERF_KW_REQUEST_VOLUME                  200
+  [14/38] INTERNAL_PERF_MERCHANT_BU                        200
+  [15/38] INTERNAL_PERF_MERCHANT_CATEGORY_CPC              200
+  [16/38] INTERNAL_PERF_MERCHANT_CPC                       200
+  [17/38] INTERNAL_PERF_MERCHANT_CTR                       200
+  [18/38] INTERNAL_PERF_MERCHANT_KEYWORD                   200
+  [19/38] INTERNAL_PERF_MERCHANT_ROAS                      200
+  [20/38] INTERNAL_PERF_MERCHANT_RR                        200
+        … catalogue now 131 reports
+  [21/38] INTERNAL_PERF_PAGE_LEVEL                         200
+  [22/38] INTERNAL_PERF_PROGRAM_SPEND                      200
+  [23/38] INTERNAL_PERF_RR_BY_DIMENSION_DISPLAY            200
+  [24/38] INTERNAL_PERF_RR_BY_DIMENSION_PLA                200
+  [25/38] INTERNAL_PERF_RR_BY_PAGE_DISPLAY                 200
+  [26/38] INTERNAL_PERF_RR_BY_PAGE_PLA                     200
+  [27/38] INTERNAL_PERF_RR_DISPLAY_PAGE_TYPE               200
+  [28/38] INTERNAL_PERF_RR_HOURLY                          200
+  [29/38] INTERNAL_PERF_RR_HOURLY_AD_UNIT                  200
+  [30/38] INTERNAL_PERF_SEARCH_QUERY_PERF                  200
+        … catalogue now 121 reports
+  [31/38] INTERNAL_PERF_SEARCH_QUERY_RR_BUCKETS            200
+  [32/38] INTERNAL_PERF_SEARCH_QUERY_RR_DISPLAY            200
+  [33/38] INTERNAL_PERF_SEARCH_QUERY_RR_DISPLAY_AD_UNIT    200
+  [34/38] INTERNAL_PERF_SEARCH_QUERY_RR_PLA                200
+  [35/38] INTERNAL_PERF_SKU_CPC                            200
+  [36/38] INTERNAL_PERF_SKU_CTR                            200
+  [37/38] INTERNAL_PERF_SKU_ROAS                           200
+  [38/38] INTERNAL_PERF_STORE_LEVEL_RR                     200
+        … catalogue now 113 reports
+
+done: 38 de-listed, 0 failed

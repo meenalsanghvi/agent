@@ -1,0 +1,15 @@
+{
+  "_comment": "Example only — copy the entries you need into .mcp.json and fill <reporting-mcp-host> + <HADES_TOKEN>. Requires the reporting-MCP endpoint deployed and our configs re-posted as INTERNAL_PERFORMANCE. See MCP_VERIFICATION.md.",
+  "mcpServers": {
+    "osmos-reporting-internal-performance": {
+      "type": "http",
+      "url": "https://<reporting-mcp-host>/osmosReportingMcp/internal/performance",
+      "headers": { "Authorization": "Bearer <HADES_TOKEN>" }
+    },
+    "osmos-reporting-beats-internal": {
+      "type": "http",
+      "url": "https://<reporting-mcp-host>/osmosReportingMcp/beatsInternal",
+      "headers": { "Authorization": "Bearer <HADES_TOKEN>" }
+    }
+  }
+}

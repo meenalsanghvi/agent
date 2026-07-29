@@ -1,0 +1,275 @@
+{
+  "reportType": "INTERNAL_PERF_CATEGORY_PERFORMANCE",
+  "externalReportType": "CATEGORY_PERFORMANCE_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:categories",
+    "report_group:cost_per_click",
+    "report_group:roas"
+  ],
+  "externalRequiredFilters": [],
+  "description": "PLA category-level (L1/L2/L3) PROGRAM and SITE aggregates for a marketplace over a period, optionally broken down by merchant. Group by category_l1/l2/l3 for the marketplace-wide category view, or add merchant_id for the merchant-vs-category comparison. Two category forms are exposed: category_l1/l2/l3 are display-normalised (null / blank / 'na' collapse to 'Unknown' at L1 and '-' below it), while category_l1_raw/l2_raw/l3_raw are the untouched column values -- use the raw form when joining back to another category-keyed result. Spend and revenue are in the source currency of the category facts table. program_revenue and program_gmv are the same aggregate under both of the names the retired reports used.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "category_l1": {
+      "key": "category_l1",
+      "selector": "CASE WHEN f.category_l1 IS NOT NULL AND f.category_l1 != '' AND LOWER(f.category_l1) != 'na' THEN f.category_l1 ELSE 'Unknown' END",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l1",
+      "description": "Top-level (L1) product category the spend/clicks/GMV were attributed to. NULL / empty / 'na' is normalized to 'Unknown'.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "category_l2": {
+      "key": "category_l2",
+      "selector": "CASE WHEN f.category_l2 IS NOT NULL AND f.category_l2 != '' AND LOWER(f.category_l2) != 'na' THEN f.category_l2 ELSE '-' END",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l2",
+      "description": "Second-level (L2) product category. NULL / empty / 'na' is normalized to '-'.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "category_l3": {
+      "key": "category_l3",
+      "selector": "CASE WHEN f.category_l3 IS NOT NULL AND f.category_l3 != '' AND LOWER(f.category_l3) != 'na' THEN f.category_l3 ELSE '-' END",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l3",
+      "description": "Third-level (L3) product category. NULL / empty / 'na' is normalized to '-'.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "category_l1_raw": {
+      "selector": "f.category_l1",
+      "type": "STRING",
+      "description": "Level-1 product category exactly as stored, with no null/blank normalisation applied.",
+      "key": "category_l1_raw",
+      "externalColumnName": "perf_category_l1_raw",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "category_l2_raw": {
+      "selector": "f.category_l2",
+      "type": "STRING",
+      "description": "Level-2 product category exactly as stored, with no null/blank normalisation applied.",
+      "key": "category_l2_raw",
+      "externalColumnName": "perf_category_l2_raw",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "category_l3_raw": {
+      "selector": "f.category_l3",
+      "type": "STRING",
+      "description": "Level-3 product category exactly as stored, with no null/blank normalisation applied.",
+      "key": "category_l3_raw",
+      "externalColumnName": "perf_category_l3_raw",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "merchant_id": {
+      "key": "merchant_id",
+      "selector": "f.merchant_id",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_id",
+      "description": "Merchant (seller) id (working id for internal analysis). Per-call filter: pass the analyzed merchant's seller_id (or a list of seller_ids) to scope the result to that merchant's per-category subtotal; omit it to get the full marketplace category aggregate. Resolve os_client_id -> seller_id upstream and pass the resolved seller_id(s) here.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    }
+  },
+  "metrics": {
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.pla_cost ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "PLA ad spend for this category (source table stored currency; not currency-converted).",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "impressions": {
+      "key": "impressions",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.pla_impressions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_impressions",
+      "description": "PLA ad impressions for this category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "clicks": {
+      "key": "clicks",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.pla_clicks ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_clicks",
+      "description": "PLA ad clicks for this category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "program_orders": {
+      "key": "program_orders",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_conversions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_orders",
+      "description": "PROGRAM (ad-attributed, per-click-timestamp) conversions / orders for this category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "program_revenue": {
+      "key": "program_revenue",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_sales ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_gmv",
+      "description": "PROGRAM (ad-attributed, per-click-timestamp) GMV / revenue / sales for this category. Used for roi = program_revenue / spend in the app layer.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "program_gmv": {
+      "key": "program_gmv",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_sales ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_gmv",
+      "description": "PROGRAM (ad-attributed, per-click-timestamp) GMV / sales for this category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "program_viewproducts": {
+      "key": "program_viewproducts",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_viewproduct ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_viewproducts",
+      "description": "PROGRAM (ad-attributed, per-click-timestamp) product views for this category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "program_add_to_carts": {
+      "key": "program_add_to_carts",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_add_to_cart ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_add_to_carts",
+      "description": "PROGRAM (ad-attributed, per-click-timestamp) add-to-carts for this category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "site_viewproducts": {
+      "key": "site_viewproducts",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.site_viewproducts ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_viewproducts",
+      "description": "SITE (whole-marketplace, not ad-attributed) product views for this category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "site_add_to_carts": {
+      "key": "site_add_to_carts",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.site_add2carts ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_add_to_carts",
+      "description": "SITE (whole-marketplace, not ad-attributed) add-to-carts for this category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "site_orders": {
+      "key": "site_orders",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.site_orders ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_orders",
+      "description": "SITE (whole-marketplace, not ad-attributed) orders for this category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "site_revenue": {
+      "key": "site_revenue",
+      "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.site_revenue ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_revenue",
+      "description": "SITE (whole-marketplace, not ad-attributed) revenue for this category (source table stored currency; not currency-converted).",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    },
+    "merchant_count": {
+      "key": "merchant_count",
+      "selector": "COUNT(DISTINCT CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.merchant_id END)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_merchant_count",
+      "description": "Distinct merchants that had activity in this category over the period (full category when unfiltered; the analyzed merchant(s) when a merchant_id filter is applied).",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:cost_per_click",
+        "report_group:roas"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.marketplace_category_level_performance_facts_v2` AS f WHERE f.agency_id = '__AGENCY_ID__' AND f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

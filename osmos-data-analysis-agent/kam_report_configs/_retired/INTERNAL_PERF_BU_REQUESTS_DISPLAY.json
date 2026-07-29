@@ -1,0 +1,63 @@
+{
+    "reportType": "INTERNAL_PERF_BU_REQUESTS_DISPLAY",
+    "externalReportType": "BU_REQUESTS_DISPLAY_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:bu"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Daily Display ad request and non-zero-response volume for a marketplace over a period, one row per day. Exposes date with requests (ad requests received) and responses (requests that returned at least one ad); the Python layer derives total_requests, total_responses, avg_response_percentage, and days_count.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "date": {
+            "key": "date",
+            "selector": "auf.date",
+            "type": "STRING",
+            "externalColumnName": "date",
+            "description": "The calendar day the Display ad requests were received (per-day row).",
+            "filterTags": [
+                "report_group:bu"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.requests ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Display ad requests received on this day.",
+            "filterTags": [
+                "report_group:bu"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.non_zero_responses ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "Display ad requests that returned at least one ad (non-zero responses) on this day.",
+            "filterTags": [
+                "report_group:bu"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_display_ads_ad_unit_facts` AS auf JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON auf.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND auf.page_type IS NOT NULL AND TRIM(auf.page_type) NOT IN ('', 'NA') AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

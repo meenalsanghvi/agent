@@ -1,0 +1,65 @@
+{
+  "reportType": "INTERNAL_PERF_BUDGET_DELIVERY_MODE",
+  "externalReportType": "BUDGET_DELIVERY_MODE_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:budget_pacings"
+  ],
+  "externalRequiredFilters": [
+    "perf_campaign_id"
+  ],
+  "description": "Budget delivery (pacing) mode lookup for one or more PLA campaigns: returns budget_delivery_mode (ACCELERATED vs STANDARD) per campaign_id (marketing_campaign_id) from marketing_campaign_dimensions. Point-in-time dimension lookup (no date range), keyed by a mandatory campaign_id filter; the Python layer buckets ids into accelerated/standard/not-found and computes the summary counts.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "campaign_id": {
+      "key": "campaign_id",
+      "selector": "mcd.marketing_campaign_id",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_id",
+      "description": "The PLA campaign id (marketing_campaign_id). Per-call filter: pass one or more ids to look up their budget delivery mode.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    },
+    "budget_delivery_mode": {
+      "key": "budget_delivery_mode",
+      "selector": "mcd.budget_delivery_mode",
+      "type": "STRING",
+      "externalColumnName": "perf_budget_delivery_mode",
+      "description": "The budget delivery (pacing) mode configured on the campaign: ACCELERATED (spend as fast as possible) vs STANDARD (spread evenly across the day).",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "description": "Constant 0 placeholder so the attribute-only dimension report satisfies the fetch requirement of at least one metric; carries no meaning.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd JOIN `prj-onlinesales-prod-01.reporting.clients` AS clients ON clients.client_id = mcd.client_id WHERE clients.agency_id = '__AGENCY_ID__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

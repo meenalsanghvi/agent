@@ -1,0 +1,73 @@
+{
+    "reportType": "INTERNAL_PERF_RR_DISPLAY_PAGE_TYPE",
+    "externalReportType": "RR_DISPLAY_PAGE_TYPE_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:rr"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Display ad response rate for a marketplace over a period, broken down by page type (SEARCH, CATEGORY, PRODUCT, HOME, ...). Returns raw ad requests, responses, and response rate (%) per page_type from the display filtered-level performance facts. Pick page_type to group by; it is also filterable. No spend / no currency conversion.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "page_type": {
+            "key": "page_type",
+            "selector": "r.page_type",
+            "type": "STRING",
+            "externalColumnName": "page_type",
+            "description": "The surface the display ad served on (SEARCH, CATEGORY, PRODUCT, HOME, ...).",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Display ad requests received for this page type.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.responses ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "Display ad requests that returned at least one ad (responses) for this page type.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "response_rate": {
+            "key": "response_rate",
+            "selector": "SAFE_DIVIDE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.responses ELSE 0 END) * 100, NULLIF(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0))",
+            "type": "FLOAT",
+            "externalColumnName": "response_rate",
+            "description": "Response rate (%) = responses / requests * 100 for this page type.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_display_ads_filtered_level_performance_facts` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND r.page_type IS NOT NULL AND TRIM(r.page_type) != '' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

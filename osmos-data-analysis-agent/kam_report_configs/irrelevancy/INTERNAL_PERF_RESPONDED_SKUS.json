@@ -1,0 +1,133 @@
+{
+  "reportType": "INTERNAL_PERF_RESPONDED_SKUS",
+  "externalReportType": "RESPONDED_SKUS_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:relevance",
+    "report_group:skus"
+  ],
+  "externalRequiredFilters": [],
+  "description": "SEARCH-page PLA SKUs responded/served for search queries on a marketplace over a period: for each search keyword, serving cache_type (relevancy algorithm), SKU id and product attributes (product name, brand, e_product_type category), returns currency-converted spend and impressions. Used to investigate keyword-to-SKU irrelevancy. Optionally filter by keyword (search query), campaign_id, or product_name.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "keyword": {
+      "key": "keyword",
+      "selector": "LOWER(TRIM(impr.search_query, '[\\\"],'))",
+      "type": "STRING",
+      "externalColumnName": "perf_keyword",
+      "description": "The normalised search query the shopper typed (lower-cased, stripped of bracket/quote/comma chars).",
+      "filterTags": [
+        "report_group:relevance",
+        "report_group:skus"
+      ]
+    },
+    "cache_type": {
+      "key": "cache_type",
+      "selector": "impr.cache_type",
+      "type": "STRING",
+      "externalColumnName": "perf_cache_type",
+      "description": "The OnlineSales relevancy algorithm / cache that served this SKU for the keyword (e.g. exact, broad, auto match).",
+      "filterTags": [
+        "report_group:relevance",
+        "report_group:skus"
+      ]
+    },
+    "sku_id": {
+      "key": "sku_id",
+      "selector": "impr.sku_id",
+      "type": "STRING",
+      "externalColumnName": "perf_sku_id",
+      "description": "Identifier of the SKU that was responded/served for the search query.",
+      "filterTags": [
+        "report_group:relevance",
+        "report_group:skus"
+      ]
+    },
+    "product_name": {
+      "key": "product_name",
+      "selector": "mpd.e_name",
+      "type": "STRING",
+      "externalColumnName": "perf_product_name",
+      "description": "Product name of the served SKU (from the marketplace product-dimensions table).",
+      "filterTags": [
+        "report_group:relevance",
+        "report_group:skus"
+      ]
+    },
+    "brand": {
+      "key": "brand",
+      "selector": "mpd.e_brand",
+      "type": "STRING",
+      "externalColumnName": "perf_brand",
+      "description": "Brand of the served SKU.",
+      "filterTags": [
+        "report_group:relevance",
+        "report_group:skus"
+      ]
+    },
+    "category": {
+      "key": "category",
+      "selector": "mpd.e_product_type",
+      "type": "STRING",
+      "externalColumnName": "perf_category",
+      "description": "Product category (e_product_type) of the served SKU.",
+      "filterTags": [
+        "report_group:relevance",
+        "report_group:skus"
+      ]
+    },
+    "campaign_id": {
+      "key": "campaign_id",
+      "selector": "impr.campaign_id",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_id",
+      "description": "Campaign that served the SKU. Optional per-call filter; not required to return rows.",
+      "filterTags": [
+        "report_group:relevance",
+        "report_group:skus"
+      ]
+    }
+  },
+  "metrics": {
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(impr.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN COALESCE(impr.bid, 0) * scc.conversion_factor ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "Ad spend on the served SKU for the keyword, converted to the marketplace currency (bid * conversion_factor).",
+      "filterTags": [
+        "report_group:relevance",
+        "report_group:skus"
+      ]
+    },
+    "impressions": {
+      "key": "impressions",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(impr.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND impr.unique_impressions > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_impressions",
+      "description": "Number of responses for this SKU/keyword that rendered at least one unique impression.",
+      "filterTags": [
+        "report_group:relevance",
+        "report_group:skus"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_response_to_impressions_mapping` AS impr JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.marketplace_client_id = impr.marketplace_client_id JOIN `prj-onlinesales-prod-01.reporting.oltp_merchandise_product_dimensions___SP_MARKETPLACE_CLIENT_ID__` AS mpd ON mpd.sku_id = impr.sku_id LEFT JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE mc.agency_id = '__AGENCY_ID__' AND mc.marketplace_client_id = '__SP_MARKETPLACE_CLIENT_ID__' AND DATE(TIMESTAMP(impr.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND impr.page_type = 'SEARCH' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

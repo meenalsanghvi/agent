@@ -1,0 +1,144 @@
+{
+    "reportType": "INTERNAL_PERF_KEYWORD_SELLER",
+    "externalReportType": "KEYWORD_SELLER_BREAKDOWN_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:keyword",
+        "report_group:ctr"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Per-(search_query x seller) impressions / clicks / spend / CTR for a marketplace over a period, plus an auto-vs-manual match-type impression split, from os_ads_search_query_performance_report (PLA search-query data). Grouped by search_query and seller (seller_id + merchant_name, with os_client_id). Dates are bucketed in the agency's local timezone via the __SP_TIMEZONE__ system placeholder. Filter by search_query, seller_id, or os_client_id to scope the breakdown.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "search_query": {
+            "key": "search_query",
+            "selector": "p.search_query",
+            "type": "STRING",
+            "externalColumnName": "search_query",
+            "description": "The search term the shopper typed that this ad served against.",
+            "filterTags": [
+                "report_group:keyword",
+                "report_group:ctr"
+            ]
+        },
+        "os_client_id": {
+            "key": "os_client_id",
+            "selector": "p.client_id",
+            "type": "STRING",
+            "externalColumnName": "os_client_id",
+            "description": "OnlineSales client id of the advertiser (working id for internal analysis).",
+            "filterTags": [
+                "report_group:keyword",
+                "report_group:ctr"
+            ]
+        },
+        "seller_id": {
+            "key": "seller_id",
+            "selector": "p.merchant_id",
+            "type": "STRING",
+            "externalColumnName": "seller_id",
+            "description": "Seller (merchant) id (working id for internal analysis).",
+            "filterTags": [
+                "report_group:keyword",
+                "report_group:ctr"
+            ]
+        },
+        "merchant_name": {
+            "key": "merchant_name",
+            "selector": "cl.alias",
+            "type": "STRING",
+            "externalColumnName": "merchant_name",
+            "description": "Human-readable seller (merchant) name.",
+            "filterTags": [
+                "report_group:keyword",
+                "report_group:ctr"
+            ]
+        }
+    },
+    "metrics": {
+        "impressions": {
+            "key": "impressions",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.impressions ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "impressions",
+            "description": "Ad impressions for this search_query x seller pair.",
+            "filterTags": [
+                "report_group:keyword",
+                "report_group:ctr"
+            ]
+        },
+        "clicks": {
+            "key": "clicks",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.clicks ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "clicks",
+            "description": "Ad clicks for this search_query x seller pair.",
+            "filterTags": [
+                "report_group:keyword",
+                "report_group:ctr"
+            ]
+        },
+        "spend": {
+            "key": "spend",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.cost ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "spend",
+            "description": "Ad spend for this search_query x seller pair, in the currency stored on the search-query report (p.cost).",
+            "filterTags": [
+                "report_group:keyword",
+                "report_group:ctr"
+            ]
+        },
+        "ctr": {
+            "key": "ctr",
+            "selector": "COALESCE(SAFE_DIVIDE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.clicks ELSE 0 END) * 100.0, NULLIF(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.impressions ELSE 0 END), 0)), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "ctr",
+            "description": "Click-through rate (%) = clicks / impressions * 100 for this search_query x seller pair.",
+            "filterTags": [
+                "report_group:keyword",
+                "report_group:ctr"
+            ]
+        },
+        "auto_impressions": {
+            "key": "auto_impressions",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type = 'AUTO' THEN p.impressions ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "auto_impressions",
+            "description": "Impressions served via AUTO (auto-targeted) match type for this search_query x seller pair.",
+            "filterTags": [
+                "report_group:keyword",
+                "report_group:ctr"
+            ]
+        },
+        "manual_impressions": {
+            "key": "manual_impressions",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type != 'AUTO' THEN p.impressions ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "manual_impressions",
+            "description": "Impressions served via non-AUTO (manual / broad / phrase / exact) match types for this search_query x seller pair.",
+            "filterTags": [
+                "report_group:keyword",
+                "report_group:ctr"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_search_query_performance_report` AS p JOIN `prj-onlinesales-prod-01.reporting.clients` AS cl ON cl.client_id = p.client_id JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON p.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

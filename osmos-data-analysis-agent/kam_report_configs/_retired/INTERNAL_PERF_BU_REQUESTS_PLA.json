@@ -1,0 +1,63 @@
+{
+    "reportType": "INTERNAL_PERF_BU_REQUESTS_PLA",
+    "externalReportType": "BU_REQUESTS_PLA_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:bu"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Daily PLA ad-request and non-zero-response volume for a marketplace over a period, one row per day. Exposes the date dimension and the raw requests and responses aggregates; response% is derived in the Python layer.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "date": {
+            "key": "date",
+            "selector": "pf.date",
+            "type": "STRING",
+            "externalColumnName": "date",
+            "description": "The calendar day the PLA ad requests were received (per-day grouping).",
+            "filterTags": [
+                "report_group:bu"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.requests ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "PLA ad requests received on this day.",
+            "filterTags": [
+                "report_group:bu"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.non_zero_responses ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "PLA ad requests that returned at least one ad (non-zero responses) on this day.",
+            "filterTags": [
+                "report_group:bu"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_page_name_performance_facts` AS pf JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON pf.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND pf.date >= '2022-07-11' AND pf.page_type IS NOT NULL AND pf.page_type NOT IN ('', 'NA') AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

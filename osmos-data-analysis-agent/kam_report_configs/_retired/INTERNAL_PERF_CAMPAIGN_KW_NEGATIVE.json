@@ -1,0 +1,80 @@
+{
+    "reportType": "INTERNAL_PERF_CAMPAIGN_KW_NEGATIVE",
+    "externalReportType": "CAMPAIGN_NEGATIVE_KEYWORDS_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:campaign",
+        "report_group:keyword"
+    ],
+    "externalRequiredFilters": [
+        "campaign_id"
+    ],
+    "description": "Negative (excluded) keywords configured on a SEARCH campaign for a marketplace: one row per negative keyword text, scoped to a given marketing campaign_id (optionally an advertiser os_client_id). A dimension/directory report (keyword text only, no measures) \u2014 the downstream layer derives the negative-keyword list and its count. Structural predicates keep only active negatives (is_negative=1, is_deleted=0). A campaign_id filter is required to select which campaign's exclusions to inspect.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "keyword": {
+            "key": "keyword",
+            "selector": "k.text",
+            "type": "STRING",
+            "externalColumnName": "keyword",
+            "description": "The negative (excluded) keyword text configured on the campaign.",
+            "filterTags": [
+                "report_group:campaign",
+                "report_group:keyword"
+            ]
+        },
+        "campaign_id": {
+            "key": "campaign_id",
+            "selector": "SAFE_CAST(k.marketing_campaign_id AS STRING)",
+            "type": "STRING",
+            "externalColumnName": "campaign_id",
+            "description": "Marketing campaign_id that owns the negative keyword. Mandatory filter: pass the marketing campaign_id whose exclusions to inspect.",
+            "filterTags": [
+                "report_group:campaign",
+                "report_group:keyword"
+            ]
+        },
+        "os_client_id": {
+            "key": "os_client_id",
+            "selector": "SAFE_CAST(k.client_id AS STRING)",
+            "type": "STRING",
+            "externalColumnName": "os_client_id",
+            "description": "Advertiser OnlineSales client_id owning the campaign (working id for internal analysis). Optional filter to further scope to one advertiser.",
+            "filterTags": [
+                "report_group:campaign",
+                "report_group:keyword"
+            ]
+        }
+    },
+    "metrics": {
+        "placeholder_metric": {
+            "key": "placeholder_metric",
+            "selector": "0",
+            "type": "FLOAT",
+            "externalColumnName": "placeholder_metric",
+            "description": "Constant-zero placeholder so this dimension (negative-keyword directory) report satisfies the engine's minimum-one-metric requirement; not a real measure.",
+            "filterTags": [
+                "report_group:campaign",
+                "report_group:keyword"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_db_campaign_level_keywords` AS k JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON SAFE_CAST(k.marketplace_client_id AS STRING) = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND k.is_negative = 1 AND k.is_deleted = 0 AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

@@ -1,0 +1,123 @@
+{
+    "reportType": "INTERNAL_PERF_SEARCH_QUERY_PERF",
+    "externalReportType": "INTERNAL_SEARCH_QUERY_PERFORMANCE_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:search_query"
+    ],
+    "externalRequiredFilters": [],
+    "description": "PLA search-query (what shoppers actually TYPED) performance for a marketplace over a period, from os_ads_search_query_performance_report: impressions, clicks, spend, CTR, and an AUTO-vs-manual match-type split of impressions and clicks. Grouped by search_query. Dates are bucketed in the agency's local timezone via the __SP_TIMEZONE__ system placeholder. Filter by search_query to scope to specific terms.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "search_query": {
+            "key": "search_query",
+            "selector": "p.search_query",
+            "type": "STRING",
+            "externalColumnName": "search_query",
+            "description": "The search term the shopper typed that these ads served against.",
+            "filterTags": [
+                "report_group:search_query"
+            ]
+        }
+    },
+    "metrics": {
+        "impressions": {
+            "key": "impressions",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.impressions ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "impressions",
+            "description": "Ad impressions for this search query.",
+            "filterTags": [
+                "report_group:search_query"
+            ]
+        },
+        "clicks": {
+            "key": "clicks",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.clicks ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "clicks",
+            "description": "Ad clicks for this search query.",
+            "filterTags": [
+                "report_group:search_query"
+            ]
+        },
+        "spend": {
+            "key": "spend",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.cost ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "spend",
+            "description": "Ad spend for this search query, in the currency stored on the search-query report (p.cost).",
+            "filterTags": [
+                "report_group:search_query"
+            ]
+        },
+        "ctr": {
+            "key": "ctr",
+            "selector": "COALESCE(SAFE_DIVIDE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.clicks ELSE 0 END) * 100.0, NULLIF(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.impressions ELSE 0 END), 0)), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "ctr",
+            "description": "Click-through rate (%) = clicks / impressions * 100 for this search query.",
+            "filterTags": [
+                "report_group:search_query"
+            ]
+        },
+        "auto_impressions": {
+            "key": "auto_impressions",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type = 'AUTO' THEN p.impressions ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "auto_impressions",
+            "description": "Impressions served via AUTO (auto-targeted) match type for this search query.",
+            "filterTags": [
+                "report_group:search_query"
+            ]
+        },
+        "auto_clicks": {
+            "key": "auto_clicks",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type = 'AUTO' THEN p.clicks ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "auto_clicks",
+            "description": "Clicks on ads served via AUTO (auto-targeted) match type for this search query.",
+            "filterTags": [
+                "report_group:search_query"
+            ]
+        },
+        "manual_impressions": {
+            "key": "manual_impressions",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type != 'AUTO' THEN p.impressions ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "manual_impressions",
+            "description": "Impressions served via non-AUTO (manual / broad / phrase / exact) match types for this search query.",
+            "filterTags": [
+                "report_group:search_query"
+            ]
+        },
+        "manual_clicks": {
+            "key": "manual_clicks",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type != 'AUTO' THEN p.clicks ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "manual_clicks",
+            "description": "Clicks on ads served via non-AUTO (manual / broad / phrase / exact) match types for this search query.",
+            "filterTags": [
+                "report_group:search_query"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_search_query_performance_report` AS p JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON p.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

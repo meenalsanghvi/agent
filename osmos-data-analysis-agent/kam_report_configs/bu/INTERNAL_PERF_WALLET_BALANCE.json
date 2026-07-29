@@ -1,0 +1,100 @@
+{
+  "reportType": "INTERNAL_PERF_WALLET_BALANCE",
+  "externalReportType": "WALLET_BALANCE_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:budget_utilisation",
+    "report_group:merchant_breakdowns"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Point-in-time per-merchant wallet balance for a marketplace (no date range), one row per merchant. Dimensions: os_client_id, merchant_id, merchant_name. Returns the raw remaining_budget_amount_usd (USD) plus the marketplace conversion_factor (USD->marketplace currency); the Python layer computes remaining_balance = (usd * factor) when usd >= 0.01 else 0. Not aggregated, so it carries a placeholder metric.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "os_client_id": {
+      "key": "os_client_id",
+      "selector": "clients.client_id",
+      "type": "STRING",
+      "externalColumnName": "perf_os_client_id",
+      "description": "OnlineSales client id of the merchant.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:merchant_breakdowns"
+      ]
+    },
+    "merchant_id": {
+      "key": "merchant_id",
+      "selector": "clients.seller_id",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_id",
+      "description": "Marketplace seller id of the merchant.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:merchant_breakdowns"
+      ]
+    },
+    "merchant_name": {
+      "key": "merchant_name",
+      "selector": "clients.alias",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_name",
+      "description": "Human-readable merchant name (client alias).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:merchant_breakdowns"
+      ]
+    },
+    "remaining_budget_amount_usd": {
+      "key": "remaining_budget_amount_usd",
+      "selector": "clients.remaining_budget_amount_usd",
+      "type": "FLOAT",
+      "externalColumnName": "perf_remaining_budget_amount_usd",
+      "description": "Raw remaining wallet budget in USD (before currency conversion). The Python layer multiplies this by conversion_factor with a >=0.01 floor to get the balance in marketplace currency.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:merchant_breakdowns"
+      ]
+    },
+    "conversion_factor": {
+      "key": "conversion_factor",
+      "selector": "scc.conversion_factor",
+      "type": "FLOAT",
+      "externalColumnName": "perf_conversion_factor",
+      "description": "USD -> marketplace-currency conversion factor from static_currency_conversion. Multiply remaining_budget_amount_usd by this to get the wallet balance in marketplace currency.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:merchant_breakdowns"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "description": "Constant 0. Row-level passthrough report with no aggregated metric; KAM requires at least one metric to fetch.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:merchant_breakdowns"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.clients` AS clients JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON clients.agency_id = mc.agency_id JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE clients.agency_id = '__AGENCY_ID__' AND clients.seller_id IS NOT NULL AND clients.seller_id != '' AND mc.marketplace_client_id != clients.client_id AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

@@ -1,0 +1,72 @@
+{
+  "reportType": "INTERNAL_PERF_CTR_OVERALL",
+  "externalReportType": "CTR_OVERALL_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:click_through"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Marketplace-level CTR for a single period from monetize_merchant_facts: total ad clicks, impressions, click-through rate (clicks*100/impressions), and marketplace-currency spend, as one ungrouped row for the whole marketplace. Optionally scoped to specific merchants via a merchant filter.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {},
+  "metrics": {
+    "clicks": {
+      "key": "clicks",
+      "selector": "COALESCE(SUM(CASE WHEN mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN mmf.clicks ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_clicks",
+      "description": "Total ad clicks for the marketplace over the period.",
+      "filterTags": [
+        "report_group:click_through"
+      ]
+    },
+    "impressions": {
+      "key": "impressions",
+      "selector": "COALESCE(SUM(CASE WHEN mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN mmf.impressions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_impressions",
+      "description": "Total ad impressions for the marketplace over the period.",
+      "filterTags": [
+        "report_group:click_through"
+      ]
+    },
+    "ctr": {
+      "key": "ctr",
+      "selector": "COALESCE(SAFE_DIVIDE(SUM(CASE WHEN mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN mmf.clicks ELSE 0 END) * 100, SUM(CASE WHEN mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN mmf.impressions ELSE 0 END)), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_ctr",
+      "description": "Click-through rate = clicks * 100 / impressions for the marketplace over the period (0 when impressions = 0).",
+      "filterTags": [
+        "report_group:click_through"
+      ]
+    },
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(SUM(CASE WHEN mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN mmf.cost ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "Total ad spend for the marketplace over the period, in the marketplace currency.",
+      "filterTags": [
+        "report_group:click_through"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __METRICS__ FROM `prj-onlinesales-prod-01.reporting.monetize_merchant_facts` AS mmf WHERE mmf.agency_id = '__AGENCY_ID__' AND mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

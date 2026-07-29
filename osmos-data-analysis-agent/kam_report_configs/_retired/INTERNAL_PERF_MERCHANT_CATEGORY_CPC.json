@@ -1,0 +1,144 @@
+{
+    "reportType": "INTERNAL_PERF_MERCHANT_CATEGORY_CPC",
+    "externalReportType": "MERCHANT_CATEGORY_CPC_COMPARISON_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:cpc",
+        "report_group:category"
+    ],
+    "externalRequiredFilters": [],
+    "description": "PLA category-level (category_l1 / category_l2 / category_l3) performance for a marketplace over ONE period: PLA spend, clicks, program (ad-attributed, per-click-timestamp) GMV, orders and product-views, plus the distinct merchant count, grouped by category hierarchy. Left unfiltered it returns the marketplace category aggregate; add a merchant_id filter (the analyzed seller_id, or list of seller_ids) to get that merchant's per-category subtotal for the same categories. Compare the merchant subtotal call vs the unfiltered aggregate to derive category vs merchant CPC / ROI / GMV-share. Called once per period; run current + baseline for a comparison.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "category_l1": {
+            "key": "category_l1",
+            "selector": "f.category_l1",
+            "type": "STRING",
+            "externalColumnName": "category_l1",
+            "description": "Top-level (L1) product category the spend/clicks/GMV were attributed to.",
+            "filterTags": [
+                "report_group:cpc",
+                "report_group:category"
+            ]
+        },
+        "category_l2": {
+            "key": "category_l2",
+            "selector": "f.category_l2",
+            "type": "STRING",
+            "externalColumnName": "category_l2",
+            "description": "Second-level (L2) product category.",
+            "filterTags": [
+                "report_group:cpc",
+                "report_group:category"
+            ]
+        },
+        "category_l3": {
+            "key": "category_l3",
+            "selector": "f.category_l3",
+            "type": "STRING",
+            "externalColumnName": "category_l3",
+            "description": "Third-level (L3) product category.",
+            "filterTags": [
+                "report_group:cpc",
+                "report_group:category"
+            ]
+        },
+        "merchant_id": {
+            "key": "merchant_id",
+            "selector": "f.merchant_id",
+            "type": "STRING",
+            "externalColumnName": "merchant_id",
+            "description": "Merchant (seller) id (working id for internal analysis). Per-call filter: pass the analyzed merchant's seller_id (or a list of seller_ids) to scope the result to that merchant's per-category subtotal; omit it to get the full marketplace category aggregate. Resolve os_client_id -> seller_id upstream and pass the resolved seller_id(s) here.",
+            "filterTags": [
+                "report_group:cpc",
+                "report_group:category"
+            ]
+        }
+    },
+    "metrics": {
+        "spend": {
+            "key": "spend",
+            "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.pla_cost ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "spend",
+            "description": "PLA ad spend for this category (source table stored currency; not currency-converted).",
+            "filterTags": [
+                "report_group:cpc",
+                "report_group:category"
+            ]
+        },
+        "clicks": {
+            "key": "clicks",
+            "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.pla_clicks ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "clicks",
+            "description": "PLA ad clicks for this category.",
+            "filterTags": [
+                "report_group:cpc",
+                "report_group:category"
+            ]
+        },
+        "program_gmv": {
+            "key": "program_gmv",
+            "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_sales ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "program_gmv",
+            "description": "PROGRAM (ad-attributed, per-click-timestamp) GMV / sales for this category.",
+            "filterTags": [
+                "report_group:cpc",
+                "report_group:category"
+            ]
+        },
+        "program_orders": {
+            "key": "program_orders",
+            "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_conversions ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "program_orders",
+            "description": "PROGRAM (ad-attributed, per-click-timestamp) conversions / orders for this category.",
+            "filterTags": [
+                "report_group:cpc",
+                "report_group:category"
+            ]
+        },
+        "program_viewproducts": {
+            "key": "program_viewproducts",
+            "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_viewproduct ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "program_viewproducts",
+            "description": "PROGRAM (ad-attributed, per-click-timestamp) product views for this category (used for merchant CVR = orders / views).",
+            "filterTags": [
+                "report_group:cpc",
+                "report_group:category"
+            ]
+        },
+        "merchant_count": {
+            "key": "merchant_count",
+            "selector": "COUNT(DISTINCT CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.merchant_id END)",
+            "type": "FLOAT",
+            "externalColumnName": "merchant_count",
+            "description": "Distinct merchants that had activity in this category over the period (full category when unfiltered; the analyzed merchant(s) when a merchant_id filter is applied).",
+            "filterTags": [
+                "report_group:cpc",
+                "report_group:category"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.marketplace_category_level_performance_facts_v2` AS f WHERE f.agency_id = '__AGENCY_ID__' AND f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

@@ -1,0 +1,93 @@
+{
+    "reportType": "INTERNAL_PERF_PAGE_LEVEL",
+    "externalReportType": "PAGE_LEVEL_PERFORMANCE_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:page_performance"
+    ],
+    "externalRequiredFilters": [],
+    "description": "PLA page-type performance for a marketplace over a period: ad requests, non-zero responses, impressions, clicks, and currency-converted spend, broken down by page type (SEARCH / CATEGORY / PRODUCT / HOME / ...).",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "page_type": {
+            "key": "page_type",
+            "selector": "pf.page_type",
+            "type": "STRING",
+            "externalColumnName": "page_type",
+            "description": "The surface the ad served on (SEARCH, CATEGORY, PRODUCT, HOME, ...).",
+            "filterTags": [
+                "report_group:page_performance"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.requests ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Ad requests received on this page type.",
+            "filterTags": [
+                "report_group:page_performance"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.non_zero_responses ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "Requests that returned at least one ad (non-zero responses).",
+            "filterTags": [
+                "report_group:page_performance"
+            ]
+        },
+        "impressions": {
+            "key": "impressions",
+            "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.impressions ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "impressions",
+            "description": "Ad impressions served on this page type.",
+            "filterTags": [
+                "report_group:page_performance"
+            ]
+        },
+        "clicks": {
+            "key": "clicks",
+            "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.clicks ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "clicks",
+            "description": "Ad clicks on this page type.",
+            "filterTags": [
+                "report_group:page_performance"
+            ]
+        },
+        "spend": {
+            "key": "spend",
+            "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.cost_usd * scc.conversion_factor ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "spend",
+            "description": "Ad spend on this page type, converted to the marketplace currency.",
+            "filterTags": [
+                "report_group:page_performance"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_page_name_performance_facts` AS pf JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON pf.marketplace_client_id = mc.marketplace_client_id LEFT JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE mc.agency_id = '__AGENCY_ID__' AND pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND pf.page_type IS NOT NULL AND pf.page_type NOT IN ('', 'NA') AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

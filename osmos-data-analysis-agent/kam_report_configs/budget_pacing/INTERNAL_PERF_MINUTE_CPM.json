@@ -1,0 +1,83 @@
+{
+  "reportType": "INTERNAL_PERF_MINUTE_CPM",
+  "externalReportType": "MINUTE_LEVEL_CPM_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:budget_pacings"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Per-minute impressions and currency-converted spend for CPM-strategy PLA campaigns on a single day, grouped by marketing_campaign_group_id and by minute-of-day (hour 0-23 + minute 0-59), timezone-aware in the marketplace's local timezone. Scope with start_date = end_date to the target day and filter marketing_campaign_group_id to the CPM campaign groups of interest. The Python layer sums total impressions/spend and derives per-minute pacing curves.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "marketing_campaign_group_id": {
+      "key": "marketing_campaign_group_id",
+      "selector": "SAFE_CAST(t.marketing_campaign_group_id AS STRING)",
+      "type": "STRING",
+      "externalColumnName": "perf_marketing_campaign_group_id",
+      "description": "The marketing campaign group the impressions/spend are attributed to (from campaign_tagging_data). Filter this to the CPM-strategy campaign groups you want to inspect. SAFE_CAST to STRING for stable id matching.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    },
+    "hour": {
+      "key": "hour",
+      "selector": "EXTRACT(HOUR FROM CAST(DATETIME(TIMESTAMP(i.response_timestamp_utc), '__SP_TIMEZONE__') AS DATETIME))",
+      "type": "FLOAT",
+      "externalColumnName": "perf_hour",
+      "description": "Hour-of-day (0-23) in the marketplace's local timezone that the impression/spend occurred, derived from response_timestamp_utc.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    },
+    "minute": {
+      "key": "minute",
+      "selector": "EXTRACT(MINUTE FROM CAST(DATETIME(TIMESTAMP(i.response_timestamp_utc), '__SP_TIMEZONE__') AS DATETIME))",
+      "type": "FLOAT",
+      "externalColumnName": "perf_minute",
+      "description": "Minute-of-hour (0-59) in the marketplace's local timezone; combine with hour for per-minute granularity.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    }
+  },
+  "metrics": {
+    "impressions": {
+      "key": "impressions",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(i.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN i.unique_impressions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_impressions",
+      "description": "Unique impressions served in this minute for this campaign group.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    },
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(i.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN COALESCE(i.bid, 0) * scc.conversion_factor ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "Spend in this minute (bid), converted from USD to the marketplace currency via static_currency_conversion.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_response_to_impressions_mapping` AS i INNER JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS t ON i.campaign_id = t.campaign_id JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON i.marketplace_client_id = mc.marketplace_client_id LEFT JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE mc.agency_id = '__AGENCY_ID__' AND DATE(TIMESTAMP(i.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

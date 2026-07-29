@@ -1,0 +1,111 @@
+{
+    "reportType": "INTERNAL_PERF_CATEGORY_RR",
+    "externalReportType": "CATEGORY_RESPONSE_RATES_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:category",
+        "report_group:rr"
+    ],
+    "externalRequiredFilters": [],
+    "description": "PLA category-level response rate for a marketplace over a period: ad requests, non-zero responses, and response rate (%), grouped by page type and category hierarchy (category_l1 / category_l2 / category_l3). Defaults to non-search pages; page_type and category levels are filterable. No spend / no currency conversion.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "page_type": {
+            "key": "page_type",
+            "selector": "r.page_type",
+            "type": "STRING",
+            "externalColumnName": "page_type",
+            "description": "The surface the ad served on (CATEGORY, PRODUCT, HOME, SEARCH, ...). Defaults to non-search pages; filter to a specific page type as needed.",
+            "filterTags": [
+                "report_group:category",
+                "report_group:rr"
+            ]
+        },
+        "category_l1": {
+            "key": "category_l1",
+            "selector": "r.category_l1",
+            "type": "STRING",
+            "externalColumnName": "category_l1",
+            "description": "Top-level (L1) product category the requests/responses were attributed to.",
+            "filterTags": [
+                "report_group:category",
+                "report_group:rr"
+            ]
+        },
+        "category_l2": {
+            "key": "category_l2",
+            "selector": "r.category_l2",
+            "type": "STRING",
+            "externalColumnName": "category_l2",
+            "description": "Second-level (L2) product category.",
+            "filterTags": [
+                "report_group:category",
+                "report_group:rr"
+            ]
+        },
+        "category_l3": {
+            "key": "category_l3",
+            "selector": "r.category_l3",
+            "type": "STRING",
+            "externalColumnName": "category_l3",
+            "description": "Third-level (L3) product category.",
+            "filterTags": [
+                "report_group:category",
+                "report_group:rr"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Ad requests received for this page type + category.",
+            "filterTags": [
+                "report_group:category",
+                "report_group:rr"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.non_zero_responses ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "Requests that returned at least one ad (non-zero responses) for this page type + category.",
+            "filterTags": [
+                "report_group:category",
+                "report_group:rr"
+            ]
+        },
+        "response_rate": {
+            "key": "response_rate",
+            "selector": "SAFE_DIVIDE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.non_zero_responses ELSE 0 END) * 100, NULLIF(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0))",
+            "type": "FLOAT",
+            "externalColumnName": "response_rate",
+            "description": "Response rate (%) = non-zero responses / requests * 100 for this page type + category.",
+            "filterTags": [
+                "report_group:category",
+                "report_group:rr"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_filtered_level_report` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND r.category_l1 IS NOT NULL AND TRIM(r.category_l1) != '' AND r.page_type IS NOT NULL AND r.page_type NOT IN ('', 'NA') AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

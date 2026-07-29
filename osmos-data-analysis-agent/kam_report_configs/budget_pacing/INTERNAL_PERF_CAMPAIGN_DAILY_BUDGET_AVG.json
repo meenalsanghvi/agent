@@ -1,0 +1,65 @@
+{
+  "reportType": "INTERNAL_PERF_CAMPAIGN_DAILY_BUDGET_AVG",
+  "externalReportType": "CAMPAIGN_DAILY_BUDGET_AVG_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:budget_pacings"
+  ],
+  "externalRequiredFilters": [
+    "perf_campaign_id"
+  ],
+  "description": "Derived average daily budget for a single PLA campaign on a specific date, sourced from os_ads_campaign_avg_daily_budget_projections (only meaningful when the marketplace has avgDailyBudgetEnabled). One row per campaign_id + derived_daily_budget for the requested date, in marketplace currency. The table's date is UTC, so the local __START_DATE_1__ is converted to UTC via __SP_TIMEZONE__. Required per-call filter: campaign_id. The Python layer reads derived_daily_budget from the first row and rounds it.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "campaign_id": {
+      "key": "campaign_id",
+      "selector": "SAFE_CAST(p.marketing_campaign_id AS STRING)",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_id",
+      "description": "The PLA marketing campaign id whose derived daily budget is being looked up. Required per-call filter.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    },
+    "derived_daily_budget": {
+      "key": "derived_daily_budget",
+      "selector": "p.derived_daily_budget",
+      "type": "FLOAT",
+      "externalColumnName": "perf_derived_daily_budget",
+      "description": "Projected/derived daily budget for the campaign on the requested date, in marketplace currency. Non-additive level (a budget, not a summable measure); exposed as an attribute passthrough.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "description": "Constant 0. Row-level passthrough report with no aggregated metric; KAM requires at least one metric to fetch.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_campaign_avg_daily_budget_projections` AS p JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON SAFE_CAST(p.marketplace_client_id AS STRING) = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND p.date = DATETIME(TIMESTAMP('__START_DATE_1__', '__SP_TIMEZONE__'), 'UTC') AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

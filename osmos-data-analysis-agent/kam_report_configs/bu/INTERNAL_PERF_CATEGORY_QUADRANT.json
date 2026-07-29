@@ -1,0 +1,155 @@
+{
+  "reportType": "INTERNAL_PERF_CATEGORY_QUADRANT",
+  "externalReportType": "CATEGORY_QUADRANT_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:budget_utilisation",
+    "report_group:categories"
+  ],
+  "externalRequiredFilters": [],
+  "description": "PLA category-level (L1/L2/L3) quadrant for a marketplace over ONE period, from the daily category quadrant fact: per-category requests, response rate (%), currency-converted spend and daily budget, budget-utilisation (%), plus the distinct campaign and merchant counts active in the category. Grouped by the category hierarchy (category_l1 / category_l2 / category_l3). category_level ('category_l1' | 'category_l2' | 'category_l3') selects the granularity of the quadrant rows and MUST be paired with the matching group-by level: filter category_level='category_l1' and request category_l1; 'category_l2' with category_l1+category_l2; 'category_l3' with all three. Only categories with >5000 requests over the period are returned. Called once per period; run current + baseline to compare.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "category_level": {
+      "key": "category_level",
+      "selector": "q.category_level",
+      "type": "STRING",
+      "externalColumnName": "perf_category_level",
+      "description": "Granularity of the quadrant rows: 'category_l1', 'category_l2' or 'category_l3'. Per-call filter \u2014 set it to match the category level you group by (l1 -> group category_l1; l2 -> category_l1+category_l2; l3 -> all three).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:categories"
+      ]
+    },
+    "category_l1": {
+      "key": "category_l1",
+      "selector": "q.category_l1",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l1",
+      "description": "Top-level (L1) product category the quadrant requests/spend were attributed to.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:categories"
+      ]
+    },
+    "category_l2": {
+      "key": "category_l2",
+      "selector": "q.category_l2",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l2",
+      "description": "Second-level (L2) product category ('na' at category_l1 granularity).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:categories"
+      ]
+    },
+    "category_l3": {
+      "key": "category_l3",
+      "selector": "q.category_l3",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l3",
+      "description": "Third-level (L3) product category ('na' at category_l1 / category_l2 granularity).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:categories"
+      ]
+    }
+  },
+  "metrics": {
+    "requests": {
+      "key": "requests",
+      "selector": "ROUND(AVG(q.request_count), 2)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_requests",
+      "description": "Ad requests received for this category over the period.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:categories"
+      ]
+    },
+    "response_rate": {
+      "key": "response_rate",
+      "selector": "CASE WHEN ROUND(AVG(q.response_percentage), 2) > 100 THEN 100 ELSE ROUND(AVG(q.response_percentage), 2) END",
+      "type": "FLOAT",
+      "externalColumnName": "perf_response_rate",
+      "description": "Response rate (%) = non-zero responses / requests * 100 for this category, capped at 100.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:categories"
+      ]
+    },
+    "spend": {
+      "key": "spend",
+      "selector": "ROUND(AVG(q.cost), 2)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "Ad spend for this category over the period, converted to the marketplace currency.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:categories"
+      ]
+    },
+    "campaign_group_daily_budget": {
+      "key": "campaign_group_daily_budget",
+      "selector": "CASE WHEN AVG(q.daily_budget) > AVG(q.cost) THEN ROUND(AVG(q.daily_budget), 2) ELSE ROUND(AVG(q.cost), 2) END",
+      "type": "FLOAT",
+      "externalColumnName": "perf_campaign_group_daily_budget",
+      "description": "Daily budget attributed to this category (converted to marketplace currency), floored to spend when budget < spend.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:categories"
+      ]
+    },
+    "budget_utilisation_perc": {
+      "key": "budget_utilisation_perc",
+      "selector": "CASE WHEN AVG(q.daily_budget) < AVG(q.cost) OR ROUND(AVG(q.budget_utilisation_perc), 2) > 100 THEN 100 ELSE ROUND(AVG(q.budget_utilisation_perc), 2) END",
+      "type": "FLOAT",
+      "externalColumnName": "perf_budget_utilisation_perc",
+      "description": "Budget utilisation (%) = spend / budget * 100 for this category, capped at 100.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:categories"
+      ]
+    },
+    "uniq_campaigns_count": {
+      "key": "uniq_campaigns_count",
+      "selector": "COUNT(DISTINCT s.campaign_id)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_uniq_campaigns_count",
+      "description": "Distinct PLA campaigns that had product/spend activity in this category over the period.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:categories"
+      ]
+    },
+    "uniq_merchant_count": {
+      "key": "uniq_merchant_count",
+      "selector": "COUNT(DISTINCT s.merchant_id)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_uniq_merchant_count",
+      "description": "Distinct merchants that had product/spend activity in this category over the period.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:categories"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM (SELECT qd.category_level, qd.category_l1, qd.category_l2, qd.category_l3, SUM(qd.requests) AS request_count, SUM(qd.responses) AS response_count, CASE WHEN SUM(qd.responses) > 0 THEN SUM(qd.responses) * 100.0 / SUM(qd.requests) ELSE 0 END AS response_percentage, SUM(qd.cost_usd * scc.conversion_factor) AS cost, SUM(qd.calculated_budget_usd * scc.conversion_factor) AS daily_budget, CASE WHEN SUM(qd.calculated_budget_usd) > 0 THEN SUM(qd.cost_usd) * 100.0 / SUM(qd.calculated_budget_usd) ELSE 0 END AS budget_utilisation_perc FROM `prj-onlinesales-prod-01.reporting.os_product_ads_daily_category_quadrant_report_pla` AS qd INNER JOIN `prj-onlinesales-prod-01.reporting.agencies` AS a ON a.marketplace_client_id = qd.marketplace_client_id AND a.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = a.currency WHERE qd.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND qd.category_l1 IS NOT NULL AND qd.category_l1 <> 'na' GROUP BY 1, 2, 3, 4 HAVING SUM(qd.requests) > 5000) AS q LEFT JOIN (SELECT CASE WHEN cr.category_l1 IS NULL OR cr.category_l1 = '' THEN 'na' ELSE cr.category_l1 END AS category_l1, CASE WHEN cr.category_l2 IS NULL OR cr.category_l2 = '' THEN 'na' ELSE cr.category_l2 END AS category_l2, CASE WHEN cr.category_l3 IS NULL OR cr.category_l3 = '' THEN 'na' ELSE cr.category_l3 END AS category_l3, cr.merchant_id, cr.marketing_campaign_id AS campaign_id, SUM(cr.cost) AS spend, SUM(cr.product_count) AS product_count FROM `prj-onlinesales-prod-01.reporting.os_product_ads_campaign_category_report_pla` AS cr CROSS JOIN `prj-onlinesales-prod-01.reporting.agencies` AS a2 WHERE a2.marketplace_client_id = cr.marketplace_client_id AND a2.agency_id = '__AGENCY_ID__' AND cr.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' GROUP BY 1, 2, 3, 4, 5 HAVING SUM(cr.product_count) > 0 OR SUM(cr.cost) > 0) AS s ON LOWER(q.category_l1) = LOWER(s.category_l1) AND (q.category_l2 IS NULL OR q.category_l2 = 'na' OR LOWER(q.category_l2) = LOWER(s.category_l2)) AND (q.category_l3 IS NULL OR q.category_l3 = 'na' OR LOWER(q.category_l3) = LOWER(s.category_l3)) WHERE q.category_l1 IS NOT NULL AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

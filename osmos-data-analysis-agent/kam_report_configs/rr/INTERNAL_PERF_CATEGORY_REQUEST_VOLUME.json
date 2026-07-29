@@ -1,0 +1,78 @@
+{
+  "reportType": "INTERNAL_PERF_CATEGORY_REQUEST_VOLUME",
+  "externalReportType": "CATEGORY_REQUEST_VOLUME_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:categories",
+    "report_group:response_rate"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Raw request volume (COUNT of rid) by category (L1/L2/L3) from the region-specific raw request log for one period.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS_EXTERNAL_DATASET"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "category_l1": {
+      "key": "category_l1",
+      "selector": "r.f_cat1",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l1",
+      "description": "Top-level (L1) category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:response_rate"
+      ]
+    },
+    "category_l2": {
+      "key": "category_l2",
+      "selector": "r.f_cat2",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l2",
+      "description": "Second-level (L2) category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:response_rate"
+      ]
+    },
+    "category_l3": {
+      "key": "category_l3",
+      "selector": "r.f_cat3",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l3",
+      "description": "Third-level (L3) category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:response_rate"
+      ]
+    }
+  },
+  "metrics": {
+    "request_volume": {
+      "key": "request_volume",
+      "selector": "COALESCE(COUNT(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.rid END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_request_volume",
+      "description": "Raw request-log row count (rid) for this category.",
+      "filterTags": [
+        "report_group:categories",
+        "report_group:response_rate"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 15,
+    "maxDataFetchDaysDuration": 15
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting__SP_REPORTING_DB_REGION__.os_product_ads_request_report` AS r WHERE r.mcid = '__SP_MARKETPLACE_CLIENT_ID__' AND DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND r.f_cat1 IS NOT NULL AND TRIM(r.f_cat1) != '' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

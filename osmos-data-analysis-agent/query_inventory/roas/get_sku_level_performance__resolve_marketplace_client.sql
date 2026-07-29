@@ -1,0 +1,21 @@
+-- =====================================================================
+-- id:                       roas.get_sku_level_performance.resolve_marketplace_client
+-- source:                   tools/roi_analysis_tools.py:712  (fn get_sku_level_performance)
+-- agent:                    roas
+-- description:              Resolve the marketplace_client_id for an agency (the marketplace's own client record). Used to scope/join the organic SKU facts in the main SKU query.
+-- proposed_kam_report_type: TBD
+-- parameters:                                          (f-string {name} -> KAM __TOKEN__)
+--   {agency_id}   str    -> __AGENCY_ID__
+-- injected_fragments:                                  (none)
+-- tables:
+--   reporting.agencies
+-- region_specific:          false
+-- timezone_aware:           false
+-- comparison_mode:          single call
+-- python_derived_metrics:   (computed in app layer AFTER KAM returns raw aggregates)
+--   mkt_client_id = str(df.iloc[0]["marketplace_client_id"]) if not empty else None
+--                   (feeds {mkt_client_id} -> __MARKETPLACE_CLIENT_ID__ into the org_join fragment
+--                    of get_sku_level_performance; when None the organic LEFT JOIN is omitted)
+-- =====================================================================
+
+SELECT marketplace_client_id FROM `prj-onlinesales-prod-01.reporting.agencies` WHERE agency_id = '{agency_id}'

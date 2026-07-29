@@ -1,0 +1,3 @@
+{
+  "_comment": "The tool-call announcement hook now ships with the plugin (.claude/hooks/hooks.json, wired via .claude-plugin/plugin.json). It is deliberately NOT registered here — registering it in both places would announce every tool call twice when the plugin is installed and you are also working inside this repo. See ORG_INSTALL.md."
+}

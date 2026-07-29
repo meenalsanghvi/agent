@@ -1,0 +1,103 @@
+{
+  "reportType": "INTERNAL_PERF_MARKETPLACE_DIRECTORY",
+  "externalReportType": "MARKETPLACE_DIRECTORY_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:intake"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Intake directory of every ACTIVE 'monetize' marketplace: one row per marketplace exposing marketplace_name plus the working context ids (agency_id, marketplace_client_id) and settings (region, currency, timezone). CROSS-TENANT (no agency scope) so the app can fuzzy-match a user's typed marketplace name against these names and then use the matched row's ids/region/currency/timezone as session context. No real metrics \u2014 a placeholder_metric is included to satisfy the fetch layer.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 3600
+  },
+  "attributes": {
+    "marketplace_name": {
+      "key": "marketplace_name",
+      "selector": "a.name",
+      "type": "STRING",
+      "externalColumnName": "perf_marketplace_name",
+      "description": "Human-readable marketplace/agency name (fuzzy-matched against the user's input).",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    },
+    "agency_id": {
+      "key": "agency_id",
+      "selector": "a.agency_id",
+      "type": "STRING",
+      "externalColumnName": "perf_agency_id",
+      "description": "Agency id for this marketplace \u2014 the tenant scope used by all downstream reports (exposed here because this is the intake directory that bootstraps a session).",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    },
+    "marketplace_client_id": {
+      "key": "marketplace_client_id",
+      "selector": "a.marketplace_client_id",
+      "type": "STRING",
+      "externalColumnName": "perf_marketplace_client_id",
+      "description": "Marketplace client id for this marketplace, used as the working id for problem-metric and breakdown lookups.",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    },
+    "region": {
+      "key": "region",
+      "selector": "a.region",
+      "type": "STRING",
+      "externalColumnName": "perf_region",
+      "description": "Region of the marketplace (drives the region-specific reporting dataset).",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    },
+    "currency": {
+      "key": "currency",
+      "selector": "a.currency",
+      "type": "STRING",
+      "externalColumnName": "perf_currency",
+      "description": "Reporting currency for the marketplace (prefix monetary values with this).",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    },
+    "timezone": {
+      "key": "timezone",
+      "selector": "mc.timezone",
+      "type": "STRING",
+      "externalColumnName": "perf_timezone",
+      "description": "IANA timezone of the marketplace (drives timezone-aware date casts).",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "description": "Constant 0 \u2014 a required placeholder metric so the fetch layer accepts this pure-attribute directory report; not a real measure.",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 3650,
+    "maxDataFetchDaysDuration": 3650
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.agencies` AS a JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.marketplace_client_id = a.marketplace_client_id WHERE LOWER(a.name) NOT LIKE '%staging%' AND LOWER(a.name) NOT LIKE '%sandbox%' AND a.status_type = 'ACTIVE' AND a.marketplace_type = 'monetize' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

@@ -1,0 +1,311 @@
+{
+  "reportType": "INTERNAL_PERF_SKU_PERFORMANCE",
+  "externalReportType": "SKU_PERFORMANCE_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:skus",
+    "report_group:roas",
+    "report_group:cost_per_click",
+    "report_group:click_through"
+  ],
+  "externalRequiredFilters": [
+    "perf_os_client_id"
+  ],
+  "description": "SKU-level PROGRAM funnel for PLA performance campaigns (os_ads_search, smart_shopping) joined to the SITE/organic SKU funnel, one row per SKU, for a marketplace over a period. This is the single SKU drill-down report for the ROAS, CPC and CTR SOPs -- request only the metrics that SOP needs. Scope with an os_client_id filter: an unscoped fetch scans every SKU in the marketplace and is too heavy. Spend is in the source currency of the device-product facts table.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "sku_id": {
+      "key": "sku_id",
+      "selector": "prog.product_id",
+      "type": "STRING",
+      "externalColumnName": "perf_sku_id",
+      "description": "The SKU (product) id.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "os_client_id": {
+      "key": "os_client_id",
+      "selector": "prog.client_id",
+      "type": "STRING",
+      "externalColumnName": "perf_os_client_id",
+      "description": "OnlineSales client id of the merchant (working id for internal analysis). Filter by this to scope to specific merchants.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "merchant_id": {
+      "key": "merchant_id",
+      "selector": "prog.seller_id",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_id",
+      "description": "Merchant (seller) id (working id for internal analysis).",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "merchant_name": {
+      "key": "merchant_name",
+      "selector": "prog.seller_name",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_name",
+      "description": "Human-readable merchant (seller) name.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "product_name": {
+      "key": "product_name",
+      "selector": "prog.product",
+      "type": "STRING",
+      "externalColumnName": "perf_product_name",
+      "description": "Human-readable product name of the SKU.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "brand": {
+      "key": "brand",
+      "selector": "prog.brand",
+      "type": "STRING",
+      "externalColumnName": "perf_brand",
+      "description": "Brand of the SKU.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "category": {
+      "key": "category",
+      "selector": "prog.category",
+      "type": "STRING",
+      "externalColumnName": "perf_category",
+      "description": "Product-type / category of the SKU.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "campaign_names": {
+      "key": "campaign_names",
+      "selector": "prog.campaign_names",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_names",
+      "description": "Comma-separated distinct campaign aliases the SKU was advertised under.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    }
+  },
+  "metrics": {
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(SUM(prog.spend), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "PLA ad spend for this SKU (raw cost, not currency-converted).",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "impressions": {
+      "key": "impressions",
+      "selector": "COALESCE(SUM(prog.impressions), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_impressions",
+      "description": "PLA ad impressions for this SKU.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "clicks": {
+      "key": "clicks",
+      "selector": "COALESCE(SUM(prog.clicks), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_clicks",
+      "description": "PLA ad clicks for this SKU.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "ctr": {
+      "key": "ctr",
+      "selector": "COALESCE(ROUND(SAFE_DIVIDE(COALESCE(SUM(prog.clicks), 0) * 100.0, NULLIF(COALESCE(SUM(prog.impressions), 0), 0)), 2), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_ctr",
+      "description": "Click-through rate (%) = clicks / impressions * 100 for this SKU. 0 when impressions = 0.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "cpc": {
+      "key": "cpc",
+      "selector": "SAFE_DIVIDE(COALESCE(SUM(prog.spend), 0), COALESCE(SUM(prog.clicks), 0))",
+      "type": "FLOAT",
+      "externalColumnName": "perf_cpc",
+      "description": "Cost per click for this SKU = spend / clicks (raw cost, not currency-converted). Null when clicks = 0.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "program_viewproducts": {
+      "key": "program_viewproducts",
+      "selector": "COALESCE(SUM(prog.program_viewproducts), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_viewproducts",
+      "description": "Ad-attributed product views (per-click-timestamp) for this SKU.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "program_add2carts": {
+      "key": "program_add2carts",
+      "selector": "COALESCE(SUM(prog.program_add2carts), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_add2carts",
+      "description": "Ad-attributed add-to-carts (per-click-timestamp) for this SKU.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "program_orders": {
+      "key": "program_orders",
+      "selector": "COALESCE(SUM(prog.program_orders), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_orders",
+      "description": "Ad-attributed orders / conversions (per-click-timestamp) for this SKU.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "program_gmv": {
+      "key": "program_gmv",
+      "selector": "COALESCE(SUM(prog.program_gmv), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_gmv",
+      "description": "Ad-attributed sales / GMV (per-click-timestamp) for this SKU (raw, not currency-converted).",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "site_viewproducts": {
+      "key": "site_viewproducts",
+      "selector": "COALESCE(SUM(org.site_viewproducts), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_viewproducts",
+      "description": "Organic (site) product views for this SKU from the marketplace's merchandise facts.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "site_add2carts": {
+      "key": "site_add2carts",
+      "selector": "COALESCE(SUM(org.site_add2carts), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_add2carts",
+      "description": "Organic (site) add-to-carts for this SKU from the marketplace's merchandise facts.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "site_orders": {
+      "key": "site_orders",
+      "selector": "COALESCE(SUM(org.site_orders), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_orders",
+      "description": "Organic (site) completed orders for this SKU from the marketplace's merchandise facts.",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    },
+    "site_gmv": {
+      "key": "site_gmv",
+      "selector": "COALESCE(SUM(org.site_gmv), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_gmv",
+      "description": "Organic (site) sales / GMV (USD) for this SKU from the marketplace's merchandise facts (raw, not currency-converted).",
+      "filterTags": [
+        "report_group:skus",
+        "report_group:roas",
+        "report_group:cost_per_click",
+        "report_group:click_through"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM ( SELECT merchant_merchandise_product_dimensions.sku_id AS product_id, os_product_ads_device_product_facts.client_id AS client_id, clients.seller_id AS seller_id, clients.seller_name AS seller_name, MAX(merchant_merchandise_product_dimensions.e_name) AS product, STRING_AGG(DISTINCT marketing_campaign_dimensions.alias, ', ') AS campaign_names, MAX(merchant_merchandise_product_dimensions.e_brand) AS brand, MAX(merchant_merchandise_product_dimensions.e_product_type) AS category, COALESCE(SUM(os_product_ads_device_product_facts.cost), 0) AS spend, COALESCE(SUM(os_product_ads_device_product_facts.impressions), 0) AS impressions, COALESCE(SUM(os_product_ads_device_product_facts.clicks), 0) AS clicks, COALESCE(SUM(os_product_ads_device_product_facts.program_per_click_timestamp_viewproduct), 0) AS program_viewproducts, COALESCE(SUM(os_product_ads_device_product_facts.program_per_click_timestamp_add_to_cart), 0) AS program_add2carts, COALESCE(SUM(os_product_ads_device_product_facts.program_per_click_timestamp_conversions), 0) AS program_orders, COALESCE(SUM(os_product_ads_device_product_facts.program_per_click_timestamp_sales), 0) AS program_gmv FROM `prj-onlinesales-prod-01.reporting.merchant_merchandise_product_dimensions` merchant_merchandise_product_dimensions JOIN `prj-onlinesales-prod-01.reporting.os_product_ads_device_product_facts` os_product_ads_device_product_facts ON os_product_ads_device_product_facts.client_id = merchant_merchandise_product_dimensions.client_id AND os_product_ads_device_product_facts.sku_id = merchant_merchandise_product_dimensions.sku_id LEFT JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` campaign_tagging_data ON campaign_tagging_data.account_id = os_product_ads_device_product_facts.account_id AND campaign_tagging_data.campaign_id = os_product_ads_device_product_facts.campaign_id AND campaign_tagging_data.client_id = os_product_ads_device_product_facts.client_id JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` marketing_campaign_dimensions ON campaign_tagging_data.marketing_campaign_id = marketing_campaign_dimensions.marketing_campaign_id AND marketing_campaign_dimensions.client_id = os_product_ads_device_product_facts.client_id AND marketing_campaign_dimensions.campaign_origin != 'PACKAGE_BASED' JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_group_dimensions` marketing_campaign_group_dimensions ON campaign_tagging_data.client_id = marketing_campaign_group_dimensions.client_id AND campaign_tagging_data.marketing_campaign_group_id = marketing_campaign_group_dimensions.marketing_campaign_group_id JOIN `prj-onlinesales-prod-01.reporting.clients` clients ON clients.client_id = os_product_ads_device_product_facts.client_id WHERE clients.agency_id = '__AGENCY_ID__' AND os_product_ads_device_product_facts.date >= '__START_DATE_1__' AND os_product_ads_device_product_facts.date <= '__END_DATE_1__' AND LOWER(marketing_campaign_group_dimensions.campaign_type) IN ('performance') AND LOWER(marketing_campaign_group_dimensions.campaign_subtype) IN ('os_ads_search', 'smart_shopping') GROUP BY 1, 2, 3, 4 ) prog LEFT JOIN ( SELECT merchant_id, sku_id, SUM(sok_viewproducts) AS site_viewproducts, SUM(sok_add2carts) AS site_add2carts, SUM(sok_salecompletes) AS site_orders, SUM(sok_sales_usd) AS site_gmv FROM `prj-onlinesales-prod-01.reporting.os_merchandise_product_performance_facts` WHERE client_id = (SELECT marketplace_client_id FROM `prj-onlinesales-prod-01.reporting.agencies` WHERE agency_id = '__AGENCY_ID__') AND date >= '__START_DATE_1__' AND date <= '__END_DATE_1__' GROUP BY 1, 2 ) org ON CAST(org.merchant_id AS STRING) = CAST(prog.seller_id AS STRING) AND CAST(org.sku_id AS STRING) = CAST(prog.product_id AS STRING) WHERE prog.product_id IS NOT NULL AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

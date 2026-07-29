@@ -1,0 +1,78 @@
+{
+    "reportType": "INTERNAL_PERF_RR_BY_PAGE_PLA",
+    "externalReportType": "RR_BY_PAGE_PLA_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:rr",
+        "report_group:page_performance"
+    ],
+    "externalRequiredFilters": [],
+    "description": "PLA response rate broken down by page type for a marketplace over a period: ad requests, non-zero responses, and response rate (%), grouped by page_type (SEARCH / CATEGORY / PRODUCT / HOME / ...). No spend / no currency conversion. The Python layer computes total_requests, total_responses, and overall_response_rate from these raw aggregates.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "page_type": {
+            "key": "page_type",
+            "selector": "pf.page_type",
+            "type": "STRING",
+            "externalColumnName": "page_type",
+            "description": "The surface the ad served on (SEARCH, CATEGORY, PRODUCT, HOME, ...).",
+            "filterTags": [
+                "report_group:rr",
+                "report_group:page_performance"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.requests ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Ad requests received on this page type.",
+            "filterTags": [
+                "report_group:rr",
+                "report_group:page_performance"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.non_zero_responses ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "Requests that returned at least one ad (non-zero responses) on this page type.",
+            "filterTags": [
+                "report_group:rr",
+                "report_group:page_performance"
+            ]
+        },
+        "response_rate": {
+            "key": "response_rate",
+            "selector": "ROUND(SAFE_DIVIDE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.non_zero_responses ELSE 0 END) * 100, NULLIF(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.requests ELSE 0 END), 0)), 2)",
+            "type": "FLOAT",
+            "externalColumnName": "response_rate",
+            "description": "Response rate (%) = non-zero responses / requests * 100 for this page type.",
+            "filterTags": [
+                "report_group:rr",
+                "report_group:page_performance"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_page_name_performance_facts` AS pf JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON pf.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND pf.page_type IS NOT NULL AND pf.page_type NOT IN ('', 'NA') AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

@@ -1,0 +1,413 @@
+{
+  "reportType": "INTERNAL_PERF_FILTER_PRESENCE_RR",
+  "externalReportType": "FILTER_PRESENCE_RR_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:response_rate"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Single-scan present-vs-absent request/response counts for each client-sent filter (brands/zone/storeid/network/city/state/country/device) over a period, from the region request log. One row (ungrouped).",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS_EXTERNAL_DATASET"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "page_type": {
+      "key": "page_type",
+      "selector": "r.f_pt",
+      "type": "STRING",
+      "externalColumnName": "perf_page_type",
+      "description": "Page type (optional filter).",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "category_l1": {
+      "key": "category_l1",
+      "selector": "r.f_cat1",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l1",
+      "description": "L1 category (optional filter).",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "category_l2": {
+      "key": "category_l2",
+      "selector": "r.f_cat2",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l2",
+      "description": "L2 category (optional filter).",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "category_l3": {
+      "key": "category_l3",
+      "selector": "r.f_cat3",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l3",
+      "description": "L3 category (optional filter).",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    }
+  },
+  "metrics": {
+    "total_requests": {
+      "key": "total_requests",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_total_requests",
+      "description": "Total requests in window.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "total_responses": {
+      "key": "total_responses",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_total_responses",
+      "description": "Total non-zero-response requests.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "brands_present_req": {
+      "key": "brands_present_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_brands IS NOT NULL AND TRIM(CAST(r.f_brands AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_brands_present_req",
+      "description": "Requests with brands present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "brands_present_res": {
+      "key": "brands_present_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_brands IS NOT NULL AND TRIM(CAST(r.f_brands AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_brands_present_res",
+      "description": "Responses with brands present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "brands_absent_req": {
+      "key": "brands_absent_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_brands IS NOT NULL AND TRIM(CAST(r.f_brands AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_brands_absent_req",
+      "description": "Requests with brands absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "brands_absent_res": {
+      "key": "brands_absent_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_brands IS NOT NULL AND TRIM(CAST(r.f_brands AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_brands_absent_res",
+      "description": "Responses with brands absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "zone_present_req": {
+      "key": "zone_present_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_zone IS NOT NULL AND TRIM(CAST(r.f_zone AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_zone_present_req",
+      "description": "Requests with zone present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "zone_present_res": {
+      "key": "zone_present_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_zone IS NOT NULL AND TRIM(CAST(r.f_zone AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_zone_present_res",
+      "description": "Responses with zone present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "zone_absent_req": {
+      "key": "zone_absent_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_zone IS NOT NULL AND TRIM(CAST(r.f_zone AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_zone_absent_req",
+      "description": "Requests with zone absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "zone_absent_res": {
+      "key": "zone_absent_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_zone IS NOT NULL AND TRIM(CAST(r.f_zone AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_zone_absent_res",
+      "description": "Responses with zone absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "storeid_present_req": {
+      "key": "storeid_present_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_storeid IS NOT NULL AND TRIM(CAST(r.f_storeid AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_storeid_present_req",
+      "description": "Requests with storeid present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "storeid_present_res": {
+      "key": "storeid_present_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_storeid IS NOT NULL AND TRIM(CAST(r.f_storeid AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_storeid_present_res",
+      "description": "Responses with storeid present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "storeid_absent_req": {
+      "key": "storeid_absent_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_storeid IS NOT NULL AND TRIM(CAST(r.f_storeid AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_storeid_absent_req",
+      "description": "Requests with storeid absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "storeid_absent_res": {
+      "key": "storeid_absent_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_storeid IS NOT NULL AND TRIM(CAST(r.f_storeid AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_storeid_absent_res",
+      "description": "Responses with storeid absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "network_present_req": {
+      "key": "network_present_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_network IS NOT NULL AND TRIM(CAST(r.f_network AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_network_present_req",
+      "description": "Requests with network present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "network_present_res": {
+      "key": "network_present_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_network IS NOT NULL AND TRIM(CAST(r.f_network AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_network_present_res",
+      "description": "Responses with network present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "network_absent_req": {
+      "key": "network_absent_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_network IS NOT NULL AND TRIM(CAST(r.f_network AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_network_absent_req",
+      "description": "Requests with network absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "network_absent_res": {
+      "key": "network_absent_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_network IS NOT NULL AND TRIM(CAST(r.f_network AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_network_absent_res",
+      "description": "Responses with network absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "city_present_req": {
+      "key": "city_present_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_city IS NOT NULL AND TRIM(CAST(r.f_city AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_city_present_req",
+      "description": "Requests with city present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "city_present_res": {
+      "key": "city_present_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_city IS NOT NULL AND TRIM(CAST(r.f_city AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_city_present_res",
+      "description": "Responses with city present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "city_absent_req": {
+      "key": "city_absent_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_city IS NOT NULL AND TRIM(CAST(r.f_city AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_city_absent_req",
+      "description": "Requests with city absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "city_absent_res": {
+      "key": "city_absent_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_city IS NOT NULL AND TRIM(CAST(r.f_city AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_city_absent_res",
+      "description": "Responses with city absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "state_present_req": {
+      "key": "state_present_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_state IS NOT NULL AND TRIM(CAST(r.f_state AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_state_present_req",
+      "description": "Requests with state present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "state_present_res": {
+      "key": "state_present_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_state IS NOT NULL AND TRIM(CAST(r.f_state AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_state_present_res",
+      "description": "Responses with state present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "state_absent_req": {
+      "key": "state_absent_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_state IS NOT NULL AND TRIM(CAST(r.f_state AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_state_absent_req",
+      "description": "Requests with state absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "state_absent_res": {
+      "key": "state_absent_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_state IS NOT NULL AND TRIM(CAST(r.f_state AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_state_absent_res",
+      "description": "Responses with state absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "country_present_req": {
+      "key": "country_present_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_country IS NOT NULL AND TRIM(CAST(r.f_country AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_country_present_req",
+      "description": "Requests with country present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "country_present_res": {
+      "key": "country_present_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.f_country IS NOT NULL AND TRIM(CAST(r.f_country AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_country_present_res",
+      "description": "Responses with country present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "country_absent_req": {
+      "key": "country_absent_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_country IS NOT NULL AND TRIM(CAST(r.f_country AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_country_absent_req",
+      "description": "Requests with country absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "country_absent_res": {
+      "key": "country_absent_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.f_country IS NOT NULL AND TRIM(CAST(r.f_country AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_country_absent_res",
+      "description": "Responses with country absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "device_present_req": {
+      "key": "device_present_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.device IS NOT NULL AND TRIM(CAST(r.device AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_device_present_req",
+      "description": "Requests with device present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "device_present_res": {
+      "key": "device_present_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (r.device IS NOT NULL AND TRIM(CAST(r.device AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_device_present_res",
+      "description": "Responses with device present.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "device_absent_req": {
+      "key": "device_absent_req",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.device IS NOT NULL AND TRIM(CAST(r.device AS STRING)) != '') THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_device_absent_req",
+      "description": "Requests with device absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    },
+    "device_absent_res": {
+      "key": "device_absent_res",
+      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND NOT (r.device IS NOT NULL AND TRIM(CAST(r.device AS STRING)) != '') AND r.r_pcnt > 0 THEN 1 ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_device_absent_res",
+      "description": "Responses with device absent.",
+      "filterTags": [
+        "report_group:response_rate"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 15,
+    "maxDataFetchDaysDuration": 15
+  },
+  "query": {
+    "REPORTING": "SELECT __METRICS__ FROM `prj-onlinesales-prod-01.reporting__SP_REPORTING_DB_REGION__.os_product_ads_request_report` AS r WHERE r.mcid = '__SP_MARKETPLACE_CLIENT_ID__' AND DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

@@ -1,0 +1,116 @@
+{
+    "reportType": "INTERNAL_PERF_KW_PERF_IN_CAMPAIGNS",
+    "externalReportType": "KW_PERF_IN_CAMPAIGNS_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:keyword"
+    ],
+    "externalRequiredFilters": [
+        "os_client_id",
+        "campaign_id"
+    ],
+    "description": "Targeted-keyword performance inside specific advertiser campaigns over one period: currency-converted spend, impressions, clicks, and attributed sales per matched keyword and keyword match type, scoped to given advertiser client_id(s) and marketing campaign_id(s). CTR/CPC/CPM/ROI are derived downstream from these raw aggregates.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "keyword": {
+            "key": "keyword",
+            "selector": "LOWER(k.matched_keyword)",
+            "type": "STRING",
+            "externalColumnName": "keyword",
+            "description": "The matched targeted keyword (lowercased).",
+            "filterTags": [
+                "report_group:keyword"
+            ]
+        },
+        "keyword_match_type": {
+            "key": "keyword_match_type",
+            "selector": "k.keyword_match_type",
+            "type": "STRING",
+            "externalColumnName": "keyword_match_type",
+            "description": "Match type of the targeted keyword (EXACT / PHRASE / BROAD / ...).",
+            "filterTags": [
+                "report_group:keyword"
+            ]
+        },
+        "os_client_id": {
+            "key": "os_client_id",
+            "selector": "k.client_id",
+            "type": "STRING",
+            "externalColumnName": "os_client_id",
+            "description": "Advertiser client_id. Mandatory filter: one or more advertiser client_ids to scope the report to.",
+            "filterTags": [
+                "report_group:keyword"
+            ]
+        },
+        "campaign_id": {
+            "key": "campaign_id",
+            "selector": "LOWER(mcd.marketing_campaign_id)",
+            "type": "STRING",
+            "externalColumnName": "campaign_id",
+            "description": "Marketing campaign_id (lowercased). Mandatory filter: one or more marketing campaign_ids to scope the report to.",
+            "filterTags": [
+                "report_group:keyword"
+            ]
+        }
+    },
+    "metrics": {
+        "spend": {
+            "key": "spend",
+            "selector": "COALESCE(SUM(CASE WHEN k.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN k.cost * scc.conversion_factor ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "spend",
+            "description": "Keyword ad spend over the period, converted to the marketplace currency.",
+            "filterTags": [
+                "report_group:keyword"
+            ]
+        },
+        "impressions": {
+            "key": "impressions",
+            "selector": "COALESCE(SUM(CASE WHEN k.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN k.impressions ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "impressions",
+            "description": "Ad impressions served for this keyword.",
+            "filterTags": [
+                "report_group:keyword"
+            ]
+        },
+        "clicks": {
+            "key": "clicks",
+            "selector": "COALESCE(SUM(CASE WHEN k.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN k.clicks ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "clicks",
+            "description": "Ad clicks (visits) for this keyword.",
+            "filterTags": [
+                "report_group:keyword"
+            ]
+        },
+        "attributed_sales": {
+            "key": "attributed_sales",
+            "selector": "COALESCE(SUM(CASE WHEN k.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN k.program_per_click_timestamp_sales * scc.conversion_factor ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "attributed_sales",
+            "description": "Per-click-timestamp attributed sales for this keyword, converted to the marketplace currency. ROI is derived downstream as attributed_sales / spend.",
+            "filterTags": [
+                "report_group:keyword"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_keyword_performance_report` AS k INNER JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON ctd.account_id = k.account_id AND ctd.campaign_id = k.campaign_id AND ctd.client_id = k.client_id INNER JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd ON ctd.client_id = mcd.client_id AND ctd.marketing_campaign_id = mcd.marketing_campaign_id INNER JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.marketplace_client_id = k.marketplace_client_id INNER JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = k.currency AND scc.to_currency = mc.currency WHERE mc.agency_id = '__AGENCY_ID__' AND k.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (mcd.campaign_origin != 'PACKAGE_BASED' OR mcd.campaign_origin IS NULL) AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

@@ -1,0 +1,105 @@
+{
+    "reportType": "INTERNAL_PERF_BUDGET_CHANGES",
+    "externalReportType": "BUDGET_CHANGES_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:budget_pacing"
+    ],
+    "externalRequiredFilters": [
+        "campaign_id"
+    ],
+    "description": "Daily-budget change events (audit action_type_id=17) for a campaign within a local day: old/new daily budget, currency, campaign name, who changed it and when.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS_EXTERNAL_DATASET"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "campaign_id": {
+            "key": "campaign_id",
+            "selector": "al.scope_id",
+            "type": "STRING",
+            "externalColumnName": "campaign_id",
+            "description": "Marketing campaign id (scope_id) the budget change applies to. Required filter.",
+            "filterTags": [
+                "report_group:budget_pacing"
+            ]
+        },
+        "change_time": {
+            "key": "change_time",
+            "selector": "DATETIME(al.timestamp, '__SP_TIMEZONE__')",
+            "type": "STRING",
+            "externalColumnName": "change_time",
+            "description": "Local time of the change.",
+            "filterTags": [
+                "report_group:budget_pacing"
+            ]
+        },
+        "old_budget": {
+            "key": "old_budget",
+            "selector": "JSON_EXTRACT_SCALAR(al.old_state, '$.dailyBudget')",
+            "type": "STRING",
+            "externalColumnName": "old_budget",
+            "description": "Daily budget before the change.",
+            "filterTags": [
+                "report_group:budget_pacing"
+            ]
+        },
+        "new_budget": {
+            "key": "new_budget",
+            "selector": "JSON_EXTRACT_SCALAR(al.new_state, '$.dailyBudget')",
+            "type": "STRING",
+            "externalColumnName": "new_budget",
+            "description": "Daily budget after the change.",
+            "filterTags": [
+                "report_group:budget_pacing"
+            ]
+        },
+        "currency": {
+            "key": "currency",
+            "selector": "JSON_EXTRACT_SCALAR(al.old_state, '$.currency')",
+            "type": "STRING",
+            "externalColumnName": "currency",
+            "description": "Currency of the budget values.",
+            "filterTags": [
+                "report_group:budget_pacing"
+            ]
+        },
+        "changed_by": {
+            "key": "changed_by",
+            "selector": "JSON_EXTRACT_SCALAR(al.user, '$.name')",
+            "type": "STRING",
+            "externalColumnName": "changed_by",
+            "description": "Actor that made the change.",
+            "filterTags": [
+                "report_group:budget_pacing"
+            ]
+        }
+    },
+    "metrics": {
+        "placeholder_metric": {
+            "key": "placeholder_metric",
+            "selector": "0",
+            "type": "FLOAT",
+            "externalColumnName": "placeholder_metric",
+            "description": "Row-level passthrough placeholder (audit report has no aggregate metric).",
+            "filterTags": [
+                "report_group:budget_pacing"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.audit.audit_logs_v2` AS al WHERE al.agency_id = '__AGENCY_ID__' AND al.action_type_id = 17 AND al.timestamp >= TIMESTAMP('__START_DATE_1__', '__SP_TIMEZONE__') AND al.timestamp < TIMESTAMP(DATE_ADD('__END_DATE_1__', INTERVAL 1 DAY), '__SP_TIMEZONE__') AND __FILTER__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

@@ -1,0 +1,63 @@
+{
+    "reportType": "INTERNAL_PERF_KW_REQUEST_VOLUME",
+    "externalReportType": "KW_REQUEST_VOLUME_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:keyword"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Per-keyword (search-query) request volume for a marketplace over a period, timezone-aware: total ad requests and the number of distinct days that received requests, grouped by keyword. Used to gauge whether a keyword has enough demand (e.g. >100 requests) to warrant a category. Supply a keyword filter to check specific keywords.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "keyword": {
+            "key": "keyword",
+            "selector": "LOWER(TRIM(r.search_query, '[],\",'))",
+            "type": "STRING",
+            "externalColumnName": "keyword",
+            "description": "The normalized search query (keyword) users typed, lower-cased and stripped of bracket/quote characters.",
+            "filterTags": [
+                "report_group:keyword"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.request ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Total ad requests received for this keyword over the period.",
+            "filterTags": [
+                "report_group:keyword"
+            ]
+        },
+        "days_with_requests": {
+            "key": "days_with_requests",
+            "selector": "COUNT(DISTINCT CASE WHEN DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') END)",
+            "type": "FLOAT",
+            "externalColumnName": "days_with_requests",
+            "description": "Number of distinct days (in the marketplace timezone) on which this keyword received at least one request.",
+            "filterTags": [
+                "report_group:keyword"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_search_query_request_report` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

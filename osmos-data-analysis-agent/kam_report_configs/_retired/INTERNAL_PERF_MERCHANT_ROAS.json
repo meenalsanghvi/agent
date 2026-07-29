@@ -1,0 +1,199 @@
+{
+    "reportType": "INTERNAL_PERF_MERCHANT_ROAS",
+    "externalReportType": "MERCHANT_ROAS_BREAKDOWN_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:merchant_breakdown",
+        "report_group:roas"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Per-merchant PROGRAM (ad-attributed) + SITE (organic) funnel for a marketplace over a period, one row per merchant (os_client_id + merchant name). PROGRAM metrics (spend, clicks, viewproducts, add2carts, orders, GMV) come from per-click-timestamp attribution in client_vendor_channel_performance_facts; SITE metrics (viewproducts, add2carts, orders, revenue) come from monetize_merchant_facts. Spend and revenue are converted to the marketplace currency; ROAS (program_gmv / spend) is computed per merchant. Filter by channel to isolate PLA (os_product_ads) vs Display (guaranteed_display_ads / auction_display_ads).",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "os_client_id": {
+            "key": "os_client_id",
+            "selector": "base.os_client_id",
+            "type": "STRING",
+            "externalColumnName": "os_client_id",
+            "description": "OnlineSales client id of the merchant (working id for internal analysis).",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "merchant_name": {
+            "key": "merchant_name",
+            "selector": "base.merchant_name",
+            "type": "STRING",
+            "externalColumnName": "merchant_name",
+            "description": "Human-readable merchant (seller) name.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "merchant_id": {
+            "key": "merchant_id",
+            "selector": "base.merchant_id",
+            "type": "STRING",
+            "externalColumnName": "merchant_id",
+            "description": "Merchant (seller) id (working id for internal analysis).",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "channel": {
+            "key": "channel",
+            "selector": "base.channel",
+            "type": "STRING",
+            "externalColumnName": "channel",
+            "description": "Ad program channel: os_product_ads (PLA), guaranteed_display_ads / auction_display_ads (Display). Use as a filter to scope the PROGRAM funnel to a program type; SITE (organic) metrics are the merchant's full organic funnel regardless of channel.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        }
+    },
+    "metrics": {
+        "spend": {
+            "key": "spend",
+            "selector": "COALESCE(SUM(base.spend), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "spend",
+            "description": "PROGRAM ad spend for this merchant, converted to the marketplace currency.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "clicks": {
+            "key": "clicks",
+            "selector": "COALESCE(SUM(base.clicks), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "clicks",
+            "description": "PROGRAM ad clicks for this merchant.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "program_viewproducts": {
+            "key": "program_viewproducts",
+            "selector": "COALESCE(SUM(base.program_viewproducts), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "program_viewproducts",
+            "description": "PROGRAM (ad-attributed, per-click-timestamp) product views for this merchant.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "program_add2carts": {
+            "key": "program_add2carts",
+            "selector": "COALESCE(SUM(base.program_add2carts), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "program_add2carts",
+            "description": "PROGRAM (ad-attributed, per-click-timestamp) add-to-carts for this merchant.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "program_orders": {
+            "key": "program_orders",
+            "selector": "COALESCE(SUM(base.program_orders), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "program_orders",
+            "description": "PROGRAM (ad-attributed, per-click-timestamp) conversions / orders for this merchant.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "program_gmv": {
+            "key": "program_gmv",
+            "selector": "COALESCE(SUM(base.program_gmv), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "program_gmv",
+            "description": "PROGRAM (ad-attributed, per-click-timestamp) GMV / sales for this merchant, converted to the marketplace currency.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "roas": {
+            "key": "roas",
+            "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(base.program_gmv), NULLIF(SUM(base.spend), 0)), 4), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "roas",
+            "description": "ROI / ROAS = program_gmv / spend for this merchant (return on ad spend).",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "site_viewproducts": {
+            "key": "site_viewproducts",
+            "selector": "COALESCE(SUM(org.site_viewproducts), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "site_viewproducts",
+            "description": "SITE (organic, total store) product views for this merchant.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "site_add2carts": {
+            "key": "site_add2carts",
+            "selector": "COALESCE(SUM(org.site_add2carts), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "site_add2carts",
+            "description": "SITE (organic, total store) add-to-carts for this merchant.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "site_orders": {
+            "key": "site_orders",
+            "selector": "COALESCE(SUM(org.site_orders), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "site_orders",
+            "description": "SITE (organic, total store) sale-completes / orders for this merchant.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        },
+        "site_revenue": {
+            "key": "site_revenue",
+            "selector": "COALESCE(SUM(org.site_gmv), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "site_revenue",
+            "description": "SITE (organic, total store) revenue / GMV for this merchant, converted to the marketplace currency.",
+            "filterTags": [
+                "report_group:merchant_breakdown",
+                "report_group:roas"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM ( SELECT mmd.client_id AS os_client_id, mmd.merchant_name AS merchant_name, mmd.merchant_id AS merchant_id, cvcpf.channel AS channel, SUM(cvcpf.cost * scc.conversion_factor) AS spend, SUM(cvcpf.clicks) AS clicks, SUM(cvcpf.program_per_click_timestamp_viewproduct) AS program_viewproducts, SUM(cvcpf.program_per_click_timestamp_add_to_cart) AS program_add2carts, SUM(cvcpf.program_per_click_timestamp_conversions) AS program_orders, SUM(cvcpf.program_per_click_timestamp_sales) AS program_gmv FROM `prj-onlinesales-prod-01.reporting.client_vendor_channel_performance_facts` AS cvcpf INNER JOIN `prj-onlinesales-prod-01.reporting.clients` AS clients ON clients.client_id = cvcpf.client_id AND clients.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.agency_id = clients.agency_id AND clients.client_id != mc.marketplace_client_id AND mc.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.monetize_merchant_dimensions` AS mmd ON mmd.merchant_id = clients.seller_id AND mmd.agency_id = clients.agency_id LEFT JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = cvcpf.currency AND scc.to_currency = mc.currency WHERE cvcpf.vendor = 'os_ads' AND cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' GROUP BY 1, 2, 3, 4 ) AS base LEFT JOIN ( SELECT mmf.merchant_id AS merchant_id, SUM(mmf.total_sok_viewproducts) AS site_viewproducts, SUM(mmf.total_sok_add2carts) AS site_add2carts, SUM(mmf.total_sok_salecompletes) AS site_orders, SUM(mmf.total_sok_sales_usd * scc.conversion_factor) AS site_gmv FROM `prj-onlinesales-prod-01.reporting.monetize_merchant_facts` AS mmf INNER JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mmf.agency_id = mc.agency_id AND mmf.marketplace_client_id = mc.marketplace_client_id AND mc.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE mmf.agency_id = '__AGENCY_ID__' AND mmf.date >= '__START_DATE_1__' AND mmf.date <= '__END_DATE_1__' GROUP BY 1 ) AS org ON base.merchant_id = org.merchant_id WHERE base.merchant_id IS NOT NULL AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

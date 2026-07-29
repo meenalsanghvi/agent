@@ -1,0 +1,83 @@
+{
+  "reportType": "INTERNAL_PERF_CAMPAIGN_NETWORKS",
+  "externalReportType": "CAMPAIGN_NETWORKS_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:campaigns"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Targeted NETWORK mappings for a campaign (target_type = 'NETWORK', not deleted), reachable by either key. Filter `campaign_id` when you hold the marketing_campaign_id -- it resolves through campaign_tagging_data. Filter `internal_campaign_id` when you hold the internal numeric campaign_id and want to query the targeting table directly. The join to campaign_tagging_data is a LEFT JOIN, so rows with no tagging record still return under internal_campaign_id. resolved_campaign_id is the same value as internal_campaign_id, kept under the name the retired via-CTD report used.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "campaign_id": {
+      "key": "campaign_id",
+      "selector": "ctd.marketing_campaign_id",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_id",
+      "description": "The resolving marketing_campaign_id the caller holds (a non-campaign_id key). Mandatory filter: pass the marketing_campaign_id here; campaign_tagging_data resolves it to the internal campaign_id(s) whose network targeting is returned.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "internal_campaign_id": {
+      "selector": "SAFE_CAST(ctm.campaign_id AS STRING)",
+      "type": "STRING",
+      "description": "Internal numeric campaign_id on the targeting table, as a string. Filter this when you do not hold a marketing_campaign_id.",
+      "key": "internal_campaign_id",
+      "externalColumnName": "perf_internal_campaign_id",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "resolved_campaign_id": {
+      "key": "resolved_campaign_id",
+      "selector": "SAFE_CAST(ctm.campaign_id AS STRING)",
+      "type": "STRING",
+      "externalColumnName": "perf_resolved_campaign_id",
+      "description": "Internal numeric campaign_id that the supplied marketing_campaign_id resolved to (via campaign_tagging_data), and to which this network targeting mapping belongs.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "target_details": {
+      "key": "target_details",
+      "selector": "TO_JSON_STRING(ctm.target_details)",
+      "type": "STRING",
+      "externalColumnName": "perf_target_details",
+      "description": "The targeted NETWORK definition for this campaign, serialized as a JSON string (TO_JSON_STRING of the target_details struct).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "description": "Constant 0. Row-level dimension passthrough (network targeting lookup) with no aggregated measure; KAM requires at least one metric to fetch.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_db_campaign_targeting_mapping` AS ctm LEFT JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON SAFE_CAST(ctd.campaign_id AS INT64) = ctm.campaign_id AND SAFE_CAST(ctd.client_id AS INT64) = ctm.client_id WHERE ctm.target_type = 'NETWORK' AND ctm.is_deleted = 0 AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

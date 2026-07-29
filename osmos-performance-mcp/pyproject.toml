@@ -1,0 +1,41 @@
+[project]
+name = "osmos-performance-mcp"
+version = "0.1.0"
+description = "MCP server exposing the marketplace data-analysis agent's SOP tools (KAM-backed, with the Python derived-metric layer)"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=3.2.0",
+    "pydantic>=2.4.0",
+    "pydantic-settings>=2.4.0",
+    "uvicorn>=0.24.0",
+    "python-toon>=0.1.0",
+    "requests>=2.33.0",
+    "anyio>=4.0.0",
+    "redis>=7.3.0",
+    "os-svc-client-v2==3.3.23",
+    "os-pyutils==1.0.3",
+]
+
+[[tool.uv.index]]
+url = "https://asia-south1-python.pkg.dev/prj-onlinesales-prod-01/os-python-packages/simple/"
+extra = true
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+osmos-performance-mcp = "osmos_performance_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/osmos_performance_mcp"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

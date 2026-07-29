@@ -1,0 +1,131 @@
+{
+  "reportType": "INTERNAL_PERF_PAGE_PERFORMANCE_PLA",
+  "externalReportType": "PAGE_PERFORMANCE_PLA_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:page_performances",
+    "report_group:response_rate",
+    "report_group:budget_utilisation"
+  ],
+  "externalRequiredFilters": [],
+  "description": "PLA page-level funnel for a marketplace over a period: requests, non-zero responses, response rate, impressions, clicks and marketplace-currency spend. Group by page_type for the page-type breakdown (page-level performance and page RR) or by date for the daily request/response trend used in budget-utilisation debugging. Rows with a null, blank or 'NA' page_type are excluded, matching all three retired reports.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "page_type": {
+      "key": "page_type",
+      "selector": "pf.page_type",
+      "type": "STRING",
+      "externalColumnName": "perf_page_type",
+      "description": "The surface the ad served on (SEARCH, CATEGORY, PRODUCT, HOME, ...).",
+      "filterTags": [
+        "report_group:page_performances",
+        "report_group:response_rate",
+        "report_group:budget_utilisation"
+      ]
+    },
+    "date": {
+      "selector": "pf.date",
+      "type": "DATE",
+      "description": "Calendar date of the PLA page-level facts row. Group by this for the daily request / response trend.",
+      "key": "date",
+      "externalColumnName": "perf_date",
+      "filterTags": [
+        "report_group:page_performances",
+        "report_group:response_rate",
+        "report_group:budget_utilisation"
+      ]
+    }
+  },
+  "metrics": {
+    "requests": {
+      "key": "requests",
+      "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.requests ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_requests",
+      "description": "Ad requests received on this page type.",
+      "filterTags": [
+        "report_group:page_performances",
+        "report_group:response_rate",
+        "report_group:budget_utilisation"
+      ]
+    },
+    "responses": {
+      "key": "responses",
+      "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.non_zero_responses ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_responses",
+      "description": "Requests that returned at least one ad (non-zero responses).",
+      "filterTags": [
+        "report_group:page_performances",
+        "report_group:response_rate",
+        "report_group:budget_utilisation"
+      ]
+    },
+    "response_rate": {
+      "selector": "ROUND(SAFE_DIVIDE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.non_zero_responses ELSE 0 END) * 100, NULLIF(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.requests ELSE 0 END), 0)), 2)",
+      "type": "FLOAT",
+      "description": "Non-zero responses as a percentage of requests for this grouping.",
+      "key": "response_rate",
+      "externalColumnName": "perf_response_rate",
+      "filterTags": [
+        "report_group:page_performances",
+        "report_group:response_rate",
+        "report_group:budget_utilisation"
+      ]
+    },
+    "impressions": {
+      "key": "impressions",
+      "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.impressions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_impressions",
+      "description": "Ad impressions served on this page type.",
+      "filterTags": [
+        "report_group:page_performances",
+        "report_group:response_rate",
+        "report_group:budget_utilisation"
+      ]
+    },
+    "clicks": {
+      "key": "clicks",
+      "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.clicks ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_clicks",
+      "description": "Ad clicks on this page type.",
+      "filterTags": [
+        "report_group:page_performances",
+        "report_group:response_rate",
+        "report_group:budget_utilisation"
+      ]
+    },
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.cost_usd * scc.conversion_factor ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "Ad spend on this page type, converted to the marketplace currency.",
+      "filterTags": [
+        "report_group:page_performances",
+        "report_group:response_rate",
+        "report_group:budget_utilisation"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_page_name_performance_facts` AS pf JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON pf.marketplace_client_id = mc.marketplace_client_id LEFT JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE mc.agency_id = '__AGENCY_ID__' AND pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND pf.page_type IS NOT NULL AND pf.page_type NOT IN ('', 'NA') AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

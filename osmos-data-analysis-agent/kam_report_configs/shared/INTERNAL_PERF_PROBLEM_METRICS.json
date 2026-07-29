@@ -1,0 +1,108 @@
+{
+  "reportType": "INTERNAL_PERF_PROBLEM_METRICS",
+  "externalReportType": "PROBLEM_METRICS_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:intake"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Intake \u2014 auto-flagged weekly trend metrics for a marketplace/week from os_ads_performance_trend_analysis_report: metric name, old value, new value, change percent, severity, and primary_reason. Row-level passthrough (one row per flagged metric, no aggregation); scoped to one Sunday-Saturday week via the date range and to one marketplace via a marketplace_client_id filter. Python flags rows where severity != 'normal' and derives the prior-week baseline.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "marketplace_client_id": {
+      "key": "marketplace_client_id",
+      "selector": "tr.marketplace_client_id",
+      "type": "STRING",
+      "filterTags": []
+    },
+    "metric": {
+      "key": "metric",
+      "selector": "tr.metric",
+      "type": "STRING",
+      "externalColumnName": "perf_metric",
+      "description": "The trend metric that was flagged (e.g. roas, cpc, ctr, budget_utilisation, response_rate).",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    },
+    "old_value": {
+      "key": "old_value",
+      "selector": "tr.old_value",
+      "type": "STRING",
+      "externalColumnName": "perf_old_value",
+      "description": "The metric's value in the prior/baseline week.",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    },
+    "new_value": {
+      "key": "new_value",
+      "selector": "tr.new_value",
+      "type": "STRING",
+      "externalColumnName": "perf_new_value",
+      "description": "The metric's value in the reported week.",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    },
+    "change_perc": {
+      "key": "change_perc",
+      "selector": "tr.change_perc",
+      "type": "STRING",
+      "externalColumnName": "perf_change_perc",
+      "description": "Percent change of the metric from old_value to new_value (raw source column from the trend-analysis report).",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    },
+    "severity": {
+      "key": "severity",
+      "selector": "tr.severity",
+      "type": "STRING",
+      "externalColumnName": "perf_severity",
+      "description": "Flag severity for this metric (e.g. normal / warning / critical); Python flags rows where severity != 'normal'.",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    },
+    "primary_reason": {
+      "key": "primary_reason",
+      "selector": "tr.primary_reason",
+      "type": "STRING",
+      "externalColumnName": "perf_primary_reason",
+      "description": "Primary reason attributed to the metric change.",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "filterTags": [
+        "report_group:intake"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 120,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_performance_trend_analysis_report` AS tr WHERE DATE(tr.start_date) = '__START_DATE_1__' AND DATE(tr.end_date) = '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

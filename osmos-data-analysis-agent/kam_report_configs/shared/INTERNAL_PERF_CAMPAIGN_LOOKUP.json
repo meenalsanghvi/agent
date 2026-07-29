@@ -1,0 +1,155 @@
+{
+  "reportType": "INTERNAL_PERF_CAMPAIGN_LOOKUP",
+  "externalReportType": "CAMPAIGN_LOOKUP_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:campaigns",
+    "report_group:intake"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Intake resolver for a single campaign: given ANY ONE of the four campaign id types (marketing_campaign_id, marketing_campaign_group_id, campaign_id, campaign_group_id) as a filter, returns that campaign's other three ids plus os_client_id, campaign_name, campaign_type, campaign_subtype, bidding_strategy and campaign_status. Use it to normalise a user-supplied campaign id before any campaign-scoped analysis, and to read bidding_strategy (CPC/AUTO_CPC vs CPM/AUTO_CPM) which decides whether the analysis is CPC- or CPM-shaped. Point-in-time dimension lookup: no date window applies. Filter on exactly one id attribute; requesting it unfiltered returns every campaign in the agency. No real metrics - a placeholder_metric is included to satisfy the fetch layer.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "marketing_campaign_id": {
+      "key": "marketing_campaign_id",
+      "selector": "ctd.marketing_campaign_id",
+      "type": "STRING",
+      "externalColumnName": "perf_marketing_campaign_id",
+      "description": "Marketing campaign id - the id most downstream campaign reports expect. Filter on this when the user already supplied a marketing_campaign_id.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:intake"
+      ]
+    },
+    "campaign_id": {
+      "key": "campaign_id",
+      "selector": "ctd.campaign_id",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_id",
+      "description": "Internal (serving-side) campaign id. Filter on this when the user supplied a campaign_id.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:intake"
+      ]
+    },
+    "campaign_group_id": {
+      "key": "campaign_group_id",
+      "selector": "ctd.campaign_group_id",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_id",
+      "description": "Internal (serving-side) campaign group id. Filter on this when the user supplied a campaign_group_id.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:intake"
+      ]
+    },
+    "marketing_campaign_group_id": {
+      "key": "marketing_campaign_group_id",
+      "selector": "ctd.marketing_campaign_group_id",
+      "type": "STRING",
+      "externalColumnName": "perf_marketing_campaign_group_id",
+      "description": "Marketing campaign group id. Filter on this when the user supplied a marketing_campaign_group_id; one group can expand to several marketing_campaign_ids.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:intake"
+      ]
+    },
+    "os_client_id": {
+      "key": "os_client_id",
+      "selector": "ctd.client_id",
+      "type": "STRING",
+      "externalColumnName": "perf_os_client_id",
+      "description": "Advertiser client id that owns the campaign - the scope id for merchant/SKU drill-downs on this campaign.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:intake"
+      ]
+    },
+    "campaign_name": {
+      "key": "campaign_name",
+      "selector": "mcd.alias",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_name",
+      "description": "Human-readable campaign name (the marketing campaign alias).",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:intake"
+      ]
+    },
+    "campaign_type": {
+      "key": "campaign_type",
+      "selector": "mcd.campaign_type",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_type",
+      "description": "Campaign type (PERFORMANCE, INVENTORY, OFFSITE, ...).",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:intake"
+      ]
+    },
+    "campaign_subtype": {
+      "key": "campaign_subtype",
+      "selector": "mcd.campaign_subtype",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_subtype",
+      "description": "Campaign subtype (os_ads_search, smart_shopping, auction_display_ads, ...) - distinguishes PLA from Display for column selection downstream.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:intake"
+      ]
+    },
+    "bidding_strategy": {
+      "key": "bidding_strategy",
+      "selector": "mcd.bidding_strategy",
+      "type": "STRING",
+      "externalColumnName": "perf_bidding_strategy",
+      "description": "Bid strategy of the campaign (CPC, AUTO_CPC, CPM, AUTO_CPM, ...). CPC/AUTO_CPC means the campaign is priced per click and CPC is the meaningful efficiency metric; CPM/AUTO_CPM means it is priced per mille and CPM is.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:intake"
+      ]
+    },
+    "campaign_status": {
+      "key": "campaign_status",
+      "selector": "mcd.effective_status",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_status",
+      "description": "Effective status of the campaign (ACTIVE, PAUSED, ...) at read time - a paused campaign explains a delivery drop on its own.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:intake"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "description": "Constant 0 - a required placeholder metric so the fetch layer accepts this pure-attribute lookup report; not a real measure.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:intake"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 3650,
+    "maxDataFetchDaysDuration": 3650
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd INNER JOIN `prj-onlinesales-prod-01.reporting.clients` AS cl ON cl.client_id = ctd.client_id LEFT JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd ON ctd.marketing_campaign_id = mcd.marketing_campaign_id AND ctd.client_id = mcd.client_id WHERE cl.agency_id = '__AGENCY_ID__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

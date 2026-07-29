@@ -1,0 +1,51 @@
+/Users/manav.kumawat/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Verifying 26 non-consolidated configs — agency 105, 2026-07-19→2026-07-21
+
+[ 1/26] OK    INTERNAL_PERF_BUDGET_DELIVERY_MODE           1 rows · all columns
+[ 2/26] OK    INTERNAL_PERF_BUDGET_PACING_BUCKETS          3 rows · all columns
+[ 3/26] OK    INTERNAL_PERF_CAMPAIGNS_IN_CATEGORY          68474 rows · all columns
+[ 4/26] OK    INTERNAL_PERF_CAMPAIGN_DAILY_BUDGET_AVG      1 rows · all columns
+[ 5/26] OK    INTERNAL_PERF_CAMPAIGN_DAILY_BUDGET_FLEXI    1 rows · all columns
+[ 6/26] OK    INTERNAL_PERF_CAMPAIGN_INVENTORY             536 rows · all columns
+[ 7/26] OK    INTERNAL_PERF_CAMPAIGN_PRODUCT_SELECTION     26 rows · all columns
+[ 8/26] OK    INTERNAL_PERF_CAMPAIGN_SUBTYPE_CPC           2 rows · all columns
+[ 9/26] OK    INTERNAL_PERF_CATEGORY_QUADRANT              528 rows · all columns
+[10/26] ERROR INTERNAL_PERF_CATEGORY_REQUEST_VOLUME        Error: unable to fetch GCP BigQuery result - Access Denied: Table prj-onlinesales-prod-01:reporting_belgium.os_product_ads_request_report: User does not have permission to query table prj-onlinesales-prod-01:reporting_belgium.os_product_ads_request_report, or perhaps it does not exist.
+[11/26] OK    INTERNAL_PERF_CTR_OVERALL                    1 rows · all columns
+[12/26] ERROR INTERNAL_PERF_DAILY_ORDER_TRENDS             Error: unable to fetch GCP BigQuery result - Unrecognized name: cvcpf at [1:42]
+[13/26] OK    INTERNAL_PERF_DISPLAY_INVENTORY_CAMPAIGNS    534 rows · all columns · required filter with no known test value: ['ad_unit']
+[14/26] OK    INTERNAL_PERF_DISPLAY_QUADRANT               31 rows · all columns
+[15/26] ERROR INTERNAL_PERF_FILTER_PRESENCE_RR             Error: report type 'FILTER_PRESENCE_RR_REPORT' is not configured yet.
+[16/26] OK    INTERNAL_PERF_MARKETPLACE_DIRECTORY          64 rows · all columns
+[17/26] OK    INTERNAL_PERF_MERCHANT_CATEGORY              296 rows · all columns
+[18/26] OK    INTERNAL_PERF_MINUTE_CPC                     953 rows · all columns
+[19/26] OK    INTERNAL_PERF_MINUTE_CPM                     192280 rows · reduced grain (first 2 attrs)
+[20/26] EMPTY INTERNAL_PERF_PROBLEM_METRICS                0 rows in scope · all columns
+[21/26] ERROR INTERNAL_PERF_RESPONDED_SKUS                 ReadTimeout
+[22/26] OK    INTERNAL_PERF_SEARCH_QUERY_CAMPAIGNS         2 rows · all columns
+[23/26] EMPTY INTERNAL_PERF_SEARCH_QUERY_MATCH             0 rows in scope · all columns
+[24/26] OK    INTERNAL_PERF_TARGET_ROI                     1 rows · all columns
+[25/26] OK    INTERNAL_PERF_TRUE_BU                        7745 rows · reduced grain (first 2 attrs)
+[26/26] OK    INTERNAL_PERF_WALLET_BALANCE                 42068 rows · all columns
+
+====================================================================================================
+  OK     20
+  EMPTY  2
+  ERROR  4
+
+ERRORS — to be triaged separately (4):
+
+  INTERNAL_PERF_CATEGORY_REQUEST_VOLUME  (rr/INTERNAL_PERF_CATEGORY_REQUEST_VOLUME.json)
+    Error: unable to fetch GCP BigQuery result - Access Denied: Table prj-onlinesales-prod-01:reporting_belgium.os_product_ads_request_report: User does not have permission to query table prj-onlinesales-prod-01:reporting_belgium.os_product_ads_request_report, or perhaps it does not exist.
+
+  INTERNAL_PERF_DAILY_ORDER_TRENDS  (roas/INTERNAL_PERF_DAILY_ORDER_TRENDS.json)
+    Error: unable to fetch GCP BigQuery result - Unrecognized name: cvcpf at [1:42]
+
+  INTERNAL_PERF_FILTER_PRESENCE_RR  (rr/INTERNAL_PERF_FILTER_PRESENCE_RR.json)
+    Error: report type 'FILTER_PRESENCE_RR_REPORT' is not configured yet.
+
+  INTERNAL_PERF_RESPONDED_SKUS  (irrelevancy/INTERNAL_PERF_RESPONDED_SKUS.json)
+    ReadTimeout
+
+wrote out/verify_remaining.json

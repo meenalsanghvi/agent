@@ -1,0 +1,75 @@
+{
+    "reportType": "INTERNAL_PERF_CAMPAIGN_NETWORKS_VIA_CTD",
+    "externalReportType": "CAMPAIGN_NETWORKS_VIA_CTD_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:campaign"
+    ],
+    "externalRequiredFilters": [
+        "campaign_id"
+    ],
+    "description": "Targeted NETWORK mappings for a campaign resolved through campaign_tagging_data when the caller holds a non-campaign_id key (a marketing_campaign_id). Point-in-time, no date range. One row per active network target: the resolving marketing_campaign_id, the resolved internal numeric campaign_id, and the network target_details JSON. Source is the OLTP config table os_ads_db_campaign_targeting_mapping (ctm) INNER JOINed to campaign_tagging_data (ctd) on campaign_id+client_id to translate the caller's marketing_campaign_id into the internal campaign_id(s), restricted to network targets that are not deleted (target_type='NETWORK', is_deleted=0). campaign_id (the external filter) maps to ctd.marketing_campaign_id and is mandatory. Python layer derives networks (list) and network_count from these rows.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "campaign_id": {
+            "key": "campaign_id",
+            "selector": "ctd.marketing_campaign_id",
+            "type": "STRING",
+            "externalColumnName": "campaign_id",
+            "description": "The resolving marketing_campaign_id the caller holds (a non-campaign_id key). Mandatory filter: pass the marketing_campaign_id here; campaign_tagging_data resolves it to the internal campaign_id(s) whose network targeting is returned.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        },
+        "resolved_campaign_id": {
+            "key": "resolved_campaign_id",
+            "selector": "SAFE_CAST(ctm.campaign_id AS STRING)",
+            "type": "STRING",
+            "externalColumnName": "resolved_campaign_id",
+            "description": "Internal numeric campaign_id that the supplied marketing_campaign_id resolved to (via campaign_tagging_data), and to which this network targeting mapping belongs.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        },
+        "target_details": {
+            "key": "target_details",
+            "selector": "TO_JSON_STRING(ctm.target_details)",
+            "type": "STRING",
+            "externalColumnName": "target_details",
+            "description": "The targeted NETWORK definition for this campaign, serialized as a JSON string (TO_JSON_STRING of the target_details struct).",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        }
+    },
+    "metrics": {
+        "placeholder_metric": {
+            "key": "placeholder_metric",
+            "selector": "0",
+            "type": "FLOAT",
+            "externalColumnName": "placeholder_metric",
+            "description": "Constant 0. Row-level dimension passthrough (network targeting lookup) with no aggregated measure; KAM requires at least one metric to fetch.",
+            "filterTags": [
+                "report_group:campaign"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_db_campaign_targeting_mapping` AS ctm INNER JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON SAFE_CAST(ctd.campaign_id AS INT64) = ctm.campaign_id AND SAFE_CAST(ctd.client_id AS INT64) = ctm.client_id WHERE ctm.target_type = 'NETWORK' AND ctm.is_deleted = 0 AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

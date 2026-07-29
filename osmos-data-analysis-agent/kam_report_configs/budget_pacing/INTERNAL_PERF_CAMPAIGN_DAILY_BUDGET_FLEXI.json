@@ -1,0 +1,55 @@
+{
+  "reportType": "INTERNAL_PERF_CAMPAIGN_DAILY_BUDGET_FLEXI",
+  "externalReportType": "CAMPAIGN_DAILY_BUDGET_FLEXI_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:budget_pacings"
+  ],
+  "externalRequiredFilters": [
+    "perf_campaign_id"
+  ],
+  "description": "Flexi daily budget for a single PLA campaign on a single date (used when avgDailyBudget is disabled): the campaign's daily budget capped by the merchant's remaining wallet balance, in the marketplace currency. Returns one row per campaign_id with daily_budget. The campaign is a per-call filter (campaign_id is mandatory) and the date is the START date of the range (single-date lookup). Cap logic: if the day's spend exceeds the converted remaining wallet the spend is used, else the smaller of the converted remaining wallet vs the configured daily budget. The Python layer rounds daily_budget and tags budget_source='flexi_budget'.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "campaign_id": {
+      "key": "campaign_id",
+      "selector": "SAFE_CAST(cb.marketing_campaign_id AS STRING)",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_id",
+      "description": "The PLA campaign id (marketing_campaign_id). Mandatory per-call filter: pass the campaign id whose flexi daily budget you want on the given date.",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    }
+  },
+  "metrics": {
+    "daily_budget": {
+      "key": "daily_budget",
+      "selector": "COALESCE(ROUND(SUM(CASE WHEN cbs.remaining_budget_usd IS NOT NULL AND cb.daily_spend IS NOT NULL AND cb.daily_spend > (cbs.remaining_budget_usd * scc_usd.conversion_factor) THEN cb.daily_spend WHEN cbs.remaining_budget_usd IS NOT NULL AND (cbs.remaining_budget_usd * scc_usd.conversion_factor) <= cb.daily_budget THEN (cbs.remaining_budget_usd * scc_usd.conversion_factor) ELSE cb.daily_budget END), 2), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_daily_budget",
+      "description": "Flexi daily budget for the campaign on the date, in the marketplace currency: the configured daily budget capped by the merchant's converted remaining wallet balance (spend used when it already exceeds the wallet).",
+      "filterTags": [
+        "report_group:budget_pacings"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM (SELECT cl.client_id AS client_id, mcdd.marketing_campaign_id AS marketing_campaign_id, mcdd.currency AS currency, ROUND(SUM(CASE WHEN mcdd.effective_status = 'ACTIVE' THEN mcdd.daily_budget * scc.conversion_factor WHEN mcdd.effective_status != 'ACTIVE' AND mcdd.cost > 0 THEN mcdd.cost * scc.conversion_factor ELSE 0 END), 2) AS daily_budget, ROUND(SUM(mcdd.cost * scc.conversion_factor), 2) AS daily_spend FROM `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions_daily` AS mcdd INNER JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd ON SAFE_CAST(mcd.client_id AS STRING) = SAFE_CAST(mcdd.client_id AS STRING) AND SAFE_CAST(mcd.marketing_campaign_id AS STRING) = SAFE_CAST(mcdd.marketing_campaign_id AS STRING) INNER JOIN `prj-onlinesales-prod-01.reporting.clients` AS cl ON SAFE_CAST(cl.client_id AS STRING) = SAFE_CAST(mcdd.client_id AS STRING) AND cl.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.agency_id = cl.agency_id AND SAFE_CAST(cl.client_id AS STRING) != SAFE_CAST(mc.marketplace_client_id AS STRING) INNER JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = mcdd.currency AND scc.to_currency = mc.currency WHERE mcdd.date = '__START_DATE_1__' AND mcd.campaign_type IN ('PERFORMANCE', 'INVENTORY') AND mcd.campaign_subtype IN ('SMART_SHOPPING', 'OS_ADS_SEARCH', 'VIDEO_MIDROLL', 'CAMPAIGN_V2', 'AUCTION') AND mcd.campaign_origin != 'PACKAGE_BASED' GROUP BY cl.client_id, mcdd.marketing_campaign_id, mcdd.currency) AS cb INNER JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc2 ON mc2.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc_usd ON scc_usd.from_currency = 'USD' AND scc_usd.to_currency = mc2.currency INNER JOIN `prj-onlinesales-prod-01.reporting.client_budget_snapshot` AS cbs ON cbs.agency_id = '__AGENCY_ID__' AND SAFE_CAST(cbs.client_id AS STRING) = SAFE_CAST(cb.client_id AS STRING) AND cbs.date = '__START_DATE_1__' WHERE cbs.status = 'ACTIVE' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

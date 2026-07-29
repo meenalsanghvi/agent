@@ -1,0 +1,143 @@
+{
+  "reportType": "INTERNAL_PERF_CAMPAIGN_INVENTORY",
+  "externalReportType": "CAMPAIGN_INVENTORY_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:budget_utilisation"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Inventory / ad-unit slots selected by Display campaigns for a marketplace over a period, one row per ad-unit (inventory) slot x campaign group: spend, impressions, clicks, CTR, CPM, program GMV (ad-attributed sales) and ROAS. Source is os_brand_ads_network_level_facts (Display brand ads). Filter by os_client_id (advertiser client) and/or campaign_group_id to scope to specific Display campaigns.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "inventory_name": {
+      "key": "inventory_name",
+      "selector": "bad.au_display_name",
+      "type": "STRING",
+      "externalColumnName": "perf_inventory_name",
+      "description": "Display inventory / ad-unit slot display name the campaign served on.",
+      "filterTags": [
+        "report_group:budget_utilisation"
+      ]
+    },
+    "campaign_group_name": {
+      "key": "campaign_group_name",
+      "selector": "mcgd.marketing_campaign_group_alias",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_name",
+      "description": "Human-readable Display campaign group (campaign) name.",
+      "filterTags": [
+        "report_group:budget_utilisation"
+      ]
+    },
+    "campaign_group_id": {
+      "key": "campaign_group_id",
+      "selector": "mcgd.marketing_campaign_group_id",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_id",
+      "description": "Marketing campaign group id of the Display campaign. Use as a filter to scope to specific campaign group(s).",
+      "filterTags": [
+        "report_group:budget_utilisation"
+      ]
+    },
+    "os_client_id": {
+      "key": "os_client_id",
+      "selector": "baf.client_id",
+      "type": "STRING",
+      "externalColumnName": "perf_os_client_id",
+      "description": "OnlineSales client id of the advertiser running the campaign (working id for internal analysis). Use as a filter to scope to specific client(s).",
+      "filterTags": [
+        "report_group:budget_utilisation"
+      ]
+    }
+  },
+  "metrics": {
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.cost ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "Ad spend on this inventory slot for this campaign (fact-table native currency, unconverted per source).",
+      "filterTags": [
+        "report_group:budget_utilisation"
+      ]
+    },
+    "impressions": {
+      "key": "impressions",
+      "selector": "COALESCE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.onsite_impressions ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_impressions",
+      "description": "Onsite ad impressions on this inventory slot for this campaign.",
+      "filterTags": [
+        "report_group:budget_utilisation"
+      ]
+    },
+    "clicks": {
+      "key": "clicks",
+      "selector": "COALESCE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.clicks ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_clicks",
+      "description": "Ad clicks on this inventory slot for this campaign.",
+      "filterTags": [
+        "report_group:budget_utilisation"
+      ]
+    },
+    "ctr": {
+      "key": "ctr",
+      "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.clicks ELSE 0 END) * 100.0, NULLIF(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.onsite_impressions ELSE 0 END), 0)), 2), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_ctr",
+      "description": "Click-through rate (%) = clicks / impressions * 100 for this inventory slot x campaign.",
+      "filterTags": [
+        "report_group:budget_utilisation"
+      ]
+    },
+    "cpm": {
+      "key": "cpm",
+      "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.cost ELSE 0 END) * 1000, NULLIF(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.onsite_impressions ELSE 0 END), 0)), 4), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_cpm",
+      "description": "Cost per mille = spend / impressions * 1000 for this inventory slot x campaign (fact-table native currency).",
+      "filterTags": [
+        "report_group:budget_utilisation"
+      ]
+    },
+    "program_gmv": {
+      "key": "program_gmv",
+      "selector": "COALESCE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.program_per_click_timestamp_sales ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_gmv",
+      "description": "PROGRAM (ad-attributed, per-click-timestamp) GMV / sales on this inventory slot for this campaign (fact-table native currency).",
+      "filterTags": [
+        "report_group:budget_utilisation"
+      ]
+    },
+    "roas": {
+      "key": "roas",
+      "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.program_per_click_timestamp_sales ELSE 0 END), NULLIF(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.cost ELSE 0 END), 0)), 4), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_roas",
+      "description": "ROI / ROAS = program_gmv / spend for this inventory slot x campaign.",
+      "filterTags": [
+        "report_group:budget_utilisation"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_brand_ads_network_level_facts` AS baf JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON ctd.campaign_id = baf.campaign_id AND ctd.client_id = baf.client_id JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_group_dimensions` AS mcgd ON mcgd.marketing_campaign_group_id = ctd.marketing_campaign_group_id AND mcgd.client_id = ctd.client_id AND mcgd.campaign_origin != 'PACKAGE_BASED' JOIN `prj-onlinesales-prod-01.reporting.brand_ads_dimensions` AS bad ON bad.campaign_id = ctd.campaign_id AND baf.ad_id = bad.ad_id AND bad.account_id = ctd.account_id AND baf.ad_creative_id = bad.ad_creative_id AND baf.account_id = bad.account_id AND baf.campaign_id = bad.campaign_id AND baf.client_id = bad.client_id AND baf.marketplace_client_id = bad.marketplace_client_id AND baf.inventory_ad_unit_id = bad.inventory_ad_unit_id JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON baf.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

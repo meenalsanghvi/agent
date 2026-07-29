@@ -1,0 +1,105 @@
+{
+    "reportType": "INTERNAL_PERF_STORE_LEVEL_RR",
+    "externalReportType": "STORE_LEVEL_RR_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:rr"
+    ],
+    "externalRequiredFilters": [
+        "page_type"
+    ],
+    "description": "PLA store-level response-rate bucketing grain for a marketplace over a period: raw ad requests and non-zero responses at store_id x category (L1 > L2 > L3) x day-of-month x hour-of-day grain, filtered to a single page_type (default 'category'). Returns only raw aggregates; the Python layer buckets each store-hour into zero/partial/full response and computes overall and eligibility-adjusted RR. Day-of-month and hour-of-day are derived via EXTRACT from the r.date_hour column.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "store_id": {
+            "key": "store_id",
+            "selector": "r.store_id",
+            "type": "STRING",
+            "externalColumnName": "store_id",
+            "description": "The store the ad request was attributed to (PLA store_id).",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "category": {
+            "key": "category",
+            "selector": "CONCAT(COALESCE(r.category_l1, 'na'), ' > ', COALESCE(r.category_l2, 'na'), ' > ', COALESCE(r.category_l3, 'na'))",
+            "type": "STRING",
+            "externalColumnName": "category",
+            "description": "Category hierarchy path (L1 > L2 > L3) the requests/responses were attributed to; 'na' where a level is missing.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "day": {
+            "key": "day",
+            "selector": "EXTRACT(DAY FROM r.date_hour)",
+            "type": "FLOAT",
+            "externalColumnName": "day",
+            "description": "Day-of-month (1-31) derived via EXTRACT(DAY FROM r.date_hour); used with hour to form the store-hour bucketing grain.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "hour": {
+            "key": "hour",
+            "selector": "EXTRACT(HOUR FROM r.date_hour)",
+            "type": "FLOAT",
+            "externalColumnName": "hour",
+            "description": "Hour-of-day (0-23) derived via EXTRACT(HOUR FROM r.date_hour); used with day to form the store-hour bucketing grain.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "page_type": {
+            "key": "page_type",
+            "selector": "r.page_type",
+            "type": "STRING",
+            "externalColumnName": "page_type",
+            "description": "The surface the ad served on (SEARCH, CATEGORY, PRODUCT, HOME, ...). Filter to a single value (default 'category') so requests/responses are not aggregated across page types within a store-hour.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Ad requests received for this store x category x day x hour grouping.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.non_zero_responses ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "Requests that returned at least one ad (non-zero responses) for this store x category x day x hour grouping.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_filtered_level_report` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

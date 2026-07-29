@@ -1,0 +1,254 @@
+[
+  {
+    "retired": "INTERNAL_PERF_BUDGET_CHANGES",
+    "successor": "AUDIT_EVENTS_REPORT",
+    "verdict": "BLOCKED",
+    "note": "audit.audit_logs_v2 unreachable (pre-existing)"
+  },
+  {
+    "retired": "INTERNAL_PERF_BU_REQUESTS_DISPLAY",
+    "successor": "DISPLAY_AD_UNIT_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "3 rows, all 3 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_BU_REQUESTS_PLA",
+    "successor": "PAGE_PERFORMANCE_PLA_REPORT",
+    "verdict": "PASS",
+    "note": "3 rows, all 3 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_CAMPAIGN_KW_NEGATIVE",
+    "successor": "CAMPAIGN_KEYWORDS_REPORT",
+    "verdict": "PASS*",
+    "note": "0 rows in scope; all 4 cols resolved"
+  },
+  {
+    "retired": "INTERNAL_PERF_CAMPAIGN_KW_TARGETED",
+    "successor": "CAMPAIGN_KEYWORDS_REPORT",
+    "verdict": "PASS*",
+    "note": "0 rows in scope; all 5 cols resolved"
+  },
+  {
+    "retired": "INTERNAL_PERF_CAMPAIGN_NETWORKS_BY_ID",
+    "successor": "CAMPAIGN_NETWORKS_REPORT",
+    "verdict": "PASS*",
+    "note": "0 rows in scope; all 3 cols resolved"
+  },
+  {
+    "retired": "INTERNAL_PERF_CAMPAIGN_NETWORKS_VIA_CTD",
+    "successor": "CAMPAIGN_NETWORKS_REPORT",
+    "verdict": "PASS*",
+    "note": "0 rows in scope; all 4 cols resolved"
+  },
+  {
+    "retired": "INTERNAL_PERF_CAMPAIGN_PERF_AGG",
+    "successor": "INTERNAL_CAMPAIGN_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "1 rows, all 17 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_CAMPAIGN_PERF_DAILY",
+    "successor": "INTERNAL_CAMPAIGN_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "3 rows, all 14 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_CAMPAIGN_STATUS_CHANGES",
+    "successor": "AUDIT_EVENTS_REPORT",
+    "verdict": "BLOCKED",
+    "note": "audit.audit_logs_v2 unreachable (pre-existing)"
+  },
+  {
+    "retired": "INTERNAL_PERF_CATEGORY_LEVEL",
+    "successor": "CATEGORY_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "1232 rows, all 14 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_CATEGORY_RR",
+    "successor": "RR_PLA_REPORT",
+    "verdict": "PASS",
+    "note": "3707 rows, all 7 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_KEYWORD_SELLER",
+    "successor": "INTERNAL_SEARCH_QUERY_PERF_REPORT",
+    "verdict": "PASS",
+    "note": "1 rows, all 10 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_KW_COMPETITION",
+    "successor": "INTERNAL_KEYWORD_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "5 rows, all 11 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_KW_PERF_IN_CAMPAIGNS",
+    "successor": "INTERNAL_KEYWORD_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "5 rows, all 8 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_KW_REQUEST_VOLUME",
+    "successor": "SEARCH_QUERY_REQUESTS_PLA_REPORT",
+    "verdict": "PASS",
+    "note": "1 rows, all 3 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_MERCHANT_BU",
+    "successor": "MERCHANT_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "2688 rows, all 7 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_MERCHANT_CATEGORY_CPC",
+    "successor": "CATEGORY_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "186213 rows, all 10 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_MERCHANT_CPC",
+    "successor": "MERCHANT_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "2688 rows, all 12 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_MERCHANT_CTR",
+    "successor": "MERCHANT_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "2688 rows, all 10 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_MERCHANT_KEYWORD",
+    "successor": "INTERNAL_KEYWORD_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "5 rows, all 10 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_MERCHANT_ROAS",
+    "successor": "MERCHANT_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "2688 rows, all 15 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_MERCHANT_RR",
+    "successor": "MERCHANT_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "2688 rows, all 7 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_PAGE_LEVEL",
+    "successor": "PAGE_PERFORMANCE_PLA_REPORT",
+    "verdict": "PASS",
+    "note": "5 rows, all 6 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_PRODUCT_SELECTION_CHANGES",
+    "successor": "AUDIT_EVENTS_REPORT",
+    "verdict": "BLOCKED",
+    "note": "audit.audit_logs_v2 unreachable (pre-existing)"
+  },
+  {
+    "retired": "INTERNAL_PERF_PROGRAM_SPEND",
+    "successor": "GMV_ATTRIBUTION_REPORT",
+    "verdict": "PASS",
+    "note": "1 rows, all 1 cols present (+1 filter-only/dropped)"
+  },
+  {
+    "retired": "INTERNAL_PERF_RR_BY_DIMENSION_DISPLAY",
+    "successor": "RR_DISPLAY_REPORT",
+    "verdict": "PASS",
+    "note": "3973 rows, all 10 cols present (+1 filter-only/dropped)"
+  },
+  {
+    "retired": "INTERNAL_PERF_RR_BY_DIMENSION_PLA",
+    "successor": "RR_PLA_REPORT",
+    "verdict": "PASS",
+    "note": "17645 rows, all 13 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_RR_BY_PAGE_DISPLAY",
+    "successor": "DISPLAY_AD_UNIT_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "10 rows, all 4 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_RR_BY_PAGE_PLA",
+    "successor": "PAGE_PERFORMANCE_PLA_REPORT",
+    "verdict": "PASS",
+    "note": "5 rows, all 4 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_RR_DISPLAY_PAGE_TYPE",
+    "successor": "RR_DISPLAY_REPORT",
+    "verdict": "PASS",
+    "note": "10 rows, all 4 cols present (+1 filter-only/dropped)"
+  },
+  {
+    "retired": "INTERNAL_PERF_RR_HOURLY",
+    "successor": "RR_DISPLAY_REPORT",
+    "verdict": "PASS",
+    "note": "24 rows, all 3 cols present (+1 filter-only/dropped)"
+  },
+  {
+    "retired": "INTERNAL_PERF_RR_HOURLY_AD_UNIT",
+    "successor": "RR_DISPLAY_REPORT",
+    "verdict": "PASS",
+    "note": "39 rows, all 3 cols present (+1 filter-only/dropped)"
+  },
+  {
+    "retired": "INTERNAL_PERF_SEARCH_QUERY_PERF",
+    "successor": "INTERNAL_SEARCH_QUERY_PERF_REPORT",
+    "verdict": "PASS",
+    "note": "1 rows, all 9 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_SEARCH_QUERY_RR_BUCKETS",
+    "successor": "SEARCH_QUERY_REQUESTS_PLA_REPORT",
+    "verdict": "PASS",
+    "note": "1 rows, all 3 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_SEARCH_QUERY_RR_DISPLAY",
+    "successor": "RR_DISPLAY_REPORT",
+    "verdict": "PASS",
+    "note": "1 rows, all 4 cols present (+1 filter-only/dropped)"
+  },
+  {
+    "retired": "INTERNAL_PERF_SEARCH_QUERY_RR_DISPLAY_AD_UNIT",
+    "successor": "RR_DISPLAY_REPORT",
+    "verdict": "PASS",
+    "note": "2 rows, all 5 cols present (+1 filter-only/dropped)"
+  },
+  {
+    "retired": "INTERNAL_PERF_SEARCH_QUERY_RR_PLA",
+    "successor": "SEARCH_QUERY_REQUESTS_PLA_REPORT",
+    "verdict": "PASS",
+    "note": "1 rows, all 4 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_SKU_CPC",
+    "successor": "SKU_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "612 rows, all 20 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_SKU_CTR",
+    "successor": "SKU_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "612 rows, all 12 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_SKU_ROAS",
+    "successor": "SKU_PERFORMANCE_REPORT",
+    "verdict": "PASS",
+    "note": "612 rows, all 19 cols present"
+  },
+  {
+    "retired": "INTERNAL_PERF_STORE_LEVEL_RR",
+    "successor": "RR_PLA_REPORT",
+    "verdict": "PASS",
+    "note": "122890 rows, all 7 cols present"
+  }
+]

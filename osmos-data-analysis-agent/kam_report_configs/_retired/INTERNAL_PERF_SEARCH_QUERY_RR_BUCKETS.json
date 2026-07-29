@@ -1,0 +1,67 @@
+{
+    "reportType": "INTERNAL_PERF_SEARCH_QUERY_RR_BUCKETS",
+    "externalReportType": "SEARCH_QUERY_RR_BUCKETS_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:search_query",
+        "report_group:rr"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Per-keyword (search-query) request and response totals on PLA search pages for a marketplace over a period, timezone-aware: total ad requests and non-zero responses grouped by keyword. Feeds the Python layer's zero/partial/full response-rate bucketing and Pareto coverage analysis (RR, buckets, and coverage are computed downstream, not here).",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "keyword": {
+            "key": "keyword",
+            "selector": "LOWER(TRIM(r.search_query, '[],\",'))",
+            "type": "STRING",
+            "externalColumnName": "keyword",
+            "description": "The normalized search query (keyword) users typed, lower-cased and stripped of bracket/quote characters.",
+            "filterTags": [
+                "report_group:search_query",
+                "report_group:rr"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.request ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Total ad requests received for this keyword over the period.",
+            "filterTags": [
+                "report_group:search_query",
+                "report_group:rr"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.response ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "Non-zero ad responses returned for this keyword over the period (requests that were filled with at least one ad).",
+            "filterTags": [
+                "report_group:search_query",
+                "report_group:rr"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_search_query_request_report` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND r.search_query IS NOT NULL AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

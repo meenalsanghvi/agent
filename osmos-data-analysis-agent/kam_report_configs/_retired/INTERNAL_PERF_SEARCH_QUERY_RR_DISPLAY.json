@@ -1,0 +1,78 @@
+{
+    "reportType": "INTERNAL_PERF_SEARCH_QUERY_RR_DISPLAY",
+    "externalReportType": "SEARCH_QUERY_RR_DISPLAY_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:search_query",
+        "report_group:rr"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Display keyword-level (filter_keywords) request / response / response-rate for a marketplace over a period, from the display filtered-level performance facts. One row per targeted keyword. Filter by keyword to scope to specific keyword(s); no spend / no currency conversion. The Python layer derives Pareto keywords, totals and overall response rate.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "keyword": {
+            "key": "keyword",
+            "selector": "LOWER(r.filter_keywords)",
+            "type": "STRING",
+            "externalColumnName": "keyword",
+            "description": "The targeted display keyword (filter_keywords, lowercased). Filterable to scope to specific keyword(s).",
+            "filterTags": [
+                "report_group:search_query",
+                "report_group:rr"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Display ad requests received for this keyword.",
+            "filterTags": [
+                "report_group:search_query",
+                "report_group:rr"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.responses ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "Requests that returned at least one ad (responses) for this keyword.",
+            "filterTags": [
+                "report_group:search_query",
+                "report_group:rr"
+            ]
+        },
+        "response_rate": {
+            "key": "response_rate",
+            "selector": "SAFE_DIVIDE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.responses ELSE 0 END) * 100, NULLIF(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0))",
+            "type": "FLOAT",
+            "externalColumnName": "response_rate",
+            "description": "Response rate (%) = responses / requests * 100 for this keyword.",
+            "filterTags": [
+                "report_group:search_query",
+                "report_group:rr"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_display_ads_filtered_level_performance_facts` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND r.filter_keywords IS NOT NULL AND TRIM(r.filter_keywords) != '' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

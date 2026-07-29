@@ -1,0 +1,51 @@
+/Users/manav.kumawat/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Phase 4 — 42 retired reports to verify against their replacements
+
+[ 1/42] INTERNAL_PERF_BUDGET_CHANGES                   → SKIP (blocked)
+[ 2/42] INTERNAL_PERF_BU_REQUESTS_DISPLAY              → PASS   3 rows, all 3 cols present
+[ 3/42] INTERNAL_PERF_BU_REQUESTS_PLA                  → PASS   3 rows, all 3 cols present
+[ 4/42] INTERNAL_PERF_CAMPAIGN_KW_NEGATIVE             → PASS*  0 rows in scope; all 4 cols resolved
+[ 5/42] INTERNAL_PERF_CAMPAIGN_KW_TARGETED             → PASS*  0 rows in scope; all 5 cols resolved
+[ 6/42] INTERNAL_PERF_CAMPAIGN_NETWORKS_BY_ID          → PASS*  0 rows in scope; all 3 cols resolved
+[ 7/42] INTERNAL_PERF_CAMPAIGN_NETWORKS_VIA_CTD        → PASS*  0 rows in scope; all 4 cols resolved
+[ 8/42] INTERNAL_PERF_CAMPAIGN_PERF_AGG                → PASS   1 rows, all 17 cols present
+[ 9/42] INTERNAL_PERF_CAMPAIGN_PERF_DAILY              → PASS   3 rows, all 14 cols present
+[10/42] INTERNAL_PERF_CAMPAIGN_STATUS_CHANGES          → SKIP (blocked)
+[11/42] INTERNAL_PERF_CATEGORY_LEVEL                   → PASS   1232 rows, all 14 cols present
+[12/42] INTERNAL_PERF_CATEGORY_RR                      → PASS   3707 rows, all 7 cols present
+[13/42] INTERNAL_PERF_KEYWORD_SELLER                   → PASS   1 rows, all 10 cols present
+[14/42] INTERNAL_PERF_KW_COMPETITION                   → PASS   5 rows, all 11 cols present
+[15/42] INTERNAL_PERF_KW_PERF_IN_CAMPAIGNS             → PASS   5 rows, all 8 cols present
+[16/42] INTERNAL_PERF_KW_REQUEST_VOLUME                → PASS   1 rows, all 3 cols present
+[17/42] INTERNAL_PERF_MERCHANT_BU                      → PASS   2688 rows, all 7 cols present
+[18/42] INTERNAL_PERF_MERCHANT_CATEGORY_CPC            → PASS   186213 rows, all 10 cols present
+[19/42] INTERNAL_PERF_MERCHANT_CPC                     → PASS   2688 rows, all 12 cols present
+[20/42] INTERNAL_PERF_MERCHANT_CTR                     → PASS   2688 rows, all 10 cols present
+[21/42] INTERNAL_PERF_MERCHANT_KEYWORD                 → PASS   5 rows, all 10 cols present
+[22/42] INTERNAL_PERF_MERCHANT_ROAS                    → PASS   2688 rows, all 15 cols present
+[23/42] INTERNAL_PERF_MERCHANT_RR                      → PASS   2688 rows, all 7 cols present
+[24/42] INTERNAL_PERF_PAGE_LEVEL                       → PASS   5 rows, all 6 cols present
+[25/42] INTERNAL_PERF_PRODUCT_SELECTION_CHANGES        → SKIP (blocked)
+[26/42] INTERNAL_PERF_PROGRAM_SPEND                    → PASS   1 rows, all 1 cols present (+1 filter-only/dropped)
+[27/42] INTERNAL_PERF_RR_BY_DIMENSION_DISPLAY          → PASS   3973 rows, all 10 cols present (+1 filter-only/dropped)
+[28/42] INTERNAL_PERF_RR_BY_DIMENSION_PLA              → PASS   17645 rows, all 13 cols present
+[29/42] INTERNAL_PERF_RR_BY_PAGE_DISPLAY               → PASS   10 rows, all 4 cols present
+[30/42] INTERNAL_PERF_RR_BY_PAGE_PLA                   → PASS   5 rows, all 4 cols present
+[31/42] INTERNAL_PERF_RR_DISPLAY_PAGE_TYPE             → PASS   10 rows, all 4 cols present (+1 filter-only/dropped)
+[32/42] INTERNAL_PERF_RR_HOURLY                        → PASS   24 rows, all 3 cols present (+1 filter-only/dropped)
+[33/42] INTERNAL_PERF_RR_HOURLY_AD_UNIT                → PASS   39 rows, all 3 cols present (+1 filter-only/dropped)
+[34/42] INTERNAL_PERF_SEARCH_QUERY_PERF                → PASS   1 rows, all 9 cols present
+[35/42] INTERNAL_PERF_SEARCH_QUERY_RR_BUCKETS          → PASS   1 rows, all 3 cols present
+[36/42] INTERNAL_PERF_SEARCH_QUERY_RR_DISPLAY          → PASS   1 rows, all 4 cols present (+1 filter-only/dropped)
+[37/42] INTERNAL_PERF_SEARCH_QUERY_RR_DISPLAY_AD_UNIT  → PASS   2 rows, all 5 cols present (+1 filter-only/dropped)
+[38/42] INTERNAL_PERF_SEARCH_QUERY_RR_PLA              → PASS   1 rows, all 4 cols present
+[39/42] INTERNAL_PERF_SKU_CPC                          → PASS   612 rows, all 20 cols present
+[40/42] INTERNAL_PERF_SKU_CTR                          → PASS   612 rows, all 12 cols present
+[41/42] INTERNAL_PERF_SKU_ROAS                         → PASS   612 rows, all 19 cols present
+[42/42] INTERNAL_PERF_STORE_LEVEL_RR                   → PASS   122890 rows, all 7 cols present
+
+====================================================================================================
+  PASS     35
+  PASS*    4
+  BLOCKED  3

@@ -1,0 +1,163 @@
+{
+  "reportType": "INTERNAL_PERF_DAILY_ORDER_TRENDS",
+  "externalReportType": "DAILY_ORDER_TRENDS_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:roas"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Date-level PROGRAM (ad-attributed, per-click-timestamp CONVERTED conversions/sales) vs SITE (organic, monetize_merchant_facts converted) funnel for a marketplace, one row per date. Program side: spend, clicks, program_orders, program_gmv, program_viewproducts, program_add2carts. Site side: site_orders, site_revenue, site_viewproducts, site_add2carts. organic_orders = site_orders - program_orders. Money is converted to the marketplace currency. Filter by channel to isolate PLA (os_product_ads) vs Display (guaranteed_display_ads / auction_display_ads) on the program side.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "date": {
+      "key": "date",
+      "selector": "COALESCE(s.date, p.date)",
+      "type": "STRING",
+      "externalColumnName": "perf_date",
+      "description": "Calendar date of the daily program-vs-site funnel row (from either the program or site aggregate).",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    },
+    "channel": {
+      "key": "channel",
+      "selector": "cvcpf.channel",
+      "type": "STRING",
+      "externalColumnName": "perf_channel",
+      "description": "Program ad channel: os_product_ads (PLA), guaranteed_display_ads / auction_display_ads (Display). Use as a per-call FILTER (not a group-by) to scope the program side to a program type; it does not affect the organic site side.",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    }
+  },
+  "metrics": {
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.spend ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "Program (advertising) spend on this date, converted to the marketplace currency.",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    },
+    "clicks": {
+      "key": "clicks",
+      "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.clicks ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_clicks",
+      "description": "Program ad clicks on this date.",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    },
+    "program_orders": {
+      "key": "program_orders",
+      "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.program_orders ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_orders",
+      "description": "Ad-attributed orders on this date (per-click-timestamp CONVERTED conversions).",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    },
+    "program_gmv": {
+      "key": "program_gmv",
+      "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.program_gmv ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_gmv",
+      "description": "Ad-attributed GMV / sales on this date (per-click-timestamp CONVERTED sales), converted to the marketplace currency.",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    },
+    "program_viewproducts": {
+      "key": "program_viewproducts",
+      "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.program_viewproducts ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_viewproducts",
+      "description": "Ad-attributed product-page views on this date (per-click-timestamp CONVERTED viewproduct).",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    },
+    "program_add2carts": {
+      "key": "program_add2carts",
+      "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.program_add2carts ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_program_add2carts",
+      "description": "Ad-attributed add-to-cart events on this date (per-click-timestamp CONVERTED add_to_cart).",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    },
+    "site_orders": {
+      "key": "site_orders",
+      "selector": "COALESCE(SUM(CASE WHEN s.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN s.site_orders ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_orders",
+      "description": "Total site (organic) completed orders on this date (total_sok_salecompletes).",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    },
+    "site_revenue": {
+      "key": "site_revenue",
+      "selector": "COALESCE(SUM(CASE WHEN s.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN s.site_revenue ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_revenue",
+      "description": "Total site (organic) revenue on this date (total_sok_sales_usd), converted to the marketplace currency.",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    },
+    "site_viewproducts": {
+      "key": "site_viewproducts",
+      "selector": "COALESCE(SUM(CASE WHEN s.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN s.site_viewproducts ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_viewproducts",
+      "description": "Total site (organic) product-page views on this date (total_sok_viewproducts).",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    },
+    "site_add2carts": {
+      "key": "site_add2carts",
+      "selector": "COALESCE(SUM(CASE WHEN s.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN s.site_add2carts ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_site_add2carts",
+      "description": "Total site (organic) add-to-cart events on this date (total_sok_add2carts).",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    },
+    "organic_orders": {
+      "key": "organic_orders",
+      "selector": "COALESCE(SUM(CASE WHEN s.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN s.site_orders ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.program_orders ELSE 0 END), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_organic_orders",
+      "description": "Organic (non-ad-attributed) orders on this date = site_orders - program_orders.",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM (SELECT cvcpf.date AS date, SUM(cvcpf.cost * scc.conversion_factor) AS spend, SUM(cvcpf.clicks) AS clicks, SUM(cvcpf.program_per_click_timestamp_conversions) AS program_orders, SUM(cvcpf.program_per_click_timestamp_sales) AS program_gmv, SUM(cvcpf.program_per_click_timestamp_viewproduct) AS program_viewproducts, SUM(cvcpf.program_per_click_timestamp_add_to_cart) AS program_add2carts FROM `prj-onlinesales-prod-01.reporting.client_vendor_channel_performance_facts` AS cvcpf INNER JOIN `prj-onlinesales-prod-01.reporting.clients` AS clients ON clients.client_id = cvcpf.client_id AND clients.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.agency_id = clients.agency_id AND clients.client_id != mc.marketplace_client_id INNER JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = cvcpf.currency AND scc.to_currency = mc.currency WHERE cvcpf.vendor = 'os_ads' AND cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY 1) AS p FULL OUTER JOIN (SELECT mmf.date AS date, SUM(mmf.total_sok_salecompletes) AS site_orders, SUM(mmf.total_sok_sales_usd * scc.conversion_factor) AS site_revenue, SUM(mmf.total_sok_viewproducts) AS site_viewproducts, SUM(mmf.total_sok_add2carts) AS site_add2carts FROM `prj-onlinesales-prod-01.reporting.monetize_merchant_facts` AS mmf INNER JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mmf.agency_id = mc.agency_id AND mmf.marketplace_client_id = mc.marketplace_client_id INNER JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE mmf.agency_id = '__AGENCY_ID__' AND mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' GROUP BY 1) AS s ON p.date = s.date GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

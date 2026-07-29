@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "osmos-performance-local": {
+      "command": "python3",
+      "args": [
+        "${OSMOS_PERFORMANCE_MCP:-../osmos-performance-mcp}/local_dev_server.py"
+      ]
+    },
+    "osmos-reporting-internal-performance": {
+      "type": "http",
+      "url": "${OSMOS_REPORTING_MCP_HOST:-https://test.onlinesales.ai}/osmosReportingMcp/internalPerformance"
+    }
+  }
+}

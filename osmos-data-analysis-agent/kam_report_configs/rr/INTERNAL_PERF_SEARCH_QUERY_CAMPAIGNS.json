@@ -1,0 +1,113 @@
+{
+  "reportType": "INTERNAL_PERF_SEARCH_QUERY_CAMPAIGNS",
+  "externalReportType": "SEARCH_QUERY_CAMPAIGNS_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:search_queries",
+    "report_group:response_rate"
+  ],
+  "externalRequiredFilters": [
+    "perf_search_query"
+  ],
+  "description": "Distinct campaigns responding to a set of search queries for a marketplace over one period, with each campaign's current effective_status, for RR-drop root-cause. Rows are (search_query, os_client_id, merchant_id, campaign_id, campaign_name, effective_status) from os_ads_search_query_performance_report joined to campaign dims (campaign_tagging_data + marketing_campaign_dimensions). A search_query filter is required to scope which queries to inspect; a paused/non-ACTIVE effective_status flags campaigns that stopped responding.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "search_query": {
+      "key": "search_query",
+      "selector": "resp.search_query",
+      "type": "STRING",
+      "externalColumnName": "perf_search_query",
+      "description": "The search term the shopper typed that these campaigns responded to. Required filter: pass the set of queries under investigation.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:response_rate"
+      ]
+    },
+    "os_client_id": {
+      "key": "os_client_id",
+      "selector": "resp.client_id",
+      "type": "STRING",
+      "externalColumnName": "perf_os_client_id",
+      "description": "OnlineSales client id of the advertiser responding to the query (working id for internal analysis).",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:response_rate"
+      ]
+    },
+    "merchant_id": {
+      "key": "merchant_id",
+      "selector": "resp.merchant_id",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_id",
+      "description": "Seller (merchant) id whose campaign responded to the query (working id for internal analysis).",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:response_rate"
+      ]
+    },
+    "campaign_id": {
+      "key": "campaign_id",
+      "selector": "ctd.marketing_campaign_id",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_id",
+      "description": "Marketing campaign id that responded to the search query.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:response_rate"
+      ]
+    },
+    "campaign_name": {
+      "key": "campaign_name",
+      "selector": "mcd.alias",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_name",
+      "description": "Human-readable name (alias) of the campaign.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:response_rate"
+      ]
+    },
+    "effective_status": {
+      "key": "effective_status",
+      "selector": "mcd.effective_status",
+      "type": "STRING",
+      "externalColumnName": "perf_effective_status",
+      "description": "Current effective status of the campaign (e.g. ACTIVE, PAUSED); a non-ACTIVE status flags a campaign that has stopped responding.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:response_rate"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "description": "Constant-zero placeholder so a distinct-dimension (campaign directory) report satisfies the engine's minimum-one-metric requirement; not a real measure.",
+      "filterTags": [
+        "report_group:search_queries",
+        "report_group:response_rate"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_search_query_performance_report` AS resp JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON ctd.campaign_id = resp.campaign_id LEFT JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd ON mcd.marketing_campaign_id = ctd.marketing_campaign_id JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON resp.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND resp.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

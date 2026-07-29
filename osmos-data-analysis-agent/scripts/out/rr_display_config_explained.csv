@@ -1,0 +1,266 @@
+"kam_report_config","explanation"
+"{
+  ""reportType"": ""INTERNAL_PERF_RR_DISPLAY"",
+  ""externalReportType"": ""RR_DISPLAY_REPORT"",
+  ""visibility"": ""INTERNAL_PERFORMANCE"",
+  ""filterTags"": [
+    ""report_group:rr"",
+    ""report_group:search_query""
+  ],
+  ""externalRequiredFilters"": [],
+  ""description"": ""Display ad request / response volume and response rate for a marketplace over a period, grouped by any combination of the dimensions below: supply network, page type, device, ad unit, product category (L1-L3), hour of day, or the keyword the request carried. Replaces the six single-grain Display RR reports. Group by page_type for page-type RR, by hour for the hourly RR curve, by ad_unit to find ad units with zero responses, by keyword for keyword-level Display RR, or by keyword + ad_unit for the follow-up breakdown. Pass a NOT IN ('', 'NA') filter on the grouping column to reproduce the null/blank guards the retired reports hardcoded."",
+  ""source"": ""GOOGLE_BIG_QUERY"",
+  ""sourceInfo"": {
+    ""appKey"": ""GCP_BQ_KAM_CREDENTIALS""
+  },
+  ""cacheInfo"": {
+    ""isCachingEnabled"": true,
+    ""cachingExpiryInSec"": 900
+  },
+  ""attributes"": {
+    ""network"": {
+      ""key"": ""network"",
+      ""selector"": ""r.network"",
+      ""type"": ""STRING"",
+      ""externalColumnName"": ""network"",
+      ""description"": ""The supply network / channel the ad request came from."",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    },
+    ""page_type"": {
+      ""key"": ""page_type"",
+      ""selector"": ""r.page_type"",
+      ""type"": ""STRING"",
+      ""externalColumnName"": ""page_type"",
+      ""description"": ""Page type the Display ad request was served on. Filter page_type NOT IN ('', 'NA') to drop unattributed rows."",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    },
+    ""device"": {
+      ""key"": ""device"",
+      ""selector"": ""r.device"",
+      ""type"": ""STRING"",
+      ""externalColumnName"": ""device"",
+      ""description"": ""The device type the ad request came from (mobile, desktop, app, ...)."",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    },
+    ""ad_unit"": {
+      ""key"": ""ad_unit"",
+      ""selector"": ""r.ad_unit"",
+      ""type"": ""STRING"",
+      ""externalColumnName"": ""ad_unit"",
+      ""description"": ""The display ad unit / placement slot the request was attributed to."",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    },
+    ""category_l1"": {
+      ""key"": ""category_l1"",
+      ""selector"": ""r.category_l1"",
+      ""type"": ""STRING"",
+      ""externalColumnName"": ""category_l1"",
+      ""description"": ""Top-level (L1) product category the requests/responses were attributed to."",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    },
+    ""category_l2"": {
+      ""key"": ""category_l2"",
+      ""selector"": ""r.category_l2"",
+      ""type"": ""STRING"",
+      ""externalColumnName"": ""category_l2"",
+      ""description"": ""Second-level (L2) product category."",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    },
+    ""category_l3"": {
+      ""key"": ""category_l3"",
+      ""selector"": ""r.category_l3"",
+      ""type"": ""STRING"",
+      ""externalColumnName"": ""category_l3"",
+      ""description"": ""Third-level (L3) product category."",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    },
+    ""hour"": {
+      ""selector"": ""EXTRACT(HOUR FROM r.date_hour)"",
+      ""type"": ""INTEGER"",
+      ""description"": ""Hour of day (0-23) the Display ad request was made, from date_hour. Group by this to find low-activity hours dragging RR down."",
+      ""key"": ""hour"",
+      ""externalColumnName"": ""hour"",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    },
+    ""keyword"": {
+      ""selector"": ""LOWER(TRIM(r.filter_keywords))"",
+      ""type"": ""STRING"",
+      ""description"": ""Keyword the Display ad request carried (filter_keywords), lowercased and trimmed. Filter keyword NOT IN ('') to drop requests with no keyword."",
+      ""key"": ""keyword"",
+      ""externalColumnName"": ""keyword"",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    }
+  },
+  ""metrics"": {
+    ""requests"": {
+      ""key"": ""requests"",
+      ""selector"": ""COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0)"",
+      ""type"": ""FLOAT"",
+      ""externalColumnName"": ""requests"",
+      ""description"": ""Ad requests received for this dimension grouping."",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    },
+    ""responses"": {
+      ""key"": ""responses"",
+      ""selector"": ""COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.responses ELSE 0 END), 0)"",
+      ""type"": ""FLOAT"",
+      ""externalColumnName"": ""responses"",
+      ""description"": ""Requests that returned at least one ad (responses) for this dimension grouping."",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    },
+    ""response_rate"": {
+      ""key"": ""response_rate"",
+      ""selector"": ""SAFE_DIVIDE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.responses ELSE 0 END) * 100, NULLIF(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0))"",
+      ""type"": ""FLOAT"",
+      ""externalColumnName"": ""response_rate"",
+      ""description"": ""Response rate (%) = responses / requests * 100 for this dimension grouping."",
+      ""filterTags"": [
+        ""report_group:rr"",
+        ""report_group:search_query""
+      ]
+    }
+  },
+  ""dateRanges"": {
+    ""count"": 1,
+    ""dataAvailabilityDays"": 90,
+    ""maxDataFetchDaysDuration"": 31
+  },
+  ""query"": {
+    ""REPORTING"": ""SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_display_ads_filtered_level_performance_facts` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;"",
+    ""MERCHANT"": """",
+    ""GROUPED"": """"
+  },
+  ""application"": ""irisTestApplication""
+}","## Block 1 — identity and how it's exposed
+
+| Key | Value | What it does |
+|---|---|---|
+| `reportType` | `INTERNAL_PERF_RR_DISPLAY` | The internal primary key. What `run_kam_report` / `post_external.py` targets, and what `MERGE_MAP.md` uses to record that 6 retired reports now point here. |
+| `externalReportType` | `RR_DISPLAY_REPORT` | The name the agent sees in the catalogue. Must be globally unique across the whole KAM catalogue — not just this repo — which is why new names get checked against `catalogue_baseline.json` first. |
+| `visibility` | `INTERNAL_PERFORMANCE` | Which catalogue the report lands in. All 83 configs in this repo use this value. |
+| `description` | (long prose) | Written for the model, not humans. This is the only thing the agent reads when deciding whether this report answers its question, so it names every grouping and spells out the recipes (`group by hour` for the RR curve, `group by ad_unit` to find dead ad units). |
+| `filterTags` | `report_group:rr`, `report_group:search_query` | Two jobs. It is the taxonomy — each distinct `report_group:<v>` mints a `get_<v>s_reports` MCP tool, so this report shows up under both RR and search-query tooling. And it is half of the visibility handshake in Block 3. |
+| `externalRequiredFilters` | `[]` | No filter is mandatory. Convenient, but it means an unfiltered fetch aggregates every Display request in the agency — this table is exactly where the test env threw query-timeouts during validation. |
+
+## Block 2 — plumbing
+
+| Key | Value | Notes |
+|---|---|---|
+| `source` / `sourceInfo.appKey` | `GOOGLE_BIG_QUERY` / `GCP_BQ_KAM_CREDENTIALS` | Which credential KAM uses to run the SQL. This is the single field that blocks the 5 unvalidated configs — their datasets need a different appKey. |
+| `cacheInfo` | enabled, 900s | 15-min result cache. Compare `MARKETPLACE_DIRECTORY` at 3600s — a directory changes far less often than performance facts. |
+| `application` | `irisTestApplication` | The KAM tenant / app the config is registered under. |
+
+## Block 3 — `attributes`: the grouping vocabulary
+
+Nine dimensions, all the same shape. Taking `page_type`:
+
+```json
+""page_type"": {
+  ""key"": ""page_type"",                    // internal handle
+  ""selector"": ""r.page_type"",             // the SQL expression
+  ""type"": ""STRING"",
+  ""externalColumnName"": ""page_type"",     // the name the agent requests
+  ""description"": ""..."",                  // per-column model-facing hint
+  ""filterTags"": [""report_group:rr"", ""report_group:search_query""]
+}
+```
+
+`filterTags` here is not decoration. A column is agent-visible only if all three hold: it has an `externalColumnName`, that name has a global columnMetadata entry, and its `filterTags` intersect the report's `filterTags`. Miss one and the column silently vanishes from the catalogue — no error. That is why every column repeats the report's exact two tags.
+
+Two selectors are computed rather than plain columns:
+
+- `hour` -> `EXTRACT(HOUR FROM r.date_hour)`, typed `INTEGER`. The table stores an hourly timestamp; the report exposes just the 0-23 bucket, which is what the RR-curve analysis wants.
+- `keyword` -> `LOWER(TRIM(r.filter_keywords))`. Normalization pushed into the selector, so `""iPhone ""` and `""iphone""` collapse into one group instead of two.
+
+Note `category_l1/l2/l3` are three independent attributes, not a hierarchy KAM enforces — grouping by L3 alone gives L3 totals with no L1 context unless you request both.
+
+## Block 4 — `metrics`
+
+`requests` and `responses` are straight sums. `response_rate` is the interesting one:
+
+```
+SAFE_DIVIDE(SUM(...responses...) * 100, NULLIF(SUM(...requests...), 0))
+```
+
+`SAFE_DIVIDE` + `NULLIF` means zero requests yields `NULL`, not a divide-by-zero. And it is computed inside the group, so it is a correct weighted rate per row — but consequently NOT summable. A caller cannot average the `response_rate` column across rows to get a marketplace rate; they must re-derive it from `requests` and `responses`. This is also one of the few places SQL computes a derived metric at all — the house rule is that deltas, contribution %, and verdicts are computed in the Python layer on raw aggregates.
+
+The doubled date window: every metric wraps its sum in `CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__'`, and the WHERE clause filters the same range. Not redundant by accident — the WHERE bound gives BigQuery partition pruning (cost), while the per-selector window is the house pattern that lets a multi-range report emit per-window metrics. Here `count: 1`, so it is belt-and-braces, kept uniform on purpose.
+
+## Block 5 — `dateRanges`
+
+```json
+{ ""count"": 1, ""dataAvailabilityDays"": 90, ""maxDataFetchDaysDuration"": 31 }
+```
+
+`count: 1` is the load-bearing one. It was verified that KAM does not auto-emit `_prev` / `_change` / `_perc` variants — a single fetch with two dateRanges returned only window-1 metrics. So comparison mode is two separate fetches (current, baseline) combined in Python. That is why you will never see a `_prev` column in any of these configs. The other two: 90 days of history available, 31 days max per request.
+
+## Block 6 — `query.REPORTING`, the template
+
+```sql
+SELECT __ATTRIBUTES__, __METRICS__
+FROM `...os_display_ads_filtered_level_performance_facts` AS r
+JOIN `...marketplace_clients` AS mc
+  ON r.marketplace_client_id = mc.marketplace_client_id
+WHERE mc.agency_id = '__AGENCY_ID__'
+  AND r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__'
+  AND __FILTER__
+GROUP BY __ATTRIBUTES_GROUP_BY__;
+```
+
+Four things worth naming:
+
+1. `AS r` must match every selector's alias. All nine attributes and three metrics say `r.<col>`; rename the alias and every selector breaks.
+2. The `mc` join is tenancy, not data. This fact table has no `agency_id` — only `marketplace_client_id`. So you join `marketplace_clients` purely to filter `mc.agency_id = '__AGENCY_ID__'`. KAM injects that token; it is never trusted from the caller.
+3. `AND __FILTER__` terminates the WHERE. A bare `WHERE __FILTER__` fails with ""Unrecognized name __FILTER__"" — there must be a real predicate before it. This is why the agency filter lives in WHERE rather than in the JOIN.
+4. `MERCHANT` and `GROUPED` are empty — this report only serves the REPORTING request type.
+
+## Why this one config replaced six
+
+`__ATTRIBUTES__` and `__ATTRIBUTES_GROUP_BY__` are built from the columns the caller requests, not fixed in the template. So one config serves every grain:
+
+| Caller requests | Resolves to |
+|---|---|
+| `page_type` + metrics | `SELECT r.page_type, ... GROUP BY r.page_type` — the old `RR_DISPLAY_PAGE_TYPE_REPORT` |
+| `hour` + metrics | hourly RR curve — old `RR_HOURLY_REPORT` |
+| `ad_unit` + metrics | old `RR_HOURLY_AD_UNIT_REPORT` |
+| `keyword` + metrics, filter `keyword NOT IN ('')` | old `SEARCH_QUERY_RR_DISPLAY_REPORT` |
+| `keyword` + `ad_unit` | old `SEARCH_QUERY_RR_DISPLAY_AD_UNIT_REPORT` |
+
+The retired reports hardcoded their guards (`page_type NOT IN ('', 'NA')`, `keyword NOT IN ('')`) in the WHERE clause. The merged template cannot — a guard that is right for the page_type grain is wrong for the hour grain. So those became caller filters, which is precisely what the `Caller must now` column in `MERGE_MAP.md` records. Numeric diff across all 6 pairs came back row-for-row identical.
+
+## Fix applied to this config
+
+The `description` previously advertised grouping by ""store"", but no store attribute exists here — `store_id` was deliberately dropped in the merge (`validate_merged.py` reports it as such) and `STORE_LEVEL_RR` went to `RR_PLA` instead. Since the description is the agent's only basis for choosing a report, that word would have sent it here for store-level Display questions, made it request a `store` column that does not exist, and failed. The word has been removed; the config in column 1 is the corrected version."

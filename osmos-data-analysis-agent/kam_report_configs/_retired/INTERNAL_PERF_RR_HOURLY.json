@@ -1,0 +1,63 @@
+{
+    "reportType": "INTERNAL_PERF_RR_HOURLY",
+    "externalReportType": "RR_HOURLY_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:rr"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Display ad response rate for a marketplace over a period, aggregated by hour-of-day (0-23) derived from date_hour, to surface low-activity hours dragging down RR. Returns raw ad requests and responses per hour; hour is groupable and filterable. No spend / no currency conversion. Python layer derives per-hour RR, low-activity hours, and adjusted RR.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "hour": {
+            "key": "hour",
+            "selector": "EXTRACT(HOUR FROM r.date_hour)",
+            "type": "FLOAT",
+            "externalColumnName": "hour",
+            "description": "Hour-of-day (0-23) the display ad requests/responses were attributed to, extracted from date_hour.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Display ad requests received in this hour-of-day.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.responses ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "Display ad requests that returned at least one ad (responses) in this hour-of-day.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_display_ads_filtered_level_performance_facts` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

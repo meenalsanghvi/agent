@@ -1,0 +1,135 @@
+{
+  "reportType": "INTERNAL_PERF_CAMPAIGN_PRODUCT_SELECTION",
+  "externalReportType": "CAMPAIGN_PRODUCT_SELECTION_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:campaigns"
+  ],
+  "externalRequiredFilters": [
+    "perf_campaign_id"
+  ],
+  "description": "Currently-active products selected in a specific campaign for a marketplace: one row per selected product with merchant_id, product_id, product_name, availability (e.g. 'in stock'), brand, and category L1/L2/L3. Point-in-time (no date range). campaign_id is a mandatory filter and resolves to campaign_tagging_data.marketing_campaign_id. Only active selections (opaps.is_active = TRUE) on non-deleted product dimensions (ompd.is_deleted = FALSE) are returned; filter availability = 'in stock' to restrict to in-stock products. Source tables are per-marketplace suffixed (os_product_ads_product_selection_<mcid>, oltp_merchandise_product_dimensions_<mcid>). Python layer derives product list, category_l1 breakdown, category hierarchy, and summary counts (total/in-stock products, unique brands and categories).",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "campaign_id": {
+      "key": "campaign_id",
+      "selector": "SAFE_CAST(ctd.marketing_campaign_id AS STRING)",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_id",
+      "description": "The marketing_campaign_id the caller holds. Mandatory filter: pass the campaign's marketing_campaign_id here; campaign_tagging_data resolves it to the internal campaign whose active product selection is returned.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "merchant_id": {
+      "key": "merchant_id",
+      "selector": "SAFE_CAST(opaps.merchant_id AS STRING)",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_id",
+      "description": "Merchant (seller) that owns the selected product.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "product_id": {
+      "key": "product_id",
+      "selector": "SAFE_CAST(opaps.product_id AS STRING)",
+      "type": "STRING",
+      "externalColumnName": "perf_product_id",
+      "description": "Product / SKU id selected in the campaign (joins to the product-dimension sku_id).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "product_name": {
+      "key": "product_name",
+      "selector": "ompd.e_name",
+      "type": "STRING",
+      "externalColumnName": "perf_product_name",
+      "description": "Display name of the product (product-dimension e_name).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "availability": {
+      "key": "availability",
+      "selector": "ompd.e_availability",
+      "type": "STRING",
+      "externalColumnName": "perf_availability",
+      "description": "Stock availability of the product (e.g. 'in stock', 'out of stock'). Filter availability = 'in stock' to restrict to in-stock products.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "brand": {
+      "key": "brand",
+      "selector": "ompd.e_brand",
+      "type": "STRING",
+      "externalColumnName": "perf_brand",
+      "description": "Brand of the product (product-dimension e_brand).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "category_l1": {
+      "key": "category_l1",
+      "selector": "ompd.category_l1",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l1",
+      "description": "Level-1 (top) product category.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "category_l2": {
+      "key": "category_l2",
+      "selector": "ompd.category_l2",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l2",
+      "description": "Level-2 product category (may be null when only L1 is present).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    },
+    "category_l3": {
+      "key": "category_l3",
+      "selector": "ompd.category_l3",
+      "type": "STRING",
+      "externalColumnName": "perf_category_l3",
+      "description": "Level-3 (leaf) product category (may be null when only L1/L2 are present).",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "description": "Constant 0. Row-level product-selection passthrough with no aggregated measure; KAM requires at least one metric to fetch.",
+      "filterTags": [
+        "report_group:campaigns"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_product_selection___SP_MARKETPLACE_CLIENT_ID__` AS opaps INNER JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON SAFE_CAST(opaps.campaign_id AS STRING) = SAFE_CAST(ctd.campaign_id AS STRING) AND SAFE_CAST(opaps.account_id AS STRING) = SAFE_CAST(ctd.account_id AS STRING) INNER JOIN `prj-onlinesales-prod-01.reporting.oltp_merchandise_product_dimensions___SP_MARKETPLACE_CLIENT_ID__` AS ompd ON SAFE_CAST(opaps.product_id AS STRING) = SAFE_CAST(ompd.sku_id AS STRING) AND SAFE_CAST(opaps.merchant_id AS STRING) = SAFE_CAST(ompd.merchant_id AS STRING) AND SAFE_CAST(opaps.client_id AS STRING) = SAFE_CAST(ompd.client_id AS STRING) WHERE ompd.is_deleted = FALSE AND opaps.is_active = TRUE AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

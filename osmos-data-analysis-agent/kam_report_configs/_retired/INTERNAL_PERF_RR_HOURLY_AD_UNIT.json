@@ -1,0 +1,63 @@
+{
+    "reportType": "INTERNAL_PERF_RR_HOURLY_AD_UNIT",
+    "externalReportType": "RR_HOURLY_AD_UNIT_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:rr"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Display ad requests and responses for a marketplace over a period, aggregated per ad_unit, from the display filtered-level performance facts. Used to flag ad units with zero responses (no active campaigns). Pick ad_unit to group by; it is also filterable. No spend / no currency conversion.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "ad_unit": {
+            "key": "ad_unit",
+            "selector": "r.ad_unit",
+            "type": "STRING",
+            "externalColumnName": "ad_unit",
+            "description": "The display ad unit (placement slot) the requests/responses are attributed to.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        }
+    },
+    "metrics": {
+        "requests": {
+            "key": "requests",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "requests",
+            "description": "Display ad requests received for this ad unit.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        },
+        "responses": {
+            "key": "responses",
+            "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.responses ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "responses",
+            "description": "Display ad requests that returned at least one ad (responses) for this ad unit. Zero responses flags an ad unit with no active campaigns.",
+            "filterTags": [
+                "report_group:rr"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_display_ads_filtered_level_performance_facts` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

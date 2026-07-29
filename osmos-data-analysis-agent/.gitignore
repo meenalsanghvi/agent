@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets / local
+.env
+credentials.json
+
+# Verification run artifacts. The logs and matrices are worth keeping — they are the
+# evidence for the config consolidation. The snapshot dirs are point-in-time rollback
+# copies of test-env Mongo documents: large, machine-specific, and useless once restored.
+scripts/out/snap*/

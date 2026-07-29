@@ -1,0 +1,90 @@
+/Users/manav.kumawat/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Numeric diff — agency 105, 2026-07-19→2026-07-21, tolerance ±0.01
+
+================================================================================================
+INTERNAL_PERF_MERCHANT_BU
+  vs INTERNAL_PERF_MERCHANT_PERFORMANCE   key=['os_client_id', 'channel']  metrics=3
+  rows: predecessor 2688  merged 2688  shared 2688  only-old 0  only-new 0
+    spend                  old=      3,326,249.54   new=      3,326,249.54
+    clicks                 old=        605,463.00   new=        605,463.00
+    impressions            old=     46,330,807.00   new=     46,330,807.00
+  VERDICT: ✅ IDENTICAL
+================================================================================================
+INTERNAL_PERF_MERCHANT_RR
+  vs INTERNAL_PERF_MERCHANT_PERFORMANCE   key=['os_client_id', 'channel']  metrics=3
+  rows: predecessor 2688  merged 2688  shared 2688  only-old 0  only-new 0
+    spend                  old=      3,326,249.54   new=      3,326,249.54
+    clicks                 old=        605,463.00   new=        605,463.00
+    impressions            old=     46,330,807.00   new=     46,330,807.00
+  VERDICT: ✅ IDENTICAL
+================================================================================================
+INTERNAL_PERF_MERCHANT_CTR
+  vs INTERNAL_PERF_MERCHANT_PERFORMANCE   key=['os_client_id', 'channel']  metrics=6
+  rows: predecessor 2688  merged 2688  shared 2688  only-old 0  only-new 0
+    spend                  old=      3,326,249.54   new=      3,326,249.54
+    clicks                 old=        605,463.00   new=        605,463.00
+    impressions            old=     46,330,807.00   new=     46,330,807.00
+    ctr                    old=          4,708.38   new=          4,708.38
+    cpc                    old=         21,912.83   new=         21,912.83
+    cpm                    old=        230,293.30   new=        230,293.30
+  VERDICT: ✅ IDENTICAL
+================================================================================================
+INTERNAL_PERF_MERCHANT_CPC
+  vs INTERNAL_PERF_MERCHANT_PERFORMANCE   key=['os_client_id', 'channel']  metrics=8
+  rows: predecessor 2688  merged 2688  shared 2688  only-old 0  only-new 0
+    spend                  old=      3,326,249.54   new=      3,326,249.54
+    clicks                 old=        605,463.00   new=        605,463.00
+    impressions            old=     46,330,807.00   new=     46,330,807.00
+    cpc                    old=         21,912.83   new=         21,912.83
+    program_viewproducts   old=      2,068,652.00   new=      2,068,652.00
+    program_add2carts      old=        238,828.00   new=        238,828.00
+    site_viewproducts      old=     18,579,427.00   new=     18,579,427.00
+    site_add2carts         old=      1,652,593.00   new=      1,652,593.00
+  VERDICT: ✅ IDENTICAL
+================================================================================================
+INTERNAL_PERF_MERCHANT_ROAS
+  vs INTERNAL_PERF_MERCHANT_PERFORMANCE   key=['os_client_id', 'channel']  metrics=11
+  rows: predecessor 2688  merged 2688  shared 2688  only-old 0  only-new 0
+    spend                  old=      3,326,249.54   new=      3,326,249.54
+    clicks                 old=        605,463.00   new=        605,463.00
+    program_viewproducts   old=      2,068,652.00   new=      2,068,652.00
+    program_add2carts      old=        238,828.00   new=        238,828.00
+    program_orders         old=         40,125.00   new=         40,125.00
+    program_gmv            old=     23,928,642.17   new=     23,928,642.17
+    roas                   old=         20,100.57   new=         20,100.57
+    site_viewproducts      old=     18,579,427.00   new=     18,579,427.00
+    site_add2carts         old=      1,652,593.00   new=      1,652,593.00
+    site_orders            old=        339,754.00   new=        339,754.00
+    site_revenue           old=    173,733,404.53   new=    173,733,404.53
+  VERDICT: ✅ IDENTICAL
+================================================================================================
+INTERNAL_PERF_KW_COMPETITION
+  vs INTERNAL_PERF_KEYWORD_PERFORMANCE   key=['keyword', 'campaign_id']  metrics=4
+  rows: predecessor 5  merged 5  shared 5  only-old 0  only-new 0
+    spend                  old=          1,373.04   new=          1,373.04
+    impressions            old=        294,865.00   new=        294,865.00
+    clicks                 old=            211.00   new=            211.00
+    attributed_sales       old=              0.00   new=              0.00
+  VERDICT: ✅ IDENTICAL
+================================================================================================
+INTERNAL_PERF_KW_PERF_IN_CAMPAIGNS
+  vs INTERNAL_PERF_KEYWORD_PERFORMANCE   key=['keyword', 'keyword_match_type', 'campaign_id']  metrics=4
+  rows: predecessor 5  merged 5  shared 5  only-old 0  only-new 0
+    spend                  old=          1,373.04   new=          1,373.04
+    impressions            old=        294,865.00   new=        294,865.00
+    clicks                 old=            211.00   new=            211.00
+    attributed_sales       old=              0.00   new=              0.00
+  VERDICT: ✅ IDENTICAL
+================================================================================================
+INTERNAL_PERF_MERCHANT_KEYWORD
+  vs INTERNAL_PERF_KEYWORD_PERFORMANCE   key=['keyword', 'keyword_match_type', 'campaign_id']  metrics=4
+  rows: predecessor 1  merged 1  shared 1  only-old 0  only-new 0
+    spend                  old=            236.73   new=            236.73
+    impressions            old=         12,918.00   new=         12,918.00
+    clicks                 old=             70.00   new=             70.00
+    attributed_sales       old=              0.00   new=              0.00
+  VERDICT: ✅ IDENTICAL
+
+================================================================================================
+OVERALL: ✅ every merged report reproduces its predecessors exactly

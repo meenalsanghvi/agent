@@ -1,0 +1,53 @@
+{
+  "reportType": "INTERNAL_PERF_TARGET_ROI",
+  "externalReportType": "TARGET_ROI_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:roas"
+  ],
+  "externalRequiredFilters": [],
+  "description": "Marketplace target-ROI benchmark for a single agency: the target_roi (target ROAS/ROI) configured on the agencies record. Per-agency point-in-time lookup (no date range) that returns one row with the target_roi attribute; use it as the benchmark to compare achieved ROAS against.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 3600
+  },
+  "attributes": {
+    "target_roi": {
+      "key": "target_roi",
+      "selector": "a.target_roi",
+      "type": "FLOAT",
+      "externalColumnName": "perf_target_roi",
+      "description": "The marketplace target ROI (target ROAS) benchmark configured for this agency.",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "description": "Constant 0 placeholder so the attribute-only report satisfies the fetch requirement of at least one metric; carries no meaning.",
+      "filterTags": [
+        "report_group:roas"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 3650,
+    "maxDataFetchDaysDuration": 3650
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.agencies` AS a WHERE a.agency_id = '__AGENCY_ID__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

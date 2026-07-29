@@ -1,0 +1,6 @@
+"config_id"	"report_type"	"external_report_type"	"grain"	"attributes"	"n_attributes"	"metrics"	"n_metrics"	"required_filters"	"filters_applied"	"unmet_required_filters"	"date_start"	"date_end"	"agency"	"status"	"error"	"sql_chars"
+"C28"	"INTERNAL_PERF_DAILY_ORDER_TRENDS"	"DAILY_ORDER_TRENDS_REPORT"	"EXTREME_ALL_ATTRIBUTES"	"date,channel"	"2"	"spend,clicks,program_orders,program_gmv,program_viewproducts,program_add2carts,site_orders,site_revenue,site_viewproducts,site_add2carts,organic_orders"	"11"	""	""	""	"2026-07-19"	"2026-07-21"	"105"	"ERROR"	"BadRequest: 400 POST https://bigquery.googleapis.com/bigquery/v2/projects/prj-onlinesales-prod-01/jobs?prettyPrint=false: Unrecognized name: cvcpf at [1:42]
+
+Location: None
+Job ID: ffe4efff-5e7c-4d04-99cb-5df7f15e6be7
+"	"3320"

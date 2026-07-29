@@ -1,0 +1,103 @@
+{
+  "reportType": "INTERNAL_PERF_CAMPAIGN_KEYWORDS",
+  "externalReportType": "CAMPAIGN_KEYWORDS_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:campaigns",
+    "report_group:keywords"
+  ],
+  "externalRequiredFilters": [
+    "perf_campaign_id"
+  ],
+  "description": "Keywords configured on a SEARCH campaign, excluding deleted ones. Filter is_negative = 0 for the active TARGETED keywords the campaign bids on (bidding_value is the merchant-set bid) or is_negative = 1 for the NEGATIVE keywords it explicitly excludes -- that flag replaces the hardcoded WHERE clause each retired report carried. bidding_value is null for negative keywords. Scope with a campaign_id filter.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "keyword": {
+      "key": "keyword",
+      "selector": "k.text",
+      "type": "STRING",
+      "externalColumnName": "perf_keyword",
+      "description": "The targeted keyword text the campaign bids on.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:keywords"
+      ]
+    },
+    "is_negative": {
+      "selector": "k.is_negative",
+      "type": "INTEGER",
+      "applyCaseInsensitiveFilter": true,
+      "description": "1 for a negative (excluded) keyword, 0 for a targeted keyword the campaign bids on. Filter this to pick which list you want.",
+      "key": "is_negative",
+      "externalColumnName": "perf_is_negative",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:keywords"
+      ]
+    },
+    "bidding_value": {
+      "key": "bidding_value",
+      "selector": "k.bidding_value",
+      "type": "FLOAT",
+      "externalColumnName": "perf_bidding_value",
+      "description": "Merchant-set bid value for this targeted keyword.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:keywords"
+      ]
+    },
+    "campaign_id": {
+      "key": "campaign_id",
+      "selector": "SAFE_CAST(k.marketing_campaign_id AS STRING)",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_id",
+      "description": "The marketing campaign the keyword is targeted on. Required per-call filter.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:keywords"
+      ]
+    },
+    "os_client_id": {
+      "key": "os_client_id",
+      "selector": "SAFE_CAST(k.client_id AS STRING)",
+      "type": "STRING",
+      "externalColumnName": "perf_os_client_id",
+      "description": "The advertiser (os_client) that owns the campaign. Optional filter.",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:keywords"
+      ]
+    }
+  },
+  "metrics": {
+    "placeholder_metric": {
+      "key": "placeholder_metric",
+      "selector": "0",
+      "type": "FLOAT",
+      "externalColumnName": "perf_placeholder_metric",
+      "description": "Structural placeholder so the fetch has a metric; not a real measure (this is a dimension lookup).",
+      "filterTags": [
+        "report_group:campaigns",
+        "report_group:keywords"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_db_campaign_level_keywords` AS k JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON SAFE_CAST(k.marketplace_client_id AS STRING) = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND k.is_deleted = 0 AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}

@@ -1,0 +1,53 @@
+{
+    "reportType": "INTERNAL_PERF_PROGRAM_SPEND",
+    "externalReportType": "PROGRAM_SPEND_REPORT",
+    "visibility": "INTERNAL_PERFORMANCE",
+    "filterTags": [
+        "report_group:bu"
+    ],
+    "externalRequiredFilters": [],
+    "description": "Total program (advertising) spend for a marketplace over a period, converted to the marketplace currency. A single-row aggregate across all clients of the agency. Filter by channel to isolate PLA (os_product_ads) vs Display (guaranteed_display_ads / auction_display_ads) spend.",
+    "source": "GOOGLE_BIG_QUERY",
+    "sourceInfo": {
+        "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    },
+    "cacheInfo": {
+        "isCachingEnabled": true,
+        "cachingExpiryInSec": 900
+    },
+    "attributes": {
+        "channel": {
+            "key": "channel",
+            "selector": "cvcpf.channel",
+            "type": "STRING",
+            "externalColumnName": "channel",
+            "description": "Ad program channel: os_product_ads (PLA), guaranteed_display_ads / auction_display_ads (Display). Use as a filter to scope spend to a program type.",
+            "filterTags": [
+                "report_group:bu"
+            ]
+        }
+    },
+    "metrics": {
+        "spend": {
+            "key": "spend",
+            "selector": "COALESCE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.cost * scc.conversion_factor ELSE 0 END), 0)",
+            "type": "FLOAT",
+            "externalColumnName": "spend",
+            "description": "Total program spend over the period, converted to the marketplace currency.",
+            "filterTags": [
+                "report_group:bu"
+            ]
+        }
+    },
+    "dateRanges": {
+        "count": 1,
+        "dataAvailabilityDays": 90,
+        "maxDataFetchDaysDuration": 31
+    },
+    "query": {
+        "REPORTING": "SELECT __METRICS__ FROM `prj-onlinesales-prod-01.reporting.client_vendor_channel_performance_facts` AS cvcpf INNER JOIN `prj-onlinesales-prod-01.reporting.clients` AS clients ON clients.client_id = cvcpf.client_id AND clients.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.agency_id = clients.agency_id AND clients.client_id != mc.marketplace_client_id INNER JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = cvcpf.currency AND scc.to_currency = mc.currency WHERE cvcpf.vendor = 'os_ads' AND cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__;",
+        "MERCHANT": "",
+        "GROUPED": ""
+    },
+    "application": "irisTestApplication"
+}

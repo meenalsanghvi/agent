@@ -1,0 +1,75 @@
+/Users/manav.kumawat/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+  ok  bu.check_program_spend                               → INTERNAL_PERF_GMV_ATTRIBUTION
+  ok  bu.check_requests.display                            → INTERNAL_PERF_DISPLAY_AD_UNIT
+  ok  bu.check_requests.pla                                → INTERNAL_PERF_PAGE_PERFORMANCE_PLA
+  ok  bu.get_campaign_inventory_performance                → INTERNAL_PERF_CAMPAIGN_INVENTORY  (no merged predecessor — full report column set)
+  ok  bu.get_category_quadrant_performance                 → INTERNAL_PERF_CATEGORY_QUADRANT  (no merged predecessor — full report column set)
+  ok  bu.get_display_ad_unit_performance                   → INTERNAL_PERF_DISPLAY_AD_UNIT  (no merged predecessor — full report column set)
+  ok  bu.get_display_inventory_campaigns                   → INTERNAL_PERF_DISPLAY_INVENTORY_CAMPAIGNS  (no merged predecessor — full report column set)
+  ok  bu.get_display_quadrant_performance                  → INTERNAL_PERF_DISPLAY_QUADRANT  (no merged predecessor — full report column set)
+  ok  bu.get_merchant_bu_breakdown                         → INTERNAL_PERF_MERCHANT_PERFORMANCE
+  ok  bu.get_merchant_wallet_balance                       → INTERNAL_PERF_WALLET_BALANCE  (no merged predecessor — full report column set)
+  ok  bu.get_true_bu_campaign_data                         → INTERNAL_PERF_TRUE_BU  (no merged predecessor — full report column set)
+  ok  budget_pacing.check_budget_changes_on_date           → INTERNAL_PERF_AUDIT_EVENTS
+  ok  budget_pacing.get_budget_delivery_mode               → INTERNAL_PERF_BUDGET_DELIVERY_MODE  (no merged predecessor — full report column set)
+  ok  budget_pacing.get_budget_pacing_buckets              → INTERNAL_PERF_BUDGET_PACING_BUCKETS  (no merged predecessor — full report column set)
+  ok  budget_pacing.get_campaign_daily_budget.avg_daily_budget → INTERNAL_PERF_CAMPAIGN_DAILY_BUDGET_AVG  (no merged predecessor — full report column set)
+  ok  budget_pacing.get_campaign_daily_budget.flexi_budget → INTERNAL_PERF_CAMPAIGN_DAILY_BUDGET_FLEXI  (no merged predecessor — full report column set)
+  ok  budget_pacing.get_minute_level_cpc_data              → INTERNAL_PERF_MINUTE_CPC  (no merged predecessor — full report column set)
+  ok  budget_pacing.get_minute_level_cpm_data              → INTERNAL_PERF_MINUTE_CPM  (no merged predecessor — full report column set)
+  ok  cpc.get_campaign_subtype_cpc_breakdown               → INTERNAL_PERF_CAMPAIGN_SUBTYPE_CPC  (no merged predecessor — full report column set)
+  ok  cpc.get_merchant_category_cpc_comparison             → INTERNAL_PERF_CATEGORY_PERFORMANCE
+  ok  cpc.get_merchant_cpc_breakdown                       → INTERNAL_PERF_MERCHANT_PERFORMANCE
+  ok  cpc.get_sku_level_cpc_performance                    → INTERNAL_PERF_SKU_PERFORMANCE
+  ok  ctr.check_ctr_overall                                → INTERNAL_PERF_CTR_OVERALL  (no merged predecessor — full report column set)
+  ok  ctr.get_keyword_seller_breakdown                     → INTERNAL_PERF_SEARCH_QUERY_PERFORMANCE
+  ok  ctr.get_merchant_ctr_breakdown                       → INTERNAL_PERF_MERCHANT_PERFORMANCE
+  ok  ctr.get_search_query_match_performance               → INTERNAL_PERF_SEARCH_QUERY_MATCH  (no merged predecessor — full report column set)
+  ok  ctr.get_sku_level_ctr_performance                    → INTERNAL_PERF_SKU_PERFORMANCE
+  ok  irrelevancy.get_responded_skus                       → INTERNAL_PERF_RESPONDED_SKUS  (no merged predecessor — full report column set)
+  ok  keyword_delivery.check_keyword_request_volume        → INTERNAL_PERF_SEARCH_QUERY_REQUESTS_PLA
+  ok  keyword_delivery.check_targeted_keyword_performance_in_campaigns → INTERNAL_PERF_KEYWORD_PERFORMANCE
+  ok  keyword_delivery.get_targeted_keyword_competition    → INTERNAL_PERF_KEYWORD_PERFORMANCE
+  ok  roas.check_gmv_attribution                           → INTERNAL_PERF_GMV_ATTRIBUTION  (no merged predecessor — full report column set)
+  ok  roas.get_daily_order_trends                          → INTERNAL_PERF_DAILY_ORDER_TRENDS  (no merged predecessor — full report column set)
+  ok  roas.get_merchant_breakdown                          → INTERNAL_PERF_MERCHANT_PERFORMANCE
+  ok  roas.get_sku_level_performance                       → INTERNAL_PERF_SKU_PERFORMANCE
+  ok  roas.get_target_roi                                  → INTERNAL_PERF_TARGET_ROI  (no merged predecessor — full report column set)
+  ok  rr.check_display_hourly_rr.ad_unit                   → INTERNAL_PERF_RR_DISPLAY
+  ok  rr.check_display_hourly_rr.hourly                    → INTERNAL_PERF_RR_DISPLAY
+  ok  rr.check_display_page_type_rr                        → INTERNAL_PERF_RR_DISPLAY
+  ok  rr.check_response_rate_by_page                       → INTERNAL_PERF_DISPLAY_AD_UNIT
+  ok  rr.check_response_rate_by_page                       → INTERNAL_PERF_PAGE_PERFORMANCE_PLA
+  ok  rr.get_category_request_volume                       → INTERNAL_PERF_CATEGORY_REQUEST_VOLUME  (no merged predecessor — full report column set)
+  ok  rr.get_category_response_rates                       → INTERNAL_PERF_RR_PLA
+  ERR rr.get_filter_presence_response_rates                → INTERNAL_PERF_FILTER_PRESENCE_RR  (no merged predecessor — full report column set)
+  ok  rr.get_merchant_rr_breakdown                         → INTERNAL_PERF_MERCHANT_PERFORMANCE
+  ok  rr.get_response_rate_by_dimension                    → INTERNAL_PERF_RR_DISPLAY
+  ok  rr.get_response_rate_by_dimension                    → INTERNAL_PERF_RR_PLA
+  ok  rr.get_search_query_campaigns                        → INTERNAL_PERF_SEARCH_QUERY_CAMPAIGNS  (no merged predecessor — full report column set)
+  ok  rr.get_search_query_response_rates.display           → INTERNAL_PERF_RR_DISPLAY
+  ok  rr.get_search_query_response_rates.display_ad_unit   → INTERNAL_PERF_RR_DISPLAY
+  ok  rr.get_search_query_response_rates.pla               → INTERNAL_PERF_SEARCH_QUERY_REQUESTS_PLA
+  ok  rr.get_search_query_rr_buckets                       → INTERNAL_PERF_SEARCH_QUERY_REQUESTS_PLA
+  ok  rr.get_store_level_rr_buckets                        → INTERNAL_PERF_RR_PLA
+  ok  shared.fetch_marketplace_info.all                    → INTERNAL_PERF_MARKETPLACE_DIRECTORY  (no merged predecessor — full report column set)
+  ok  shared.get_campaign_performance.aggregated           → INTERNAL_PERF_CAMPAIGN_PERFORMANCE
+  ok  shared.get_campaign_performance.daily                → INTERNAL_PERF_CAMPAIGN_PERFORMANCE
+  ok  shared.get_campaign_product_selection                → INTERNAL_PERF_CAMPAIGN_PRODUCT_SELECTION  (no merged predecessor — full report column set)
+  ok  shared.get_campaign_status_changes                   → INTERNAL_PERF_AUDIT_EVENTS
+  ok  shared.get_campaign_targeted_keywords.negative       → INTERNAL_PERF_CAMPAIGN_KEYWORDS
+  ok  shared.get_campaign_targeted_keywords.targeted       → INTERNAL_PERF_CAMPAIGN_KEYWORDS
+  ok  shared.get_campaign_targeted_networks.by_campaign_id → INTERNAL_PERF_CAMPAIGN_NETWORKS
+  ok  shared.get_campaign_targeted_networks.via_ctd        → INTERNAL_PERF_CAMPAIGN_NETWORKS
+  ok  shared.get_campaigns_in_category                     → INTERNAL_PERF_CAMPAIGNS_IN_CATEGORY  (no merged predecessor — full report column set)
+  ok  shared.get_category_level_performance                → INTERNAL_PERF_CATEGORY_PERFORMANCE
+  ok  shared.get_merchant_category_performance             → INTERNAL_PERF_MERCHANT_CATEGORY  (no merged predecessor — full report column set)
+  ok  shared.get_merchant_keyword_performance              → INTERNAL_PERF_KEYWORD_PERFORMANCE
+  ok  shared.get_page_level_performance                    → INTERNAL_PERF_PAGE_PERFORMANCE_PLA
+  ok  shared.get_problem_metrics                           → INTERNAL_PERF_PROBLEM_METRICS  (no merged predecessor — full report column set)
+  ok  shared.get_product_selection_changes                 → INTERNAL_PERF_AUDIT_EVENTS
+  ok  shared.get_search_query_performance                  → INTERNAL_PERF_SEARCH_QUERY_PERFORMANCE
+
+79 rows → /Users/manav.kumawat/Documents/agent/osmos-data-analysis-agent/scripts/out/query_consolidated_matrix.csv
+  consolidated SQL resolved: 69   failed: 1   no report: 9

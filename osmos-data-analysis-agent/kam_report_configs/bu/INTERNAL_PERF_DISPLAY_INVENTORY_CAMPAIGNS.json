@@ -1,0 +1,223 @@
+{
+  "reportType": "INTERNAL_PERF_DISPLAY_INVENTORY_CAMPAIGNS",
+  "externalReportType": "DISPLAY_INVENTORY_CAMPAIGNS_REPORT",
+  "visibility": "INTERNAL_PERFORMANCE",
+  "filterTags": [
+    "report_group:budget_utilisation",
+    "report_group:campaigns"
+  ],
+  "externalRequiredFilters": [
+    "perf_ad_unit"
+  ],
+  "description": "Campaigns running under a specific Display inventory slot for one period. Filter by ad_unit (required) and optionally page_type; returns per campaign-group rows: merchant id/name, os_client_id, campaign-group id/name/type/status/subtype, start/end date, bidding-strategy type, merchant remaining balance, daily budget, spend (raw cost, NOT currency-converted) and CPM. Only rows with cost > 0 that are either BLOCK_BUY or ACTIVE inventory configurations.",
+  "source": "GOOGLE_BIG_QUERY",
+  "sourceInfo": {
+    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+  },
+  "cacheInfo": {
+    "isCachingEnabled": true,
+    "cachingExpiryInSec": 900
+  },
+  "attributes": {
+    "merchant_id": {
+      "key": "merchant_id",
+      "selector": "mmd.merchant_id",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_id",
+      "description": "Merchant (seller) id owning the campaign group.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "merchant_name": {
+      "key": "merchant_name",
+      "selector": "mmd.merchant_name",
+      "type": "STRING",
+      "externalColumnName": "perf_merchant_name",
+      "description": "Merchant (seller) display name.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_id": {
+      "key": "campaign_group_id",
+      "selector": "mcd.marketing_campaign_group_id",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_id",
+      "description": "Marketing campaign-group id.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_name": {
+      "key": "campaign_group_name",
+      "selector": "mcd.marketing_campaign_group_alias",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_name",
+      "description": "Marketing campaign-group alias / display name.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "os_client_id": {
+      "key": "os_client_id",
+      "selector": "mmd.client_id",
+      "type": "STRING",
+      "externalColumnName": "perf_os_client_id",
+      "description": "OnlineSales advertiser client id for the merchant.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_type": {
+      "key": "campaign_group_type",
+      "selector": "CASE WHEN (JSON_EXTRACT_SCALAR(mcgd.metadata, '$.isEanEnabled') = 'true' AND ctd.vendor IN ('google', 'facebook', 'tiktok')) THEN 'Offsite Ad' WHEN mcgd.campaign_type = 'PERFORMANCE' THEN 'Sponsored Product Ad' WHEN mcgd.campaign_type IN ('AWARENESS', 'INVENTORY') THEN 'Sponsored Display Ad' WHEN mcgd.campaign_type IN ('OFFSITE') THEN 'Offsite Ad' ELSE 'Sponsored Offsite Ad' END",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_type",
+      "description": "Derived product family of the campaign group (Sponsored Product Ad / Sponsored Display Ad / Offsite Ad / Sponsored Offsite Ad).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_status": {
+      "key": "campaign_group_status",
+      "selector": "REPLACE(mcgd.effective_status, '_', ' ')",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_status",
+      "description": "Effective status of the campaign group with underscores replaced by spaces.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_start_date": {
+      "key": "campaign_group_start_date",
+      "selector": "CAST(DATE(TIMESTAMP(mcgd.start_date, 'UTC'), mc.timezone) AS STRING)",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_start_date",
+      "description": "Campaign-group start date in the marketplace timezone (from marketplace_clients.timezone).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_end_date": {
+      "key": "campaign_group_end_date",
+      "selector": "CASE WHEN DATETIME(TIMESTAMP(mcgd.end_date, 'UTC'), mc.timezone) >= '2036-01-01' THEN NULL ELSE CAST(DATE(TIMESTAMP(mcgd.end_date, 'UTC'), mc.timezone) AS STRING) END",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_end_date",
+      "description": "Campaign-group end date in the marketplace timezone; NULL for effectively open-ended (>= 2036-01-01).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_subtype": {
+      "key": "campaign_group_subtype",
+      "selector": "CASE WHEN (JSON_EXTRACT_SCALAR(mcgd.metadata, '$.isEanEnabled') = 'true' AND ctd.vendor IN ('google', 'facebook', 'tiktok')) THEN 'Manual' WHEN mcgd.campaign_type = 'PERFORMANCE' AND mcgd.campaign_subtype = 'SMART_SHOPPING' AND ((mcgd.bidding_strategy IN ('AUTO_CPC', 'AUTO_CPM') AND mcgd.objective_name IN ('Visitors', 'Visibility')) OR mcgd.objective_name = 'Absolute Revenue') THEN 'Smart Shopping' WHEN mcgd.campaign_type = 'PERFORMANCE' AND mcgd.objective_name IN ('Visitors', 'Visibility') AND mcgd.bidding_strategy IN ('CPC', 'CPM') THEN 'Manual' WHEN mcgd.campaign_type = 'PERFORMANCE' AND mcgd.campaign_subtype = 'OS_ADS_SEARCH' THEN 'Search-Only' WHEN mcgd.campaign_type IN ('AWARENESS', 'INVENTORY') AND mcgd.campaign_subtype = 'AUCTION' THEN 'Auction' WHEN mcgd.campaign_type IN ('AWARENESS', 'INVENTORY') AND mcgd.campaign_subtype = 'BLOCK_BUY' THEN 'Guaranteed' WHEN mcgd.campaign_type IN ('AWARENESS', 'INVENTORY') AND mcgd.campaign_subtype = 'PRE_AUCTION' THEN 'Auction Packages' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('FACEBOOK_PRODUCT_AD', 'FACEBOOK', 'FACEBOOK_CAROUSEL_AD') THEN 'Facebook' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('FACEBOOK_DPA') THEN 'Facebook DPA' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('GOOGLE_PERFORMANCE_MAX_SHOPPING', 'GOOGLE_PERFORMANCE_MAX') THEN 'Google Performance Max' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('GOOGLE_PRODUCT_AD', 'GOOGLE_SEARCH_TEXT_AD') THEN 'Google' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('TIKTOK_TRAFFIC') THEN 'Tiktok Traffic' WHEN mcgd.campaign_type IN ('OFFSITE') AND mcgd.campaign_subtype IN ('TIKTOK_REACH') THEN 'Tiktok Reach' END",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_subtype",
+      "description": "Derived campaign-group subtype label (Smart Shopping / Manual / Search-Only / Auction / Guaranteed / Auction Packages / Facebook / Google / Tiktok variants).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "merchant_remaining_balance": {
+      "key": "merchant_remaining_balance",
+      "selector": "ROUND(CASE WHEN ROUND(mmd.remaning_balance, 0) <= 0.01 THEN 0 ELSE ROUND(mmd.remaning_balance, 0) END, 2)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_merchant_remaining_balance",
+      "description": "Merchant remaining wallet balance (floored to 0 when <= 0.01).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_daily_budget": {
+      "key": "campaign_group_daily_budget",
+      "selector": "mcgd.daily_budget",
+      "type": "FLOAT",
+      "externalColumnName": "perf_campaign_group_daily_budget",
+      "description": "Current daily budget configured on the campaign group.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "campaign_group_bidding_strategy_type": {
+      "key": "campaign_group_bidding_strategy_type",
+      "selector": "CASE WHEN (mcd.campaign_type = 'PERFORMANCE' AND mcd.objective_name IN ('Visitors', 'Visibility') AND mcd.bidding_strategy = 'AUTO_CPC') THEN 'Max Performance CPC' WHEN (mcd.campaign_type = 'PERFORMANCE' AND mcd.objective_name IN ('Visitors', 'Visibility') AND mcd.bidding_strategy = 'AUTO_CPM') THEN 'Max Performance CPM' WHEN (mcd.campaign_type = 'PERFORMANCE' AND mcd.objective_name IN ('Visitors', 'Visibility') AND mcd.bidding_strategy IN ('CPM', 'CPC')) THEN mcd.bidding_strategy WHEN mcd.campaign_type IN ('INVENTORY', 'AWARENESS') AND mcd.campaign_subtype = 'PRE_AUCTION' THEN 'NA' WHEN mcd.objective_name IN ('Absolute Revenue') THEN 'ROI' WHEN mcd.objective_name IN ('Visibility', 'Reach') AND mcd.campaign_subtype = 'AUCTION' THEN UPPER(JSON_EXTRACT_SCALAR(mcd.campaign_setting_metadata, '$.bidding_strategy_type')) WHEN mcd.objective_name IN ('Visibility', 'Reach') AND mcd.campaign_subtype = 'BLOCK_BUY' AND JSON_EXTRACT_SCALAR(mcd.campaign_setting_metadata, '$.bidding_strategy_type') = 'CPM' THEN 'Fixed CPM' WHEN mcd.objective_name IN ('Visibility', 'Reach') AND mcd.campaign_subtype = 'BLOCK_BUY' AND JSON_EXTRACT_SCALAR(mcd.campaign_setting_metadata, '$.bidding_strategy_type') = 'CPD' THEN 'CPD' ELSE 'UNKNOWN' END",
+      "type": "STRING",
+      "externalColumnName": "perf_campaign_group_bidding_strategy_type",
+      "description": "Derived bidding-strategy label for the campaign group.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "ad_unit": {
+      "key": "ad_unit",
+      "selector": "rpt.ad_unit_name",
+      "type": "STRING",
+      "externalColumnName": "perf_ad_unit",
+      "description": "Display inventory ad-unit / slot name. REQUIRED per-call filter (case-sensitive equality on ad_unit_name).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "page_type": {
+      "key": "page_type",
+      "selector": "rpt.page_type",
+      "type": "STRING",
+      "externalColumnName": "perf_page_type",
+      "description": "Page type the inventory slot served on (SEARCH / CATEGORY / PRODUCT / HOME / ...). Optional per-call filter.",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    }
+  },
+  "metrics": {
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(ROUND(SUM(CASE WHEN rpt.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN rpt.cost ELSE 0 END), 2), 0)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_spend",
+      "description": "Inventory spend under this ad-unit slot (raw cost, NOT currency-converted; matches the source query).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    },
+    "cpm": {
+      "key": "cpm",
+      "selector": "ROUND(CASE WHEN SUM(CASE WHEN rpt.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN rpt.impressions ELSE 0 END) > 0 THEN SUM(CASE WHEN rpt.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN rpt.cost ELSE 0 END) * 1000 / SUM(CASE WHEN rpt.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN rpt.impressions ELSE 0 END) ELSE 0 END, 2)",
+      "type": "FLOAT",
+      "externalColumnName": "perf_cpm",
+      "description": "Cost per mille = spend * 1000 / impressions under this ad-unit slot (0 when no impressions).",
+      "filterTags": [
+        "report_group:budget_utilisation",
+        "report_group:campaigns"
+      ]
+    }
+  },
+  "dateRanges": {
+    "count": 1,
+    "dataAvailabilityDays": 90,
+    "maxDataFetchDaysDuration": 31
+  },
+  "query": {
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_display_ads_ad_targeting_report` AS rpt INNER JOIN `prj-onlinesales-prod-01.reporting.agencies` AS ag ON ag.marketplace_client_id = rpt.marketplace_client_id AND ag.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.monetize_merchant_dimensions` AS mmd ON mmd.marketplace_client_id = rpt.marketplace_client_id AND mmd.merchant_id = rpt.merchant_id AND mmd.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON ctd.client_id = rpt.client_id AND ctd.campaign_id = rpt.campaign_id INNER JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_group_dimensions` AS mcgd ON mcgd.marketing_campaign_group_id = ctd.marketing_campaign_group_id AND mcgd.client_id = ctd.client_id INNER JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd ON mcd.client_id = ctd.client_id AND mcd.marketing_campaign_id = ctd.marketing_campaign_id INNER JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.marketplace_client_id = rpt.marketplace_client_id AND mc.agency_id = ag.agency_id AND mc.agency_id = mmd.agency_id LEFT JOIN `prj-onlinesales-prod-01.reporting.os_ads_db_campaign_inventory_configurations` AS oci ON SAFE_CAST(oci.marketplace_client_id AS STRING) = rpt.marketplace_client_id AND SAFE_CAST(oci.client_id AS STRING) = rpt.client_id AND SAFE_CAST(oci.campaign_id AS STRING) = rpt.campaign_id INNER JOIN `prj-onlinesales-prod-01.reporting.os_ads_db_status_types` AS st ON oci.status_type_id = st.id WHERE rpt.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND rpt.cost > 0 AND (mcgd.campaign_subtype = 'BLOCK_BUY' OR st.name = 'ACTIVE') AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "MERCHANT": "",
+    "GROUPED": ""
+  },
+  "application": "irisTestApplication"
+}
