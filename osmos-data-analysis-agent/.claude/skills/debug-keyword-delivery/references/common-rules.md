@@ -183,8 +183,9 @@ Before summarizing, present what's been found and ask:
 "I've completed the analysis. Would you like me to summarize the findings, or
 investigate further?" Offer concrete next-step options drawn from tools you have
 NOT yet run (or could re-run at a finer grain) — deeper merchant/SKU/category/
-campaign/page/keyword drills, campaign-status or product-selection checks, custom
-SQL — each with a one-line rationale. Always include a "Write final summary" and
+campaign/page/keyword drills, campaign-status or product-selection checks — each
+with a one-line rationale. There is no custom-SQL option: every call is a
+`run_report` against a governed report. Always include a "Write final summary" and
 an "Other direction" option. Only after the user confirms → write the Final
 Report. Never auto-summarize.
 
