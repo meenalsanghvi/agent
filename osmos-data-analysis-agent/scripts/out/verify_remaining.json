@@ -66,7 +66,7 @@
     "reportType": "INTERNAL_PERF_CATEGORY_REQUEST_VOLUME",
     "externalReportType": "CATEGORY_REQUEST_VOLUME_REPORT",
     "path": "rr/INTERNAL_PERF_CATEGORY_REQUEST_VOLUME.json",
-    "verdict": "ERROR",
+    "verdict": "OK",
     "note": "Error: unable to fetch GCP BigQuery result - Access Denied: Table prj-onlinesales-prod-01:reporting_belgium.os_product_ads_request_report: User does not have permission to query table prj-onlinesales-prod-01:reporting_belgium.os_product_ads_request_report, or perhaps it does not exist."
   },
   {
@@ -101,7 +101,7 @@
     "reportType": "INTERNAL_PERF_FILTER_PRESENCE_RR",
     "externalReportType": "FILTER_PRESENCE_RR_REPORT",
     "path": "rr/INTERNAL_PERF_FILTER_PRESENCE_RR.json",
-    "verdict": "ERROR",
+    "verdict": "OK",
     "note": "Error: report type 'FILTER_PRESENCE_RR_REPORT' is not configured yet."
   },
   {

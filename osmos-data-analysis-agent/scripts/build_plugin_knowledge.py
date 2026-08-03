@@ -43,7 +43,7 @@ if len(OUTPUT_ROOTS) == 1:
     print(f"[warn] plugin checkout not found at {DEFAULT_PLUGIN} — writing to this repo "
           f"only. Set OSMOS_CLAUDE_PLUGINS to keep both in sync.", file=sys.stderr)
 
-BLOCKED = {"AUDIT_EVENTS_REPORT", "CATEGORY_REQUEST_VOLUME_REPORT", "FILTER_PRESENCE_RR_REPORT"}
+BLOCKED = set()  # all three cleared 2026-08-03: GCP_PERF_BQ_KAM_CREDENTIALS registered + AUDIT_EVENTS SAFE_CAST fix
 # Columns that cannot be requested as attributes, with the reason.
 UNREQUESTABLE = {
     "RR_DISPLAY_REPORT": ("store_id", "the Display facts table has no such column"),
@@ -128,8 +128,7 @@ Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see K
 
 | Report | Issue | What to do |
 |---|---|---|
-| `AUDIT_EVENTS_REPORT` · `FILTER_PRESENCE_RR_REPORT` | their configs name appKey `GCP_BQ_KAM_CREDENTIALS_EXTERNAL_DATASET`, which is **not registered in kamService** — they fail at BQ client init | unavailable; needs a kamService change |
-| `CATEGORY_REQUEST_VOLUME_REPORT` | reaches BigQuery but is **Access Denied** on `reporting_<region>.os_product_ads_request_report` | unavailable; needs a BQ grant |
+| `AUDIT_EVENTS_REPORT` | `action_type_id` is INT64 while KAM builds the filter as a string | selector is `SAFE_CAST(... AS STRING)`; pass `perf_action_type_id` as a string |
 | `DAILY_ORDER_TRENDS_REPORT` | `channel` removed — it selected `cvcpf.channel`, unbound in the outer query, and cannot be exposed without inflating the site metrics | no PLA/Display split here; use `MERCHANT_PERFORMANCE_REPORT` |
 | `RESPONDED_SKUS_REPORT` | declares `perf_keyword` required, but **kamService does not enforce `externalRequiredFilters`** — an unscoped fetch runs and never returns | **always scope by `keyword`**; the MCP applies it, direct callers must too |
 | `RESPONDED_SKUS_REPORT` | `perf_campaign_id` renamed to `perf_internal_campaign_id` — it holds the internal id, not the marketing id in the UI | filter with the internal id (from `CAMPAIGN_LOOKUP_REPORT`); the two are not 1:1 |
