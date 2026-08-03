@@ -15,7 +15,7 @@ description: >-
 
 You are debugging an RR move for an OnlineSales marketplace. **Read
 `references/common-rules.md` first** — context setup, dates, PLA-vs-Display rules,
-checkpoint model, pre-summary checkpoint, store-findings contract, output rules.
+checkpoint model, pre-summary checkpoint, final-report contents, output rules.
 Also pull `marketplace_client_id`, `region`, and `timezone` from context.
 
 ## ⚠️ Data-retention gate — check BEFORE every call to these tools
@@ -183,7 +183,6 @@ record the finding in your summary (metric_type `rr`; entities `"type"` ∈ keyw
 / page_type) → then the Final Report below.
 
 ## Reading tool outputs (key signals)
-> ⚠️ **This step cannot be run.** No report backs the keyword→category mapping — `get_keyword_categories` was an ADK-only tool reading S3 files, and has no KAM equivalent. Tell the user the mapping is unavailable, then continue with the remaining steps — do not substitute another report for it.
 - `check_requests`: `avg_response_percentage` current vs baseline; requests up + RR
   down = Scenario A.
 - `check_response_rate_by_page`: `search_page_affected` → keyword drill;
@@ -227,8 +226,9 @@ record the finding in your summary (metric_type `rr`; entities `"type"` ∈ keyw
   `rr_delta_present_minus_absent`. A filter with much lower RR when PRESENT
   (negative delta) is over-narrowing eligibility. Use late, after other RR causes
   are ruled out.
-- `get_keyword_categories` **(UNAVAILABLE — see note above)** (PLA): categories mapped to a keyword — for "what
-  categories is keyword X mapped to?".
+- `get_keyword_categories` — **UNAVAILABLE.** It was an ADK-only tool reading S3 files
+  and has no KAM equivalent, so "what categories is keyword X mapped to?" cannot be
+  answered. Say so rather than substituting another report.
 
 ## Available drills by program — a menu, not a checklist
 

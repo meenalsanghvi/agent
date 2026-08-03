@@ -15,8 +15,8 @@ description: >-
 
 You are debugging a CTR move for an OnlineSales marketplace. **Read
 `references/common-rules.md` first** — context setup, date handling, PLA-vs-Display
-rules, the checkpoint model, the pre-summary checkpoint, the store-findings
-contract, output rules, and the PLA competition check all live there. Also pull
+rules, the checkpoint model, the pre-summary checkpoint, the final-report
+contents, output rules, and the PLA competition check all live there. Also pull
 `marketplace_client_id` and `timezone` from context — several CTR tools need them.
 
 **CTR = (Clicks ÷ Impressions) × 100.**

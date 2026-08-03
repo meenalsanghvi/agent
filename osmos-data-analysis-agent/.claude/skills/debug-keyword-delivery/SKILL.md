@@ -83,33 +83,40 @@ it, no category exists and it can't receive responses.
   is expected — it needs more search traffic to become eligible." (conclude)
 - **above_threshold** → issue is elsewhere → then **offer** STEP 4.
 
-### STEP 4 — Category alignment (both tools in PARALLEL)
-> ⚠️ **This step cannot be run.** No report backs the keyword→category mapping — `get_keyword_categories` was an ADK-only tool reading S3 files, and has no KAM equivalent. Tell the user the mapping is unavailable, then continue with the remaining steps — do not substitute another report for it.
-a) `get_keyword_categories` **(UNAVAILABLE — see note above)** — the
-   categories OnlineSales mapped to each keyword (from the S3 keyword-category
-   files).
-b) `get_campaign_product_selection(marketplace_client_id, marketing_campaign_id)` —
-   the campaign's currently selected products with `category_l1/l2/l3`.
+### STEP 4 — Category alignment
+> ⚠️ The keyword's **mapped** categories are unavailable — `get_keyword_categories` was
+> an ADK-only tool reading S3 files with no KAM equivalent. There is no ground-truth
+> mapping to compare against, so this step tests alignment from the campaign side only.
+> Say that plainly; do not substitute another report for the mapping.
 
-### STEP 5 — Compare categories, find the missing mapping(s)
-Build **K** = the keyword's mapped categories (L1/L2/L3); **P** = the campaign's
-unique product categories (L1/L2/L3). `missing_categories` = categories in P NOT in
-K (products in the campaign not mapped to the keyword — the precise mappings to
-request).
-- **K ∩ P = ∅ (no overlap)** → "Category mismatch — '[kw]' is mapped to [K]; the
-  campaign's products are in [P]; no overlap, so it can't serve relevant results.
-  Recommended: raise a ticket to **manually map '[kw]' to the campaign's product
-  categories**: [each missing category from P with its level]." **STOP** (root
-  cause).
-- **Keyword not found in S3 (`keywords_not_found`)** → "No S3 mapping exists for
-  '[kw]' (too new / too low-volume for auto-mapping). Recommended: raise a ticket
-  to **manually map '[kw]' to these campaign product categories**: [each unique P
-  category with level]." **STOP.**
-- **Partial overlap (K ∩ P ≠ ∅ AND missing_categories ≠ ∅)** → inform: "'[kw]' is
-  mapped to [K ∩ P] which match some products, but the campaign also has products
-  in [missing_categories] that are ineligible on this keyword. Optionally raise a
-  ticket to extend the mapping." → PROCEED to STEP 6.
-- **Full overlap (K = P or P ⊆ K)** → categories match → PROCEED to STEP 6.
+`get_campaign_product_selection(marketplace_client_id, marketing_campaign_id)` — the
+campaign's currently selected products with `category_l1/l2/l3` and `product_name`.
+
+### STEP 5 — Judge alignment from the campaign side
+Build **P** = the campaign's unique product categories (L1/L2/L3). Then two checks:
+
+a) **Does the keyword string appear in any `product_name`?** (case-insensitive
+   substring, and its obvious variants).
+b) **Is the keyword serving at all?** `get_merchant_keyword_performance` — per-keyword
+   impressions/clicks/spend with `keyword_match_type`. Impressions > 0 means it is
+   eligible and serving; 0 with the keyword present means eligible but never won.
+
+Verdicts:
+- **Serving, and the keyword appears in product names** → alignment is fine; delivery
+  is not a relevance problem → PROCEED to STEP 6 (competition/bid).
+- **Serving, but the keyword does not appear in any product name** → it is matching
+  via category or a relevance cache rather than the title. Note it, then PROCEED to
+  STEP 6 — this is normal for broad/auto matching, not a bug on its own.
+- **Not serving, and the keyword appears in product names** → the products look
+  relevant yet nothing serves. **RAISE TO ENGINEERING**: "Keyword [K] appears in
+  product name(s) [...] in campaign [id], yet `get_responded_skus` returns no rows —
+  suspected eligibility or serving issue." **STOP** (root cause).
+- **Not serving, and no product name or category plausibly relates to the keyword** →
+  the campaign genuinely has nothing relevant to serve. Recommend adding relevant
+  products, or removing the keyword. **STOP** (root cause).
+
+State in the report that the keyword→category mapping check was **skipped** because the
+mapping is unavailable, so a mis-mapping cannot be confirmed or ruled out here.
 
 ### STEP 6 — Competition analysis (run ALL THREE views)
 **6a. Search-query Share of Voice** — `get_search_query_match_performance(agency_id,

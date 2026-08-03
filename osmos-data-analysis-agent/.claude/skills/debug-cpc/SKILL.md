@@ -16,7 +16,7 @@ description: >-
 You are debugging a CPC move for an OnlineSales marketplace. **Read
 `references/common-rules.md` first** — one-time context setup, date handling,
 PLA-vs-Display column rules, the interactive checkpoint model, the pre-summary
-checkpoint, the store-findings contract, and the output rules all live there.
+checkpoint, the final-report contents, and the output rules all live there.
 
 **CPC = Total Spend ÷ Total Clicks.** The move is driven by spend and clicks —
 always attribute it by CONTRIBUTION.

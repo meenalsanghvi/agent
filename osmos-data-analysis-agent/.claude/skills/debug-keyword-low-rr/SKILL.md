@@ -61,39 +61,48 @@ keyword gets > 100 requests in the trailing 7 days.
   keywords;** continue for keywords that pass.
 - **above_threshold** → then **offer** STEP 3.
 
-### STEP 3 — Keyword's mapped categories
-> ⚠️ **This step cannot be run.** No report backs the keyword→category mapping — `get_keyword_categories` was an ADK-only tool reading S3 files, and has no KAM equivalent. Tell the user the mapping is unavailable, then continue with the remaining steps — do not substitute another report for it.
-`get_keyword_categories` **(UNAVAILABLE — see note above)** → categories
-mapped to each keyword (L1–L8, `source`=auto/manual, `count`,
-`advertisable_sku_count`). Note them — reused throughout.
-- **keywords_not_found** (passed threshold but no S3 mapping) → "'[kw]' passed the
-  volume threshold but has no category mapping in the S3 files. Raise a ticket to
-  add a manual mapping." **STOP for those keywords.**
-- Has categories → then **offer** STEP 4.
+### STEP 3 — Which categories does the keyword actually reach?
+> ⚠️ The keyword's **mapped** categories are unavailable — `get_keyword_categories` was an
+> ADK-only tool reading S3 files with no KAM equivalent, and no KAM report gives a PLA
+> keyword→category mapping. So there is no *expected* category set to test against. Use
+> the **observed** categories instead, and say clearly that a mis-mapping can be neither
+> confirmed nor ruled out.
 
-### STEP 4 — (Only if campaign IDs given) keyword categories vs campaign products
+`get_responded_skus` filtered on the keyword → the categories of SKUs that DID serve.
+Call this set **O** (observed).
+- **O is non-empty** → the keyword does reach inventory; low RR is a fill/supply or
+  budget problem, not a mapping gap → **offer** STEP 4.
+- **O is empty** (nothing served at all) → no observed coverage. Note that this is
+  consistent with either a missing category mapping OR no eligible inventory, and that
+  the two cannot be separated without the mapping. Continue to STEP 4 with the
+  campaign's own product categories instead.
+
+### STEP 4 — (Only if campaign IDs given) campaign products vs the keyword
 `get_campaign_product_selection(marketplace_client_id, marketing_campaign_id)` per
-campaign; compare product L1/L2/L3 vs the keyword's mapped categories (STEP 3).
-- **No overlap** → "Category mismatch — '[kw]' is mapped to [X,Y] but the campaign's
-  products are in [A,B]. It cannot serve this keyword. Recommend adding products in
-  the mapped categories OR a manual category mapping." **STOP.**
-- Overlap → then **offer** STEP 5. (No campaign IDs → skip STEP 4, go to STEP 5.)
+campaign → product `category_l1/l2/l3` and `product_name`. Call this set **P**.
+- **O non-empty and P ∩ O ≠ ∅** → the campaign's products are in categories the keyword
+  demonstrably reaches → not a relevance problem → **offer** STEP 5.
+- **O empty, and the keyword string appears in some `product_name`** → products look
+  relevant yet nothing serves. Flag for engineering: "Keyword [K] appears in product
+  name(s) [...] but `get_responded_skus` returns no rows." **STOP.**
+- **O empty, and the keyword relates to nothing in P by name or category** → the
+  campaign has no plausibly relevant inventory. Recommend adding relevant products or
+  dropping the keyword. **STOP.**
 
-### STEP 5 — Active campaigns serving the mapped category (supply check)
-For each keyword's top mapped categories (highest `count` + `advertisable_sku_
-count` from STEP 3), `get_campaigns_in_category(agency_id, start/end,
-category_level="l1"/"l2"/"l3", category_l*_filter=..., top_n=50)` → active campaigns
-with spend, daily budget, status.
+### STEP 5 — Active campaigns in those categories (supply check)
+Use **O** if non-empty, otherwise **P**, as the category set to probe.
+`get_campaigns_in_category(agency_id, start/end, category_level="l1"/"l2"/"l3",
+category_l*_filter=..., top_n=50)` → active campaigns with spend, daily budget, status.
 - `paused_campaigns` — flag any paused that should be running.
 - `low_bu_campaigns` (spend < 50% of budget) — **POTENTIAL ROOT CAUSE**: budget
   exhaustion / under-pacing of performing campaigns; highlight.
-- No active campaign in the mapped category → "No advertiser is running a campaign
-  in the categories mapped to '[kw]'. The keyword has no supply-side coverage."
-  **STOP.**
+- No active campaign in those categories → "No advertiser is running a campaign in the
+  categories this keyword reaches. The keyword has no supply-side coverage." **STOP.**
 
 ### STEP 6 — Products relevancy spot-check
 For the top 2–3 campaigns from STEP 5, `get_campaign_product_selection` and inspect
-whether their products' L1/L2/L3 truly match the keyword's mapped categories.
+whether their products' L1/L2/L3 and `product_name` plausibly relate to the keyword
+(there is no mapped-category set to compare against — see STEP 3).
 **Relevancy note (you cannot run the relevancy algorithms):** suggest — "Verify
 these products pass our search relevancy caches/algorithms (title match, taxonomy
 match, inventory availability). If they look category-aligned but aren't served,
@@ -125,10 +134,12 @@ keyword-delivery skill — the keyword has marketplace-level RR, but advertiser 
 campaign [Y] is not being served."
 
 ## Possible root causes (summarise in final findings)
-1. Request volume < 100 → no category mapping exists.
-2. No category mapping in S3 files → manual mapping needed.
+1. Request volume < 100 → too little traffic to diagnose.
+2. Keyword reaches no inventory at all (nothing served) — could be a missing category
+   mapping or no eligible products; the two cannot be separated without the mapping,
+   which is unavailable.
 3. Category mismatch with the user's campaign products.
-4. No active campaigns running in the mapped category.
+4. No active campaigns running in the categories the keyword reaches.
 5. Relevancy caches/algorithms filtering out otherwise-matching products.
 6. Overly restrictive filters (store_id, network, page_type).
 7. Performing campaigns are budget-exhausted.

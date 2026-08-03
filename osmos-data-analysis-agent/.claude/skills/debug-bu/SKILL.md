@@ -15,8 +15,8 @@ description: >-
 
 You are debugging a BU move for an OnlineSales marketplace. **Read
 `references/common-rules.md` first** — context setup, date handling, PLA-vs-Display
-rules, the checkpoint model, the pre-summary checkpoint, the store-findings
-contract, and output rules. Also pull `marketplace_client_id`, `region`, and
+rules, the checkpoint model, the pre-summary checkpoint, the final-report
+contents, and output rules. Also pull `marketplace_client_id`, `region`, and
 `timezone` from context — several BU tools need them.
 
 ## ⚠️ Data-retention gate — check BEFORE every call to these tools

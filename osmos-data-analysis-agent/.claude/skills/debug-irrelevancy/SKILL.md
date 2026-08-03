@@ -59,12 +59,15 @@ bidding_value)`, `bidding_value` = merchant's manual bid, null/0 = AUTO) and
 - If the irrelevant keyword appears in `negative_keywords` but still served →
   separate bug, flag it (see STEP 5).
 
-### STEP 3 — Keyword → category mappings
-> ⚠️ **This step cannot be run.** No report backs the keyword→category mapping — `get_keyword_categories` was an ADK-only tool reading S3 files, and has no KAM equivalent. Tell the user the mapping is unavailable, then continue with the remaining steps — do not substitute another report for it.
-`get_keyword_categories` **(UNAVAILABLE — see note above)** with the
-user's keyword(s), or the top `targeted_keywords` from STEP 2. Returns categories
-(L1–L8, `source`=auto/manual, `count`, `advertisable_sku_count`) — the **"relevant"
-reference set** for STEP 5.
+### STEP 3 — Establish the served-category baseline
+> ⚠️ The keyword's **mapped** categories are unavailable — `get_keyword_categories` was an
+> ADK-only tool reading S3 files with no KAM equivalent, and no KAM report gives a PLA
+> keyword→category mapping. There is therefore **no ground truth** for what a keyword
+> *should* match. Say so plainly in the report; do not substitute another report for it.
+
+Instead, judge relevance from the served set's own coherence. From STEP 4's data build:
+- **D** = the distribution of `perf_category` across served SKUs, weighted by impressions.
+- The **dominant** category — the one holding the large majority of impressions.
 
 ### STEP 4 — Actually-responded SKUs
 `get_responded_skus` — `RESPONDED_SKUS_REPORT`. **Always filter on `perf_keyword`**:
@@ -84,22 +87,32 @@ Returns per keyword + `cache_type` + SKU: product name, brand, category,
 impressions, **clicks** and spend. **`cache_type` is the key signal** — it names the
 algorithm that decided to serve this SKU for this keyword.
 
-### STEP 5 — Compare and diagnose
-For each (keyword, responded SKU) row, compare the SKU's category (STEP 4) against
-the keyword's mapped categories (STEP 3):
-- **Overlap** → NOT irrelevant at the OS mapping level; the user's perception may
-  come from broader taxonomy differences. Present the overlap + `cache_type`.
-- **No overlap → GENUINE MISMATCH.** Identify the `cache_type` that served it (the
-  responsible algorithm): "Keyword '[kw]' is mapped to [X,Y] but SKU [sku_id]
-  '[product]' (category [Z]) was served by algorithm '[cache_type]'. '[cache_type]'
-  is responsible for this irrelevancy. Recommend raising internally to the
-  relevancy/algorithm team with the cache_type as the entry point."
-- **keywords_not_found** (no mapping in STEP 3) → no ground truth: "'[kw]' has no
-  category mapping in the S3 files, so relevancy cannot be evaluated. Recommend
-  adding a manual mapping and re-evaluating."
-- **Negative leak** (irrelevant keyword is in `negative_keywords` but served) →
-  "'[kw]' is in the campaign's negative list but still served — escalate as a
-  negative-match bypass bug."
+### STEP 5 — Diagnose from coherence, not from a mapping
+Rank the served SKUs by impressions and judge each against the dominant category **and**
+against the keyword string itself:
+
+- **Coherent set** — one category holds the large majority of impressions, and the
+  keyword appears in most `product_name`s → **no irrelevancy evident.** Report the
+  distribution and say the complaint is not reproducible in the served data. Note that
+  without the mapping this cannot be a formal verdict.
+- **Outliers present** — a small number of SKUs sit outside the dominant category or
+  bear no relation to the keyword by name → those are the candidates. For each, name the
+  `cache_type` that served it: "Keyword '[kw]' served [N]% of impressions in [dominant
+  category], but SKU [sku_id] '[product]' (category [Z]) was served by '[cache_type]'."
+  Rank outliers by spend so the cost of the irrelevancy is explicit.
+- **No dominant category** — impressions spread across many unrelated categories →
+  broad/loose matching. Group by `cache_type` and name the algorithm carrying the most
+  unrelated impressions.
+- **Deliberate conquesting** — an outlier served via a targeting cache (e.g.
+  `INTERNAL_TARGETED_KEYWORD_CACHE`) means an advertiser explicitly targeted this
+  keyword. That is a **policy** question, not an algorithm defect — say so, with the
+  spend it cost.
+- **Negative leak** (the keyword is in `negative_keywords` but served) → "'[kw]' is in
+  the campaign's negative list but still served — escalate as a negative-match bypass
+  bug."
+
+Always state which `cache_type`s served the outliers — that is the entry point for the
+relevancy team — and state that the mapping check was skipped.
 
 ### STEP 6 — Per-advertiser summary
 When multiple campaigns / keywords / SKUs are in play, **group findings by
@@ -109,9 +122,11 @@ When multiple campaigns / keywords / SKUs are in play, **group findings by
 1. Keyword NOT in `targeted_keywords` but served via broad/auto-match → expected,
    not a bug.
 2. Keyword IS in `negative_keywords` but still served → negative-match bypass bug.
-3. Keyword has no S3 category mapping → no ground truth; add a manual mapping.
-4. Category mismatch between the keyword mapping and the responded SKU →
-   algorithm-side issue; `cache_type` names the responsible algorithm.
+3. An advertiser explicitly targeted the keyword (targeting `cache_type`) → policy
+   question, not an algorithm defect.
+4. Served SKU sits outside the keyword's dominant served category → algorithm-side
+   issue; `cache_type` names the responsible algorithm. Note this is a coherence
+   judgement, not a mapping comparison — the mapping is unavailable.
 
 ## Available drills by program — a menu, not a checklist
 

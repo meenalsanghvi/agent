@@ -172,7 +172,10 @@ auction loss → recommend raising the bid. RR low → eligibility/supply, not
 competition.
 
 ### 3f. A specific targeted keyword not spending
-> ⚠️ **This step cannot be run.** No report backs the keyword→category mapping — `get_keyword_categories` was an ADK-only tool reading S3 files, and has no KAM equivalent. Tell the user the mapping is unavailable, then continue with the remaining steps — do not substitute another report for it.
+> ⚠️ **Option (a) below cannot be run.** `get_keyword_categories` was an ADK-only tool
+> reading S3 files and has no KAM equivalent, so the keyword's *mapped* categories are
+> unavailable. Reach the verdict from (b) and (c) instead, and say the mapping check was
+> skipped — do not substitute another report for it.
 Run STEP 2.5 basics first (a campaign-level block explains a zero keyword too). Then:
 1. `check_requests` for the WHOLE marketplace over the LAST 7 DAYS (`program_type=
    "pla"`, no page filter) → marketplace RR (fixed trailing-7-day window, NOT the
