@@ -10,7 +10,7 @@
   "description": "Raw request volume (COUNT of rid) by category (L1/L2/L3) from the region-specific raw request log for one period.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS_EXTERNAL_DATASET"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

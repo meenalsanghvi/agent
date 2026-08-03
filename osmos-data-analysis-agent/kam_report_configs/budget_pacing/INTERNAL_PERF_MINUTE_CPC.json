@@ -11,7 +11,7 @@
   "description": "Per-minute clicks and currency-converted spend for CPC-strategy PLA campaigns on a single local day, split by campaign (marketing campaign id) and page_type (raw page_type; SEARCH vs NON-SEARCH is derived in the Python layer). Each row is one local minute of one campaign+page_type: local minute timestamp, hour, and minute, plus valid clicks and spend (bid converted USD -> marketplace currency). Requires a campaign_id filter; the single day is set by the start/end date (same date). Timezone-aware: the minute/date casts use __SP_TIMEZONE__.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

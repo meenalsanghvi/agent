@@ -9,7 +9,7 @@
   "description": "Campaign-level TRUE budget-utilisation for a marketplace over ONE period, one row per campaign (grouped by merchant + marketing_campaign_id). Per campaign it returns daily_budget (most-recent-day wallet-capped budget), total_budget (period sum of wallet-capped budget), spend (period ad spend), wallet_balance (most-recent remaining wallet), and budget_utilization (spend / capped budget). Budget is capped by the client's remaining wallet: if daily spend exceeds the converted remaining wallet the spend is used, else the smaller of wallet vs daily_budget. Money is in the campaign's native currency (marketing_campaign_dimensions_daily.currency); the USD wallet is converted to that currency. Filter by campaign_type / campaign_subtype to isolate PLA (PERFORMANCE / SMART_SHOPPING, OS_ADS_SEARCH, VIDEO_MIDROLL, CAMPAIGN_V2) vs Display (INVENTORY / AUCTION), by effective_status, seller_id, or marketing_campaign_id.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

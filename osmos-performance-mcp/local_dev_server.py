@@ -2,18 +2,23 @@
 """
 local_dev_server.py — a laptop-only stdio MCP server for demoing the data-analysis agent
 ========================================================================================
-A dependency-light (stdlib + `requests`) MCP server that exposes the *validated*
-config-only SOP tools by calling the KAM **test** env directly — NO Hades, NO Redis,
+A dependency-light (stdlib + `requests`) MCP server that exposes the SAME surface as the
+hosted osmos-reporting-mcp -- list_reports + run_report over the external catalogue --
+by calling the KAM **test** env directly — NO Hades, NO Redis,
 NO x-token, NO private package registry, NO port. This is the "just-for-me" stand-in
 for the hosted `osmos-performance-mcp`; it is NOT the production server.
 
 It speaks MCP over stdio (newline-delimited JSON-RPC 2.0), so Claude Code launches it
-as a subprocess (see osmos-data-analysis-agent/.mcp.json). Each tool fetches a
-KAM_AGENT_* report and returns the raw rows; the agent/skill interprets them and does
-the delta/verdict math (mirroring the real Python derived layer).
+as a subprocess (see osmos-data-analysis-agent/.mcp.json).
 
-Data source: http://test.onlinesales.ai/kamService/report/fetch  (must be reachable).
-The KAM_AGENT_* configs must already be posted to test (they were, during validation).
+Deliberately NO per-SOP named tools. Earlier revisions exposed check_*/get_* wrappers
+bound to the retired KAM_AGENT_* generation, which the 70->43 consolidation superseded;
+they kept working only because KAM has no delete API, so a green test proved nothing
+about the reports that actually ship. Every call now goes through the live external
+catalogue, and all derived math is the agent's job -- same as production.
+
+Data source: http://test-data.onlinesales.ai/kamService/report/fetch  (must be reachable).
+The INTERNAL_PERFORMANCE configs must already be posted to test (all 43 are).
 
 Run standalone sanity check:  python3 local_dev_server.py --selftest
 """
@@ -25,7 +30,7 @@ import traceback
 
 import requests
 
-BASE = "http://test.onlinesales.ai"
+BASE = "http://test-data.onlinesales.ai"
 APPLICATION = "irisTestApplication"
 HEADERS = {"Content-Type": "application/json"}
 
@@ -36,35 +41,6 @@ _session.trust_env = False
 
 def log(*a):
     print("[local-mcp]", *a, file=sys.stderr, flush=True)
-
-
-# ── KAM fetch ────────────────────────────────────────────────────────────────
-def kam_fetch(report_type, metrics, attributes, filters, start, end, limit=100000):
-    body = {
-        "application": APPLICATION,
-        "agencyId": None,  # filled by caller via _agency
-        "reportType": report_type,
-        "requestType": "REPORTING",
-        "useExternalNames": False,
-        "attributes": attributes or [],
-        "metrics": metrics or [],
-        "dateRanges": [{"startDate": start, "endDate": end}],
-        "filters": filters or [],
-        "limit": limit,
-        "offset": 0,
-    }
-    return body
-
-
-def _fetch(agency_id, report_type, metrics, attributes, filters, start, end, limit=100000):
-    body = kam_fetch(report_type, metrics, attributes, filters, start, end, limit)
-    body["agencyId"] = int(agency_id)
-    r = _session.post(f"{BASE}/kamService/report/fetch", headers=HEADERS,
-                      data=json.dumps(body), timeout=120)
-    if r.status_code != 200:
-        raise RuntimeError(f"KAM HTTP {r.status_code}: {r.text[:400]}")
-    out = r.json()
-    return out.get("data", out) if isinstance(out, dict) else out
 
 
 def _period(args, kind="current"):
@@ -118,99 +94,17 @@ def t_list_reports(a):
         tags = x.get("filterTags", [])
         if not any(t.startswith("report_group:") for t in tags):
             continue  # ours carry report_group:*; skip the production BEAT/PULSE reports
-        if want and f"report_group:{want}" not in tags:
-            continue
+        if want:
+            # substring match on the group segment: "budget" hits budget_utilisation
+            # AND budget_pacings, and a caller need not know the exact tag spelling.
+            groups = [t.split("report_group:", 1)[1] for t in tags if t.startswith("report_group:")]
+            if not any(want.lower() in g.lower() for g in groups):
+                continue
         out.append({"report_type": x.get("externalReportType"), "tags": tags,
                     "attributes": list((x.get("attributes") or {}).keys()),
                     "metrics": list((x.get("metrics") or {}).keys()),
                     "required_filters": x.get("externalRequiredFilters", [])})
     return {"reports": out, "count": len(out)}
-
-
-# ── Tool handlers ─────────────────────────────────────────────────────────────
-RR_METRICS = ["request_count", "response_count", "response_percentage"]
-
-
-def t_check_ctr_overall(a):
-    return _with_baseline(a, lambda s, e: _fetch(
-        a["agency_id"], "KAM_AGENT_CTR_OVERALL",
-        ["clicks", "impressions", "ctr", "spend"], [], [], s, e))
-
-
-def t_get_page_level_performance(a):
-    return _with_baseline(a, lambda s, e: _fetch(
-        a["agency_id"], "KAM_AGENT_PAGE_LEVEL_PERFORMANCE",
-        ["request_count", "response_count", "impressions", "clicks", "cost"],
-        ["page_type"], [], s, e))
-
-
-def t_check_response_rate_by_page(a):
-    rt = "KAM_AGENT_RR_BY_PAGE_" + a.get("program_type", "pla").upper()
-    return _with_baseline(a, lambda s, e: _fetch(
-        a["agency_id"], rt, RR_METRICS, ["page_type"], [], s, e))
-
-
-def t_check_display_page_type_rr(a):
-    return _with_baseline(a, lambda s, e: _fetch(
-        a["agency_id"], "KAM_AGENT_RR_DISPLAY_PAGE_TYPE",
-        ["request_count", "response_count"], ["page_type"], [], s, e))
-
-
-def t_get_category_response_rates(a):
-    group_by = a.get("group_by") or ["category_l1"]
-    return _with_baseline(a, lambda s, e: _fetch(
-        a["agency_id"], "KAM_AGENT_RR_CATEGORY", RR_METRICS, group_by, [], s, e))
-
-
-def t_get_response_rate_by_dimension(a):
-    rt = "KAM_AGENT_RR_BY_DIMENSION_" + a.get("program_type", "pla").upper()
-    dims = a.get("dimensions") or ["page_type"]
-    return _with_baseline(a, lambda s, e: _fetch(
-        a["agency_id"], rt, RR_METRICS, dims, [], s, e))
-
-
-def t_check_requests(a):
-    rt = "KAM_AGENT_BU_REQUESTS_" + a.get("program_type", "pla").upper()
-    return _with_baseline(a, lambda s, e: _fetch(
-        a["agency_id"], rt, RR_METRICS, ["date"], [], s, e))
-
-
-def t_get_display_ad_unit_performance(a):
-    return _with_baseline(a, lambda s, e: _fetch(
-        a["agency_id"], "KAM_AGENT_BU_DISPLAY_AD_UNIT",
-        ["request_count", "response_count", "impressions", "clicks", "cost",
-         "program_per_click_timestamp_conversions", "program_per_click_timestamp_sales"],
-        ["ad_unit_name", "page_type"], [], s, e))
-
-
-def t_get_merchant_wallet_balance(a):
-    # point-in-time; dates are inert but required by the fetch API shape
-    rows = _fetch(
-        a["agency_id"], "KAM_AGENT_BU_WALLET_BALANCE", ["placeholder_metric"],
-        ["clients_client_id", "clients_seller_id", "clients_alias",
-         "clients_remaining_budget_amount_usd", "conversion_factor"],
-        [], "2000-01-01", "2000-01-01", limit=int(a.get("top_n", 50)))
-    # derived layer: convert USD -> marketplace currency, apply the >= 0.01 floor
-    for row in rows:
-        usd = row.get("clients_remaining_budget_amount_usd") or 0
-        factor = row.get("conversion_factor") or 0
-        row["remaining_balance"] = round(usd * factor, 2) if usd >= 0.01 else 0
-    rows.sort(key=lambda r: r["remaining_balance"], reverse=True)
-    return {"merchants": rows[: int(a.get("top_n", 50))]}
-
-
-def t_get_budget_delivery_mode(a):
-    ids = [str(x) for x in (a.get("campaign_ids") or [])]
-    filters = [{"key": "marketing_campaign_id", "operator": "IN", "values": ids}] if ids else []
-    return _fetch(a["agency_id"], "KAM_AGENT_BUDGET_DELIVERY_MODE", ["placeholder_metric"],
-                  ["marketing_campaign_id", "budget_delivery_mode"], filters,
-                  "2000-01-01", "2000-01-01", limit=int(a.get("top_n", 100)))
-
-
-def t_run_kam_agent_report(a):
-    return _with_baseline(a, lambda s, e: _fetch(
-        a["agency_id"], a["report_type"], a.get("metrics", []),
-        a.get("attributes", []), a.get("filters", []), s, e))
 
 
 # ── Tool registry (name -> (handler, description, inputSchema)) ────────────────
@@ -227,64 +121,25 @@ _BASE_OPT = {
     "baseline_start_date": {"type": "string", "description": "Optional baseline start (enables WoW comparison)"},
     "baseline_end_date": {"type": "string", "description": "Optional baseline end"},
 }
-_PT = {"program_type": {"type": "string", "enum": ["pla", "display"], "description": "Ad channel"}}
 
 TOOLS = {
-    "check_ctr_overall": (t_check_ctr_overall,
-        "Marketplace-level clicks / impressions / CTR / spend for a period (optionally vs a baseline).",
-        _schema({**_AG, **_CUR, **_BASE_OPT}, ["agency_id", "start_date", "end_date"])),
-    "get_page_level_performance": (t_get_page_level_performance,
-        "PLA page-type breakdown: requests, responses, impressions, clicks, cost.",
-        _schema({**_AG, **_CUR, **_BASE_OPT}, ["agency_id", "start_date", "end_date"])),
-    "check_response_rate_by_page": (t_check_response_rate_by_page,
-        "Response rate by page type (program_type pla|display).",
-        _schema({**_AG, **_PT, **_CUR, **_BASE_OPT}, ["agency_id", "start_date", "end_date"])),
-    "check_display_page_type_rr": (t_check_display_page_type_rr,
-        "Display response rate by page type (from filtered-level facts).",
-        _schema({**_AG, **_CUR, **_BASE_OPT}, ["agency_id", "start_date", "end_date"])),
-    "get_category_response_rates": (t_get_category_response_rates,
-        "Category-level (l1/l2/l3) response rate. Optional group_by list of category attrs.",
-        _schema({**_AG, **_CUR, **_BASE_OPT,
-                 "group_by": {"type": "array", "items": {"type": "string"},
-                              "description": "e.g. [\"category_l1\",\"category_l2\"]"}},
-                ["agency_id", "start_date", "end_date"])),
-    "get_response_rate_by_dimension": (t_get_response_rate_by_dimension,
-        "Response rate grouped by chosen dimension(s) (network, store_id, page_type, ad_unit_name, category_l1..). program_type pla|display.",
-        _schema({**_AG, **_PT, **_CUR, **_BASE_OPT,
-                 "dimensions": {"type": "array", "items": {"type": "string"}}},
-                ["agency_id", "start_date", "end_date"])),
-    "check_requests": (t_check_requests,
-        "Daily request / non-zero-response volume for a period (program_type pla|display).",
-        _schema({**_AG, **_PT, **_CUR, **_BASE_OPT}, ["agency_id", "start_date", "end_date"])),
-    "get_display_ad_unit_performance": (t_get_display_ad_unit_performance,
-        "Display ad-unit x page-type breakdown: requests, responses, impressions, clicks, cost, funnel (cost/sales are USD-basis).",
-        _schema({**_AG, **_CUR, **_BASE_OPT}, ["agency_id", "start_date", "end_date"])),
-    "get_merchant_wallet_balance": (t_get_merchant_wallet_balance,
-        "Per-merchant remaining wallet balance (converted to marketplace currency, sorted desc). top_n optional.",
-        _schema({**_AG, "top_n": {"type": "integer"}}, ["agency_id"])),
-    "get_budget_delivery_mode": (t_get_budget_delivery_mode,
-        "Budget delivery mode (ACCELERATED/STANDARD) for given campaign_ids (or a sample if omitted).",
-        _schema({**_AG, "campaign_ids": {"type": "array", "items": {"type": "string"}},
-                 "top_n": {"type": "integer"}}, ["agency_id"])),
-    "run_kam_agent_report": (t_run_kam_agent_report,
-        "POWER TOOL: fetch any KAM_AGENT_* report by name with explicit metrics/attributes/filters.",
-        _schema({**_AG, **_CUR, **_BASE_OPT,
-                 "report_type": {"type": "string"},
-                 "metrics": {"type": "array", "items": {"type": "string"}},
-                 "attributes": {"type": "array", "items": {"type": "string"}},
-                 "filters": {"type": "array", "items": {"type": "object"}}},
-                ["agency_id", "report_type", "start_date", "end_date"])),
     "list_reports": (t_list_reports,
         "Discover the internal-performance reports (report_type, columns, required_filters, tags). "
-        "Optional report_group filter: roas|cpc|ctr|bu|rr|merchant_breakdown|category|sku|keyword|intake. "
+        "Optional report_group filter - the tags as they exist in the live catalogue: "
+        "budget_utilisation | campaigns | response_rate | budget_pacings | categories | roas | "
+        "click_through | merchant_breakdowns | search_queries | keywords | intake | cost_per_click | "
+        "skus | page_performances | relevance. Substring match, so 'budget' matches both budget_* "
+        "groups. Call with no filter to see everything. "
         "Mirrors osmos-reporting-mcp's get_<group>_reports catalogue tools.",
         _schema({"report_group": {"type": "string"}}, [])),
     "run_report": (t_run_report,
         "Run any internal-performance report by external report_type (from list_reports), with "
         "attributes/metrics/filters. Mirrors osmos-reporting-mcp's run_report. "
-        "filters = [{\"key\":..,\"operator\":\"IN\",\"values\":[..]}]. SKU/keyword reports require an os_client_id filter.",
+        "filters = [{\"key\":..,\"operator\":\"IN\",\"values\":[..]}]. Reports with required filters "
+        "reject calls that omit them. Derived math (currency conversion, deltas, ratios, sorting) is "
+        "yours to do - the report returns raw columns, exactly as the hosted MCP will.",
         _schema({**_AG, **_CUR, **_BASE_OPT,
-                 "report_type": {"type": "string", "description": "e.g. MERCHANT_ROAS_BREAKDOWN_REPORT"},
+                 "report_type": {"type": "string", "description": "e.g. RR_PLA_REPORT"},
                  "attributes": {"type": "array", "items": {"type": "string"}},
                  "metrics": {"type": "array", "items": {"type": "string"}},
                  "filters": {"type": "array", "items": {"type": "object"}},
@@ -349,12 +204,17 @@ def handle(msg):
 
 
 def selftest():
-    log("selftest: fetching check_ctr_overall for agency 105 …")
-    out = t_check_ctr_overall({"agency_id": 105, "start_date": "2026-07-19", "end_date": "2026-07-21"})
-    print(json.dumps(out, indent=2))
-    log("selftest: get_merchant_wallet_balance top 3 …")
-    out = t_get_merchant_wallet_balance({"agency_id": 105, "top_n": 3})
-    print(json.dumps(out, indent=2))
+    """Exercise the two tools the agent actually gets, against the live catalogue."""
+    log("selftest: list_reports report_group=response_rate …")
+    rr = t_list_reports({"report_group": "response_rate"})
+    print(json.dumps(rr, indent=2)[:900])
+
+    log("selftest: run_report RR_PLA_REPORT by page type, agency 105 …")
+    out = t_run_report({"agency_id": 105, "report_type": "RR_PLA_REPORT",
+                        "attributes": ["perf_page_type"],
+                        "metrics": ["perf_requests", "perf_responses", "perf_response_rate"],
+                        "start_date": "2026-07-19", "end_date": "2026-07-21", "limit": 10})
+    print(json.dumps(out, indent=2)[:900])
 
 
 def main():

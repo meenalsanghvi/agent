@@ -12,7 +12,7 @@
   "description": "A merchant's PLA performance (os_ads_search + smart_shopping performance campaigns only) broken down by product category (e_product_type) x campaign for a marketplace over a period, one row per category x campaign x os_client_id. Attributes: category, campaign_name, marketing_campaign_id, marketing_campaign_group_id, os_client_id. Metrics: spend, impressions, clicks, orders, revenue. Filter by os_client_id (required) to scope to specific merchants. spend and revenue are raw (not currency-converted); ctr/cpc/cpm/roas are derived downstream from these raw aggregates.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

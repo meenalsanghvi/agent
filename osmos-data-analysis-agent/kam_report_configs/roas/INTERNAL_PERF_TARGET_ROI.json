@@ -9,7 +9,7 @@
   "description": "Marketplace target-ROI benchmark for a single agency: the target_roi (target ROAS/ROI) configured on the agencies record. Per-agency point-in-time lookup (no date range) that returns one row with the target_roi attribute; use it as the benchmark to compare achieved ROAS against.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

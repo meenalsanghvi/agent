@@ -14,7 +14,7 @@
   "description": "SKU-level PROGRAM funnel for PLA performance campaigns (os_ads_search, smart_shopping) joined to the SITE/organic SKU funnel, one row per SKU, for a marketplace over a period. This is the single SKU drill-down report for the ROAS, CPC and CTR SOPs -- request only the metrics that SOP needs. Scope with an os_client_id filter: an unscoped fetch scans every SKU in the marketplace and is too heavy. Spend is in the source currency of the device-product facts table.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

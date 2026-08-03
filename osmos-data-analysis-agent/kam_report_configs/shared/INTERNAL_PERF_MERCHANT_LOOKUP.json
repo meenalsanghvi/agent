@@ -10,7 +10,7 @@
   "description": "Intake resolver for a single merchant inside a marketplace: given EITHER os_client_id OR merchant_id as a filter, returns the merchant's os_client_id, merchant_id and merchant_name. Use it to normalise a user-supplied merchant reference before any merchant-scoped analysis - the two id spaces are different (os_client_id is the advertiser client, merchant_id is the seller id used in the category and merchant fact tables) and must never be interchanged. Point-in-time dimension lookup: no date window applies. Filter on exactly one id attribute; requesting it unfiltered returns the whole merchant directory for the agency. No real metrics - a placeholder_metric is included to satisfy the fetch layer.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

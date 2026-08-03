@@ -9,7 +9,7 @@
   "description": "Date-level PROGRAM (ad-attributed, per-click-timestamp CONVERTED conversions/sales) vs SITE (organic, monetize_merchant_facts converted) funnel for a marketplace, one row per date. Program side: spend, clicks, program_orders, program_gmv, program_viewproducts, program_add2carts. Site side: site_orders, site_revenue, site_viewproducts, site_add2carts. organic_orders = site_orders - program_orders. Money is converted to the marketplace currency. Filter by channel to isolate PLA (os_product_ads) vs Display (guaranteed_display_ads / auction_display_ads) on the program side.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,
@@ -22,16 +22,6 @@
       "type": "STRING",
       "externalColumnName": "perf_date",
       "description": "Calendar date of the daily program-vs-site funnel row (from either the program or site aggregate).",
-      "filterTags": [
-        "report_group:roas"
-      ]
-    },
-    "channel": {
-      "key": "channel",
-      "selector": "cvcpf.channel",
-      "type": "STRING",
-      "externalColumnName": "perf_channel",
-      "description": "Program ad channel: os_product_ads (PLA), guaranteed_display_ads / auction_display_ads (Display). Use as a per-call FILTER (not a group-by) to scope the program side to a program type; it does not affect the organic site side.",
       "filterTags": [
         "report_group:roas"
       ]

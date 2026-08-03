@@ -10,7 +10,7 @@
   "description": "Display ad-unit funnel for a marketplace over a period: requests, non-zero responses, response rate, impressions, clicks, marketplace-currency spend and revenue, and the program funnel events (view-product, add-to-cart, conversions). Group by ad_unit_name and/or page_type for the ad-unit and page-type breakdowns, or by date for the daily request / response trend used in budget-utilisation debugging. Pass a page_type NOT IN ('', 'NA') filter to reproduce the guard the retired page-type and daily-requests reports hardcoded.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,
@@ -109,7 +109,7 @@
     },
     "spend": {
       "key": "spend",
-      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.cost * scc.conversion_factor ELSE 0 END), 0)",
+      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.cost ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
       "description": "Ad spend on this ad unit, converted to the marketplace currency.",
@@ -120,7 +120,7 @@
     },
     "revenue": {
       "key": "revenue",
-      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.program_per_click_timestamp_sales * scc.conversion_factor ELSE 0 END), 0)",
+      "selector": "COALESCE(SUM(CASE WHEN auf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN auf.program_per_click_timestamp_sales ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_revenue",
       "description": "Attributed sales (per-click-timestamp) for this ad unit, converted to the marketplace currency. Python divides by spend for ROI.",

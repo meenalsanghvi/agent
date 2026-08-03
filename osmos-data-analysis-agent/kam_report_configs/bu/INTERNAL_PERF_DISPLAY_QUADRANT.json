@@ -9,7 +9,7 @@
   "description": "Display inventory-level quadrant for a marketplace over ONE period, from the daily display quadrant fact: per inventory (page_type + ad_unit) average request count, response rate (%), impression/response ratio (%), currency-converted spend, budget-utilisation (%), and the distinct active campaign and merchant counts serving that inventory. Grouped by page_type + ad_unit. page_type is an optional per-call filter. Only inventories with >1000 requests over the period are returned. Called once per period; run current + baseline to compare.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

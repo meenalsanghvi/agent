@@ -13,7 +13,7 @@
   "description": "Per-(search_query x matched_keyword x keyword_match_type) ad performance inside specific advertiser campaign(s) over one period: raw ad spend, impressions, clicks, and top-of-search impressions. Scoped to given advertiser os_client_id(s) and marketing campaign_id(s); optionally filter by search_query. CTR / CPC / CPM and top-of-search impression share are derived downstream from these raw aggregates.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

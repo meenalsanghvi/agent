@@ -11,7 +11,7 @@
   "description": "Derived average daily budget for a single PLA campaign on a specific date, sourced from os_ads_campaign_avg_daily_budget_projections (only meaningful when the marketplace has avgDailyBudgetEnabled). One row per campaign_id + derived_daily_budget for the requested date, in marketplace currency. The table's date is UTC, so the local __START_DATE_1__ is converted to UTC via __SP_TIMEZONE__. Required per-call filter: campaign_id. The Python layer reads derived_daily_budget from the first row and rounds it.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

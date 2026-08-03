@@ -11,7 +11,7 @@
   "description": "PLA category-level (L1/L2/L3) PROGRAM and SITE aggregates for a marketplace over a period, optionally broken down by merchant. Group by category_l1/l2/l3 for the marketplace-wide category view, or add merchant_id for the merchant-vs-category comparison. Two category forms are exposed: category_l1/l2/l3 are display-normalised (null / blank / 'na' collapse to 'Unknown' at L1 and '-' below it), while category_l1_raw/l2_raw/l3_raw are the untouched column values -- use the raw form when joining back to another category-keyed result. Spend and revenue are in the source currency of the category facts table. program_revenue and program_gmv are the same aggregate under both of the names the retired reports used.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

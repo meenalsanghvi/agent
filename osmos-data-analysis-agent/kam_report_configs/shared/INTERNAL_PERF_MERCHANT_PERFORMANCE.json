@@ -14,7 +14,7 @@
   "description": "Per-merchant PROGRAM (ad-attributed) and SITE (organic) funnel for a marketplace over a period, one row per merchant and channel. PROGRAM metrics come from per-click- timestamp attribution in client_vendor_channel_performance_facts; SITE metrics come from monetize_merchant_facts via a LEFT JOIN, so merchants with no organic rows still appear. Spend and revenue are converted to the marketplace currency. This is the single merchant-breakdown report for every metric SOP -- request only the metrics that SOP needs: spend/clicks/impressions for budget-utilisation and response-rate work, + ctr/cpc/cpm for CTR and CPC work, + the program/site funnel and roas for ROAS work. Filter channel to isolate PLA (os_product_ads) from Display (guaranteed_display_ads / auction_display_ads). Merchants whose merchant_id is null are excluded.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

@@ -11,7 +11,7 @@
   "description": "Targeted-keyword performance for a marketplace over a period: spend, impressions, clicks and attributed sales (marketplace currency), grouped by any mix of keyword, match type, campaign, campaign group and merchant. This is the single keyword- performance report for all three call sites. Filter keyword only to see every campaign competing on that keyword across the marketplace (campaign competition); filter os_client_id + campaign_id to see a keyword's performance inside specific campaigns; filter os_client_id and add campaign_type = 'performance' plus campaign_subtype IN ('os_ads_search', 'smart_shopping') to get a merchant's keywords across its PLA performance campaigns -- that pair of filters replaces a WHERE clause the retired merchant-keyword report hardcoded. Package-based campaigns are always excluded. campaign_id is the lowercased marketing_campaign_id.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

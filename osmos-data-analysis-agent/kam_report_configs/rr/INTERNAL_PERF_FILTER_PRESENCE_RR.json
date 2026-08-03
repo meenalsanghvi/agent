@@ -9,7 +9,7 @@
   "description": "Single-scan present-vs-absent request/response counts for each client-sent filter (brands/zone/storeid/network/city/state/country/device) over a period, from the region request log. One row (ungrouped).",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS_EXTERNAL_DATASET"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

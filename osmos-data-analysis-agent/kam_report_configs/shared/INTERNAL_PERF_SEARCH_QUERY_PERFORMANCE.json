@@ -11,7 +11,7 @@
   "description": "PLA search-query performance (what users actually typed) for a marketplace over a period, from the timezone-aware search-query performance report: impressions, clicks, spend, CTR, and the AUTO-vs-manual match-type split of both impressions and clicks. Group by search_query alone for the marketplace-wide view, or by search_query + seller_id / os_client_id for the per-keyword-per-seller breakdown. Merchant name comes from a LEFT JOIN on clients, so rows survive when the client record is missing. Spend is in the source currency of the search-query report.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,
@@ -171,7 +171,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_search_query_performance_report` AS p LEFT JOIN `prj-onlinesales-prod-01.reporting.clients` AS cl ON cl.client_id = p.client_id JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON p.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_search_query_performance_report` AS p LEFT JOIN `prj-onlinesales-prod-01.reporting.clients` AS cl ON cl.client_id = p.client_id JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON p.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND p.date >= DATETIME_SUB(DATETIME '__START_DATE_1__', INTERVAL 1 DAY) AND p.date < DATETIME_ADD(DATETIME '__END_DATE_1__', INTERVAL 2 DAY) AND DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

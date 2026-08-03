@@ -10,7 +10,7 @@
   "description": "Display ad request / response volume and response rate for a marketplace over a period, grouped by any combination of the dimensions below: supply network, page type, device, ad unit, product category (L1-L3), hour of day, or the keyword the request carried. Replaces the six single-grain Display RR reports. Group by page_type for page-type RR, by hour for the hourly RR curve, by ad_unit to find ad units with zero responses, by keyword for keyword-level Display RR, or by keyword + ad_unit for the follow-up breakdown. Pass a NOT IN ('', 'NA') filter on the grouping column to reproduce the null/blank guards the retired reports hardcoded.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

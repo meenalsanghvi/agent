@@ -10,7 +10,7 @@
   "description": "Point-in-time per-merchant wallet balance for a marketplace (no date range), one row per merchant. Dimensions: os_client_id, merchant_id, merchant_name. Returns the raw remaining_budget_amount_usd (USD) plus the marketplace conversion_factor (USD->marketplace currency); the Python layer computes remaining_balance = (usd * factor) when usd >= 0.01 else 0. Not aggregated, so it carries a placeholder metric.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

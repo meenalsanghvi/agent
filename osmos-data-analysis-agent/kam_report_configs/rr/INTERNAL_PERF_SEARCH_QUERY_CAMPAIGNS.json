@@ -12,7 +12,7 @@
   "description": "Distinct campaigns responding to a set of search queries for a marketplace over one period, with each campaign's current effective_status, for RR-drop root-cause. Rows are (search_query, os_client_id, merchant_id, campaign_id, campaign_name, effective_status) from os_ads_search_query_performance_report joined to campaign dims (campaign_tagging_data + marketing_campaign_dimensions). A search_query filter is required to scope which queries to inspect; a paused/non-ACTIVE effective_status flags campaigns that stopped responding.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

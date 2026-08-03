@@ -67,13 +67,22 @@ user's keyword(s), or the top `targeted_keywords` from STEP 2. Returns categorie
 reference set** for STEP 5.
 
 ### STEP 4 — Actually-responded SKUs
-`get_responded_skus(marketplace_client_id, timezone, start/end, search_queries=[...],
-campaign_ids=[from STEP 1.5])`. Pass the investigated keyword(s) (or STEP 2's
-targeted keywords). If the user named a specific product, ALSO pass
-`product_name_like` to filter to it (pinpoints the offending SKU + cache_type fast).
+`get_responded_skus` — `RESPONDED_SKUS_REPORT`. **Always filter on `perf_keyword`**:
+kamService does not enforce the report's required filter, so an unscoped fetch runs
+and never returns. Pass the investigated keyword(s) (or STEP 2's targeted keywords).
+
+To narrow to one campaign, filter `perf_internal_campaign_id` — **not**
+`perf_campaign_id`. This report keys on the INTERNAL campaign id; the id STEP 1.5
+returns is the MARKETING id, and filtering with it yields **0 rows and no error**.
+Get the internal id from `CAMPAIGN_LOOKUP_REPORT` (`perf_campaign_id` there), and
+note the two are not 1:1 — one internal id can map to several marketing ids.
+
+To narrow to one product, filter `perf_product_name`, `perf_brand` or
+`perf_category` (exact `IN` match — there is no LIKE).
+
 Returns per keyword + `cache_type` + SKU: product name, brand, category,
-impressions, spend. **`cache_type` is the key signal** — it names the algorithm
-that decided to serve this SKU for this keyword.
+impressions, **clicks** and spend. **`cache_type` is the key signal** — it names the
+algorithm that decided to serve this SKU for this keyword.
 
 ### STEP 5 — Compare and diagnose
 For each (keyword, responded SKU) row, compare the SKU's category (STEP 4) against

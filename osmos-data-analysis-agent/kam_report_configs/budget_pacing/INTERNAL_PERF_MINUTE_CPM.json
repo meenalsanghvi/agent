@@ -9,7 +9,7 @@
   "description": "Per-minute impressions and currency-converted spend for CPM-strategy PLA campaigns on a single day, grouped by marketing_campaign_group_id and by minute-of-day (hour 0-23 + minute 0-59), timezone-aware in the marketplace's local timezone. Scope with start_date = end_date to the target day and filter marketing_campaign_group_id to the CPM campaign groups of interest. The Python layer sums total impressions/spend and derives per-minute pacing curves.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

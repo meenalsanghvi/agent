@@ -11,7 +11,7 @@
   "description": "Per-keyword PLA ad request / response volume and response rate on search pages for a marketplace over a period, from the timezone-aware search-query request report (dates are converted to the marketplace timezone). One row per keyword. Replaces the three keyword-request reports: use requests + responses + response_rate for keyword-level RR, requests + responses for the Pareto / zero-vs-partial-response buckets, and requests + days_with_requests to judge whether a keyword has enough demand to warrant a campaign. Filter keyword NOT IN ('') to drop requests that carried no search query; use a metrics filter on requests to apply a minimum-volume threshold.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,
@@ -87,7 +87,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_search_query_request_report` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_search_query_request_report` AS r JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON r.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND r.date_hour_utc >= DATETIME_SUB(DATETIME '__START_DATE_1__', INTERVAL 2 DAY) AND r.date_hour_utc < DATETIME_ADD(DATETIME '__END_DATE_1__', INTERVAL 3 DAY) AND DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

@@ -9,7 +9,7 @@
   "description": "Marketplace-level CTR for a single period from monetize_merchant_facts: total ad clicks, impressions, click-through rate (clicks*100/impressions), and marketplace-currency spend, as one ungrouped row for the whole marketplace. Optionally scoped to specific merchants via a merchant filter.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

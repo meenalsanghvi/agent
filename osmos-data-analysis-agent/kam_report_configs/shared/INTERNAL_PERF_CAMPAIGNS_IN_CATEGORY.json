@@ -10,7 +10,7 @@
   "description": "PLA campaigns competing in a product category for ONE period. Each row is a campaign (merchant + os_client_id + campaign_id) within a category (category_l1/l2/l3), with its campaign-group name, status, campaign_subtype, per-campaign daily budget, derived bidding_strategy_type (CPC / CPM / Max Performance CPC/CPM / ROI / Fixed CPM / CPD / NA / UNKNOWN), and category-level currency-converted spend, CPC and CPM. Filter by category_l1/l2/l3 (and/or os_client_id / campaign_id) to scope to one category. Called once per period; run current + baseline to compare.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

@@ -12,7 +12,7 @@
   "description": "Keywords configured on a SEARCH campaign, excluding deleted ones. Filter is_negative = 0 for the active TARGETED keywords the campaign bids on (bidding_value is the merchant-set bid) or is_negative = 1 for the NEGATIVE keywords it explicitly excludes -- that flag replaces the hardcoded WHERE clause each retired report carried. bidding_value is null for negative keywords. Scope with a campaign_id filter.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

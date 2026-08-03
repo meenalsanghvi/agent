@@ -9,7 +9,7 @@
   "description": "Marketplace-level PLA campaign-subtype buckets (os_ads_search vs smart_shopping vs ...) for a single period, grouped by campaign_subtype: distinct campaign count, spend, clicks, impressions, program GMV, program orders, and CPC per subtype. Restricted to performance-type campaign groups with a non-null subtype.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

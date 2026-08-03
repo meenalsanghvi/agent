@@ -32,7 +32,7 @@ import requests
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from merge_lib import load  # noqa: E402
 
-BASE = "http://test.onlinesales.ai"
+BASE = "http://test-data.onlinesales.ai"
 APP = "irisTestApplication"
 H = {"Content-Type": "application/json"}
 S = requests.Session()
@@ -42,8 +42,13 @@ OURS = re.compile(r"^INTERNAL_PERF_")
 
 # Kept deliberately: audit.audit_logs_v2 is unreachable, so neither these nor their
 # replacement (AUDIT_EVENTS) could be data-verified. User: "we will verify them later."
+# Kept because their replacement (AUDIT_EVENTS) could not be verified at the time.
+# INTERNAL_PERF_BUDGET_CHANGES released 2026-07-30: AUDIT_EVENTS is IAM-blocked, not
+# broken, so the predecessor covers no gap — and unlike the other two it is still LISTED
+# in the catalogue exposing UNPREFIXED columns (campaign_id, currency) shared with 34 and
+# 15 live BEATS/PULSE/LOCALIUM reports. Re-posting it would clobber their columnMetadata
+# tags, which has happened before. The other two stay until their catalogue state is checked.
 DENYLIST = {
-    "INTERNAL_PERF_BUDGET_CHANGES",
     "INTERNAL_PERF_CAMPAIGN_STATUS_CHANGES",
     "INTERNAL_PERF_PRODUCT_SELECTION_CHANGES",
 }

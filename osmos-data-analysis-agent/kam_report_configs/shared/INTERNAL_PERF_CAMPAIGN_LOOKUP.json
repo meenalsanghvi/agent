@@ -10,7 +10,7 @@
   "description": "Intake resolver for a single campaign: given ANY ONE of the four campaign id types (marketing_campaign_id, marketing_campaign_group_id, campaign_id, campaign_group_id) as a filter, returns that campaign's other three ids plus os_client_id, campaign_name, campaign_type, campaign_subtype, bidding_strategy and campaign_status. Use it to normalise a user-supplied campaign id before any campaign-scoped analysis, and to read bidding_strategy (CPC/AUTO_CPC vs CPM/AUTO_CPM) which decides whether the analysis is CPC- or CPM-shaped. Point-in-time dimension lookup: no date window applies. Filter on exactly one id attribute; requesting it unfiltered returns every campaign in the agency. No real metrics - a placeholder_metric is included to satisfy the fetch layer.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

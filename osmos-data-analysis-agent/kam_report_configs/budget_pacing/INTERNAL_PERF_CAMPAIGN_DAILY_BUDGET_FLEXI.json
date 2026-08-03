@@ -11,7 +11,7 @@
   "description": "Flexi daily budget for a single PLA campaign on a single date (used when avgDailyBudget is disabled): the campaign's daily budget capped by the merchant's remaining wallet balance, in the marketplace currency. Returns one row per campaign_id with daily_budget. The campaign is a per-call filter (campaign_id is mandatory) and the date is the START date of the range (single-date lookup). Cap logic: if the day's spend exceeds the converted remaining wallet the spend is used, else the smaller of the converted remaining wallet vs the configured daily budget. The Python layer rounds daily_budget and tags budget_source='flexi_budget'.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

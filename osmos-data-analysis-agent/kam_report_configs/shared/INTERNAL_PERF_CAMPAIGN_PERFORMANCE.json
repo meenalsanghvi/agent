@@ -11,7 +11,7 @@
   "description": "Campaign-group performance for a marketplace over a period: impressions, clicks, marketplace-currency spend, attributed orders and revenue. Omit `date` for the period aggregate, or group by `date` for the day-by-day series. Group by campaign_group_id / campaign_id and any of the campaign, merchant and budget attributes below. The retired daily report hardcoded campaign_type IN ('PERFORMANCE', 'INVENTORY', 'OFFSITE') -- pass that as a campaign_type IN filter to reproduce it. Package-based campaigns and null-merchant rows are always excluded. Scope with a campaign_id filter for campaign-level work.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

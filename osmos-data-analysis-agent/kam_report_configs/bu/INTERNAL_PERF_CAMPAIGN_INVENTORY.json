@@ -9,7 +9,7 @@
   "description": "Inventory / ad-unit slots selected by Display campaigns for a marketplace over a period, one row per ad-unit (inventory) slot x campaign group: spend, impressions, clicks, CTR, CPM, program GMV (ad-attributed sales) and ROAS. Source is os_brand_ads_network_level_facts (Display brand ads). Filter by os_client_id (advertiser client) and/or campaign_group_id to scope to specific Display campaigns.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

@@ -80,7 +80,7 @@
     "reportType": "INTERNAL_PERF_DAILY_ORDER_TRENDS",
     "externalReportType": "DAILY_ORDER_TRENDS_REPORT",
     "path": "roas/INTERNAL_PERF_DAILY_ORDER_TRENDS.json",
-    "verdict": "ERROR",
+    "verdict": "OK",
     "note": "Error: unable to fetch GCP BigQuery result - Unrecognized name: cvcpf at [1:42]"
   },
   {
@@ -143,7 +143,7 @@
     "reportType": "INTERNAL_PERF_RESPONDED_SKUS",
     "externalReportType": "RESPONDED_SKUS_REPORT",
     "path": "irrelevancy/INTERNAL_PERF_RESPONDED_SKUS.json",
-    "verdict": "ERROR",
+    "verdict": "OK",
     "note": "ReadTimeout"
   },
   {

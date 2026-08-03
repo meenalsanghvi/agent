@@ -49,7 +49,7 @@ Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see K
 | `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` | — | 3 | 10 | ✅ |
 | `DISPLAY_INVENTORY_CAMPAIGNS_REPORT` | `perf_ad_unit` | 15 | 2 | ✅ |
 | `DISPLAY_QUADRANT_REPORT` | — | 2 | 7 | ✅ |
-| `GMV_ATTRIBUTION_REPORT` *(ungrouped)* | — | 1 | 11 | ✅ |
+| `GMV_ATTRIBUTION_REPORT` *(ungrouped)* | — | 0 | 11 | ✅ |
 | `MERCHANT_PERFORMANCE_REPORT` | — | 4 | 15 | ✅ |
 | `PAGE_PERFORMANCE_PLA_REPORT` | — | 2 | 6 | ✅ |
 | `TRUE_BU_CAMPAIGN_REPORT` | — | 8 | 5 | ✅ |
@@ -137,7 +137,7 @@ Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see K
 
 | Report | Required filters | Attrs | Metrics | |
 |---|---|---|---|---|
-| `RESPONDED_SKUS_REPORT` | — | 7 | 2 | ⛔ error |
+| `RESPONDED_SKUS_REPORT` | `perf_keyword` | 7 | 3 | ✅ |
 
 ## response_rate
 
@@ -158,8 +158,8 @@ Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see K
 | Report | Required filters | Attrs | Metrics | |
 |---|---|---|---|---|
 | `CATEGORY_PERFORMANCE_REPORT` | — | 7 | 13 | ✅ |
-| `DAILY_ORDER_TRENDS_REPORT` | — | 2 | 11 | ⛔ error |
-| `GMV_ATTRIBUTION_REPORT` *(ungrouped)* | — | 1 | 11 | ✅ |
+| `DAILY_ORDER_TRENDS_REPORT` | — | 1 | 11 | ✅ |
+| `GMV_ATTRIBUTION_REPORT` *(ungrouped)* | — | 0 | 11 | ✅ |
 | `MERCHANT_PERFORMANCE_REPORT` | — | 4 | 15 | ✅ |
 | `SKU_PERFORMANCE_REPORT` | `perf_os_client_id` | 8 | 13 | ✅ |
 | `TARGET_ROI_REPORT` | — | 1 | 1 | ✅ |
@@ -178,7 +178,7 @@ Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see K
 
 | Report | Required filters | Attrs | Metrics | |
 |---|---|---|---|---|
-| `RESPONDED_SKUS_REPORT` | — | 7 | 2 | ⛔ error |
+| `RESPONDED_SKUS_REPORT` | `perf_keyword` | 7 | 3 | ✅ |
 | `SKU_PERFORMANCE_REPORT` | `perf_os_client_id` | 8 | 13 | ✅ |
 
 ---
@@ -189,9 +189,10 @@ Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see K
 |---|---|---|
 | `AUDIT_EVENTS_REPORT` · `FILTER_PRESENCE_RR_REPORT` | their configs name appKey `GCP_BQ_KAM_CREDENTIALS_EXTERNAL_DATASET`, which is **not registered in kamService** — they fail at BQ client init | unavailable; needs a kamService change |
 | `CATEGORY_REQUEST_VOLUME_REPORT` | reaches BigQuery but is **Access Denied** on `reporting_<region>.os_product_ads_request_report` | unavailable; needs a BQ grant |
-| `DAILY_ORDER_TRENDS_REPORT` | the `channel` attribute selects `cvcpf.channel`, unbound in the outer query | **never request `channel`**; the rest works |
-| `RESPONDED_SKUS_REPORT` | no required filter declared, but an unscoped fetch times out | **always scope by `keyword`** |
-| `GMV_ATTRIBUTION_REPORT` | `channel` is filter-only (no attributes slot in the template) | filter by channel, never group by it |
+| `DAILY_ORDER_TRENDS_REPORT` | `channel` removed — it selected `cvcpf.channel`, unbound in the outer query, and cannot be exposed without inflating the site metrics | no PLA/Display split here; use `MERCHANT_PERFORMANCE_REPORT` |
+| `RESPONDED_SKUS_REPORT` | declares `perf_keyword` required, but **kamService does not enforce `externalRequiredFilters`** — an unscoped fetch runs and never returns | **always scope by `keyword`**; the MCP applies it, direct callers must too |
+| `RESPONDED_SKUS_REPORT` | `perf_campaign_id` renamed to `perf_internal_campaign_id` — it holds the internal id, not the marketing id in the UI | filter with the internal id (from `CAMPAIGN_LOOKUP_REPORT`); the two are not 1:1 |
+| `GMV_ATTRIBUTION_REPORT` | `channel` removed — the template is ungrouped (no attributes slot) | request no attributes; it returns one total row |
 | `RR_DISPLAY_REPORT` | no `store_id` — the Display facts table lacks the column | use `RR_PLA_REPORT` for store-level RR |
 | `CAMPAIGN_LOOKUP_REPORT` · `MERCHANT_LOOKUP_REPORT` | resolve an entity from **any one of** several id keys, so they deliberately declare no required filter | pass whichever id you hold |
 

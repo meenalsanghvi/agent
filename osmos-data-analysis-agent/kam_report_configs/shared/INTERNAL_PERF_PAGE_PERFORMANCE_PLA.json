@@ -11,7 +11,7 @@
   "description": "PLA page-level funnel for a marketplace over a period: requests, non-zero responses, response rate, impressions, clicks and marketplace-currency spend. Group by page_type for the page-type breakdown (page-level performance and page RR) or by date for the daily request/response trend used in budget-utilisation debugging. Rows with a null, blank or 'NA' page_type are excluded, matching all three retired reports.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

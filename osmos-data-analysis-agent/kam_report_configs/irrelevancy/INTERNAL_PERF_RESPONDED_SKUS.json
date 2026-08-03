@@ -6,11 +6,13 @@
     "report_group:relevance",
     "report_group:skus"
   ],
-  "externalRequiredFilters": [],
-  "description": "SEARCH-page PLA SKUs responded/served for search queries on a marketplace over a period: for each search keyword, serving cache_type (relevancy algorithm), SKU id and product attributes (product name, brand, e_product_type category), returns currency-converted spend and impressions. Used to investigate keyword-to-SKU irrelevancy. Optionally filter by keyword (search query), campaign_id, or product_name.",
+  "externalRequiredFilters": [
+    "perf_keyword"
+  ],
+  "description": "SEARCH-page PLA SKUs responded/served for search queries on a marketplace over a period: for each search keyword, serving cache_type (relevancy algorithm), SKU id and product attributes (product name, brand, e_product_type category), with impressions, valid clicks and spend. Spend comes from the bid on valid clicks (response-to-clicks mapping), not from impressions. Used to investigate keyword-to-SKU irrelevancy. FILTER ON KEYWORD: this report reads the full response mapping, so an unscoped fetch scans the whole period for every keyword and will not return. KAM does not enforce externalRequiredFilters, so the caller must apply it. Optionally also filter by internal_campaign_id, brand, category or product_name.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,
@@ -83,36 +85,48 @@
         "report_group:skus"
       ]
     },
-    "campaign_id": {
-      "key": "campaign_id",
+    "internal_campaign_id": {
+      "key": "internal_campaign_id",
       "selector": "impr.campaign_id",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_id",
-      "description": "Campaign that served the SKU. Optional per-call filter; not required to return rows.",
+      "externalColumnName": "perf_internal_campaign_id",
+      "description": "Internal campaign id of the campaign that served the SKU. NOTE: this is the internal id, not the marketing campaign id shown in the UI - the two are not 1:1 (3.3% of internal ids map to several marketing ids), so they cannot be translated here. Optional per-call filter.",
       "filterTags": [
+        "report_group:campaigns",
         "report_group:relevance",
         "report_group:skus"
       ]
     }
   },
   "metrics": {
-    "spend": {
-      "key": "spend",
-      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(impr.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN COALESCE(impr.bid, 0) * scc.conversion_factor ELSE 0 END), 0)",
-      "type": "FLOAT",
-      "externalColumnName": "perf_spend",
-      "description": "Ad spend on the served SKU for the keyword, converted to the marketplace currency (bid * conversion_factor).",
+    "impressions": {
+      "key": "impressions",
+      "selector": "COALESCE(SUM(impr.impressions), 0)",
+      "type": "INTEGER",
+      "externalColumnName": "perf_impressions",
+      "description": "Impressions served for the keyword x cache_type x SKU.",
       "filterTags": [
         "report_group:relevance",
         "report_group:skus"
       ]
     },
-    "impressions": {
-      "key": "impressions",
-      "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(impr.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND impr.unique_impressions > 0 THEN 1 ELSE 0 END), 0)",
+    "clicks": {
+      "key": "clicks",
+      "selector": "COALESCE(SUM(clk.clicks), 0)",
+      "type": "INTEGER",
+      "externalColumnName": "perf_clicks",
+      "description": "Valid clicks on the SKU for this keyword.",
+      "filterTags": [
+        "report_group:relevance",
+        "report_group:skus"
+      ]
+    },
+    "spend": {
+      "key": "spend",
+      "selector": "COALESCE(ROUND(SUM(clk.spend), 2), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_impressions",
-      "description": "Number of responses for this SKU/keyword that rendered at least one unique impression.",
+      "externalColumnName": "perf_spend",
+      "description": "Spend in marketplace currency, from bid on valid clicks.",
       "filterTags": [
         "report_group:relevance",
         "report_group:skus"
@@ -125,7 +139,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_response_to_impressions_mapping` AS impr JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.marketplace_client_id = impr.marketplace_client_id JOIN `prj-onlinesales-prod-01.reporting.oltp_merchandise_product_dimensions___SP_MARKETPLACE_CLIENT_ID__` AS mpd ON mpd.sku_id = impr.sku_id LEFT JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE mc.agency_id = '__AGENCY_ID__' AND mc.marketplace_client_id = '__SP_MARKETPLACE_CLIENT_ID__' AND DATE(TIMESTAMP(impr.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND impr.page_type = 'SEARCH' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM (SELECT LOWER(TRIM(impr.search_query, '[\"],')) AS search_query, impr.cache_type, impr.sku_id, impr.campaign_id, mpd.e_name, mpd.e_brand, mpd.e_product_type, COUNTIF(impr.unique_impressions > 0) AS impressions FROM `prj-onlinesales-prod-01.reporting.os_product_ads_response_to_impressions_mapping` AS impr JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.marketplace_client_id = impr.marketplace_client_id JOIN `prj-onlinesales-prod-01.reporting.oltp_merchandise_product_dimensions___SP_MARKETPLACE_CLIENT_ID__` AS mpd ON mpd.sku_id = impr.sku_id WHERE mc.agency_id = '__AGENCY_ID__' AND mc.marketplace_client_id = '__SP_MARKETPLACE_CLIENT_ID__' AND DATE(TIMESTAMP(impr.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND impr.page_type = 'SEARCH' AND __FILTER__ GROUP BY 1,2,3,4,5,6,7) AS impr LEFT JOIN (SELECT LOWER(TRIM(impr.search_query, '[\"],')) AS search_query, impr.cache_type, impr.sku_id, impr.campaign_id, COUNTIF(impr.is_valid_click) AS clicks, SUM(CASE WHEN impr.is_valid_click THEN COALESCE(impr.bid, 0) * scc.conversion_factor ELSE 0 END) AS spend FROM `prj-onlinesales-prod-01.reporting.os_product_ads_response_to_clicks_mapping` AS impr JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.marketplace_client_id = impr.marketplace_client_id JOIN `prj-onlinesales-prod-01.reporting.oltp_merchandise_product_dimensions___SP_MARKETPLACE_CLIENT_ID__` AS mpd ON mpd.sku_id = impr.sku_id LEFT JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE mc.agency_id = '__AGENCY_ID__' AND mc.marketplace_client_id = '__SP_MARKETPLACE_CLIENT_ID__' AND DATE(TIMESTAMP(impr.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND impr.page_type = 'SEARCH' AND __FILTER__ GROUP BY 1,2,3,4) AS clk USING (search_query, cache_type, sku_id, campaign_id) JOIN `prj-onlinesales-prod-01.reporting.oltp_merchandise_product_dimensions___SP_MARKETPLACE_CLIENT_ID__` AS mpd ON mpd.sku_id = impr.sku_id WHERE TRUE AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

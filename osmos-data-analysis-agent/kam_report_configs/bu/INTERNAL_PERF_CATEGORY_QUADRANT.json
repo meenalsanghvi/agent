@@ -10,7 +10,7 @@
   "description": "PLA category-level (L1/L2/L3) quadrant for a marketplace over ONE period, from the daily category quadrant fact: per-category requests, response rate (%), currency-converted spend and daily budget, budget-utilisation (%), plus the distinct campaign and merchant counts active in the category. Grouped by the category hierarchy (category_l1 / category_l2 / category_l3). category_level ('category_l1' | 'category_l2' | 'category_l3') selects the granularity of the quadrant rows and MUST be paired with the matching group-by level: filter category_level='category_l1' and request category_l1; 'category_l2' with category_l1+category_l2; 'category_l3' with all three. Only categories with >5000 requests over the period are returned. Called once per period; run current + baseline to compare.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

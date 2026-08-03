@@ -9,7 +9,7 @@
   "description": "Intake directory of every ACTIVE 'monetize' marketplace: one row per marketplace exposing marketplace_name plus the working context ids (agency_id, marketplace_client_id) and settings (region, currency, timezone). CROSS-TENANT (no agency scope) so the app can fuzzy-match a user's typed marketplace name against these names and then use the matched row's ids/region/currency/timezone as session context. No real metrics \u2014 a placeholder_metric is included to satisfy the fetch layer.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

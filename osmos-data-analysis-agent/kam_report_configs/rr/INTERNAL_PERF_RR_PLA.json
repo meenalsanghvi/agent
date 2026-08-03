@@ -10,7 +10,7 @@
   "description": "PLA ad request / non-zero-response volume and response rate for a marketplace over a period, grouped by any combination of the dimensions below: supply network, store, page type, page name, device, product category (L1-L5 or the concatenated category path), day of month, or hour of day. Replaces the three single-grain PLA RR reports. Group by category_l1/l2/l3 for category RR, by store_id + category + day + hour for the store-hour eligibility buckets, or by any other dimension mix. Pass a NOT IN ('', 'NA') filter on the grouping column to reproduce the null/blank guards the retired reports hardcoded.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

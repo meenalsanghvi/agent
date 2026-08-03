@@ -9,7 +9,7 @@
   "description": "Raw budget-pacing configuration for a marketplace on a given date: the budget_pacing_json blob of cumulative spend-% targets by time-of-day, one row per date. The Python layer parses the JSON and derives per-bucket spend %, bucket start/end times, and bucket count. Single-date lookup (set start_date = end_date to the target date).",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

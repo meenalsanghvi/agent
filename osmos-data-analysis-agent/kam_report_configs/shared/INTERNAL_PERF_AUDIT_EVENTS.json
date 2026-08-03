@@ -12,7 +12,7 @@
   "description": "Campaign audit-log events for a marketplace over a period, from audit_logs_v2, one row per event with timestamps in the marketplace timezone. ALWAYS filter action_type_id -- it selects which kind of event you get, and which attributes are populated: 17 = daily-budget change (old_budget, new_budget, currency, changed_by), 16 = campaign status change (old_status, new_status), 50/51 = product added / removed from a campaign (sku_id, action, changed_by, changed_by_type). Attributes outside the selected event type return null. change_timestamp and change_time are the same value under both of the names the retired reports used. This report has no GROUP BY -- it is a row-level passthrough.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS_EXTERNAL_DATASET"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,
@@ -20,7 +20,7 @@
   },
   "attributes": {
     "action_type_id": {
-      "selector": "al.action_type_id",
+      "selector": "SAFE_CAST(al.action_type_id AS STRING)",
       "type": "INTEGER",
       "applyCaseInsensitiveFilter": true,
       "description": "Audit action type. 17 = daily-budget change, 16 = campaign status change, 50 = product added, 51 = product removed. Required filter -- it selects the event kind.",

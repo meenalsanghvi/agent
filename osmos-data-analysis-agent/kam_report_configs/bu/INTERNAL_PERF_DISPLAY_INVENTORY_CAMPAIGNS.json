@@ -12,7 +12,7 @@
   "description": "Campaigns running under a specific Display inventory slot for one period. Filter by ad_unit (required) and optionally page_type; returns per campaign-group rows: merchant id/name, os_client_id, campaign-group id/name/type/status/subtype, start/end date, bidding-strategy type, merchant remaining balance, daily budget, spend (raw cost, NOT currency-converted) and CPM. Only rows with cost > 0 that are either BLOCK_BUY or ACTIVE inventory configurations.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

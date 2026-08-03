@@ -9,7 +9,7 @@
   "description": "Intake \u2014 auto-flagged weekly trend metrics for a marketplace/week from os_ads_performance_trend_analysis_report: metric name, old value, new value, change percent, severity, and primary_reason. Row-level passthrough (one row per flagged metric, no aggregation); scoped to one Sunday-Saturday week via the date range and to one marketplace via a marketplace_client_id filter. Python flags rows where severity != 'normal' and derives the prior-week baseline.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,

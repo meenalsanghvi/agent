@@ -11,7 +11,7 @@
   "description": "Budget delivery (pacing) mode lookup for one or more PLA campaigns: returns budget_delivery_mode (ACCELERATED vs STANDARD) per campaign_id (marketing_campaign_id) from marketing_campaign_dimensions. Point-in-time dimension lookup (no date range), keyed by a mandatory campaign_id filter; the Python layer buckets ids into accelerated/standard/not-found and computes the summary counts.",
   "source": "GOOGLE_BIG_QUERY",
   "sourceInfo": {
-    "appKey": "GCP_BQ_KAM_CREDENTIALS"
+    "appKey": "GCP_PERF_BQ_KAM_CREDENTIALS"
   },
   "cacheInfo": {
     "isCachingEnabled": true,
