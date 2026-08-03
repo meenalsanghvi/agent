@@ -185,26 +185,25 @@ investigate further?" Offer concrete next-step options drawn from tools you have
 NOT yet run (or could re-run at a finer grain) — deeper merchant/SKU/category/
 campaign/page/keyword drills, campaign-status or product-selection checks, custom
 SQL — each with a one-line rationale. Always include a "Write final summary" and
-an "Other direction" option. Only after the user confirms → call
-`store_agent_findings()`, then write the Final Report. Never auto-summarize.
+an "Other direction" option. Only after the user confirms → write the Final
+Report. Never auto-summarize.
 
 ---
 
-## Storing findings (MANDATORY before the summary)
+## What the Final Report must state
 
-You MUST call `store_agent_findings()` **before** writing any final summary text —
-other skills/agents read this state to cross-reference. Call it with:
-- `metric_type` (e.g. "roas", "cpc", …)
-- `root_cause` (e.g. "Marketplace Level Decline" / "Merchant Level — top 3
+There is no findings store — `store_agent_findings()` was an ADK-only tool and has
+no replacement here. State the findings in the report itself, and cover:
+- **metric** (e.g. "roas", "cpc", …)
+- **root cause** (e.g. "Marketplace Level Decline" / "Merchant Level — top 3
   merchants lost orders")
-- `affected_programs`: "pla" / "display" / "both"
-- `severity`: high (>15% of the metric), medium (5–15%), low (<5%)
-- `key_findings`: list with actual numbers
-- `impacted_entities`: list of `{ "name", "impact", ... }` (e.g. `client_id` +
-  `"type": "merchant"`)
-- `recommendations`: actionable list
+- **affected programs**: "pla" / "display" / "both"
+- **severity**: high (>15% of the metric), medium (5–15%), low (<5%)
+- **key findings**: with actual numbers
+- **impacted entities**: name + impact (e.g. `client_id`, type "merchant")
+- **recommendations**: actionable list
 
-Only after it completes → write the Final Report.
+Later skills in the same conversation read this from your report text.
 
 **Cross-agent:** if an earlier investigation in this conversation already covered
 part of this ground, note the overlap and do not repeat completed analysis.
