@@ -48,6 +48,13 @@ agent_instructions.py`. Load this once at the start of an investigation.
 >   single-period and emit no `_prev` / `_change` / `_perc` variants; fetch
 >   current and baseline separately and combine them yourself. Check each
 >   response's `period` field rather than assuming call order.
+> - **Attributed metrics keep accruing after a window closes.** `program_gmv`,
+>   `program_orders` and anything else ad-attributed are under-counted for a recent
+>   window and settled for an older one, so a recent-vs-older comparison overstates
+>   any decline. Spend does not drift; only the attributed side does. Re-fetch the
+>   current window once — if the figures moved, say in the report that the window is
+>   still settling and that the true change is smaller than measured. Prefer
+>   baselines of similar age.
 >
 > The *procedure* below is unchanged — only how you fetch the data.
 

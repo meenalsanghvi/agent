@@ -20,6 +20,31 @@ the competition check, and the final-report format that this skill relies on.
 
 ROAS = program GMV ÷ spend.
 
+## ⚠️ Attribution-settling gate — do this BEFORE comparing two windows
+
+Program GMV and program orders keep **accruing after the window closes** as
+attributions land. A recent window is therefore under-counted against an older
+baseline, which inflates any apparent decline. Spend does not move; only the
+attributed metrics do.
+
+This was measured, not assumed: agency 105's window 2026-08-01..02 read
+ZAR 11,771,087.58 / 20,792 orders, then ZAR 11,821,989.58 / 20,878 a few hours later
+— **+ZAR 50,902 and +86 orders on the same query** — while the 07-25..26 baseline
+returned byte-identical figures both times.
+
+**Test it rather than assuming a settling period** (there is no documented one):
+
+1. Fetch the current window, note `program_gmv` and `program_orders`.
+2. Re-fetch the same window once more in the same session.
+3. If the numbers moved, the window is **still settling**. Say so explicitly in the
+   report, and state that the true decline is smaller than measured by at least the
+   drift you observed.
+
+Prefer baselines of **similar age** to the current window. If the user asks for a
+2-day window against one 9 days older, that asymmetry is a real limitation of the
+answer — flag it, don't bury it. Never present a decline as final when the recent
+side is still moving.
+
 ## Core principle — contribution-first
 
 Never report raw numbers alone — answer **who** drove the change. Every
