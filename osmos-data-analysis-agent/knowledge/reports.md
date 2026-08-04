@@ -188,6 +188,8 @@ Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see K
 | Report | Issue | What to do |
 |---|---|---|
 | `AUDIT_EVENTS_REPORT` | `action_type_id` is INT64 while KAM builds the filter as a string | selector is `SAFE_CAST(... AS STRING)`; pass `perf_action_type_id` as a string |
+| `CAMPAIGN_KEYWORDS_REPORT` | filter column types are asymmetric — `perf_campaign_id` is STRING but `perf_is_negative` is INTEGER, and a wrong-typed value 500s on a BigQuery signature mismatch rather than returning nothing | pass `perf_campaign_id` as a string and `perf_is_negative` as an integer; if a filter 500s with "No matching signature", check the column's declared type before assuming the report is broken |
+| `CAMPAIGN_LOOKUP_REPORT` | exposed `mcd.effective_status` as `perf_campaign_status` while three other reports call the same column `perf_effective_status` — renamed for consistency | use `perf_effective_status`; there is no `perf_campaign_status` |
 | `DAILY_ORDER_TRENDS_REPORT` | `channel` removed — it selected `cvcpf.channel`, unbound in the outer query, and cannot be exposed without inflating the site metrics | no PLA/Display split here; use `MERCHANT_PERFORMANCE_REPORT` |
 | `RESPONDED_SKUS_REPORT` | declares `perf_keyword` required, but **kamService does not enforce `externalRequiredFilters`** — an unscoped fetch runs and never returns | **always scope by `keyword`**; the MCP applies it, direct callers must too |
 | `RESPONDED_SKUS_REPORT` | `perf_campaign_id` renamed to `perf_internal_campaign_id` — it holds the internal id, not the marketing id in the UI | filter with the internal id (from `CAMPAIGN_LOOKUP_REPORT`); the two are not 1:1 |

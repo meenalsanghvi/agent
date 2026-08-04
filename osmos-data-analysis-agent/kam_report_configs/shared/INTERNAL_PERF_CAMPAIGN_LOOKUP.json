@@ -120,7 +120,7 @@
       "key": "campaign_status",
       "selector": "mcd.effective_status",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_status",
+      "externalColumnName": "perf_effective_status",
       "description": "Effective status of the campaign (ACTIVE, PAUSED, ...) at read time - a paused campaign explains a delivery drop on its own.",
       "filterTags": [
         "report_group:campaigns",
