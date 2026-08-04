@@ -120,18 +120,33 @@ def _fetch_ext(agency_id, report_type, attributes, metrics, filters, start, end,
     with open(path, "w") as fh:
         for row in data:
             fh.write(json.dumps(row) + "\n")
+    # Complete means we know nothing was left behind: either we paged to exhaustion, or the
+    # caller's limit was never reached. Hitting the limit exactly means we cannot tell, so
+    # treat it as truncated. Deriving this from `limit is None` alone reported a complete
+    # 2,462-row fetch as incomplete AND a truncated 1,000-row fetch as complete.
+    complete = limit is None or len(data) < int(limit)
+    if complete:
+        note = (f"COMPLETE result set — all {len(data):,} rows written to {path}. Nothing was "
+                f"dropped. Too large to return inline without risking the stdio connection, so "
+                f"analyse the file directly (python/jq/awk) rather than re-fetching a smaller "
+                f"slice: totals, Pareto and per-entity aggregates are all valid on it.")
+    else:
+        note = (f"TRUNCATED at your limit of {limit} — the result set is larger and the rest was "
+                f"NOT fetched. {len(data):,} rows written to {path}. Do NOT compute totals, "
+                f"Pareto or per-entity aggregates from this: they will be wrong. Re-fetch with a "
+                f"much higher limit (or omit limit entirely to page to exhaustion), and check any "
+                f"total against an independent report before trusting it.")
     return {
         "rows_file": path,
         "format": "jsonl",
         "row_count": len(data),
-        "complete": limit is None,
+        "complete": complete,
+        "truncated": not complete,
+        "requested_limit": limit,
         "pages_fetched": pages,
         "columns": sorted(data[0].keys()) if isinstance(data[0], dict) else None,
         "sample": data[:5],
-        "note": (f"COMPLETE result set — all {len(data):,} rows written to {path}. Nothing was "
-                 f"dropped. Too large to return inline without risking the stdio connection, so "
-                 f"analyse the file directly (python/jq/awk) rather than re-fetching a smaller "
-                 f"slice: totals, Pareto and per-entity aggregates are all valid on it. "
+        "note": (f"{note} "
                  f"`sample` is the first 5 rows for shape only — row order follows the report's "
                  f"attributes, not magnitude, so do not read it as a ranking."),
     }
