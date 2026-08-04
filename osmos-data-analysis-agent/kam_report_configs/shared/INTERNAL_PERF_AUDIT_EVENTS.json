@@ -165,7 +165,7 @@
     },
     "sku_id": {
       "key": "sku_id",
-      "selector": "JSON_EXTRACT_SCALAR(al.metadata, '$.skuId')",
+      "selector": "JSON_EXTRACT_SCALAR(al.new_state, '$.skuId')",
       "type": "STRING",
       "externalColumnName": "perf_sku_id",
       "description": "SKU added/removed.",
