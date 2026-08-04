@@ -42,14 +42,19 @@ campaigns / keywords), **date range**, **program** (PLA / Display).
 
 ## 2. Identify the marketplace — `MARKETPLACE_DIRECTORY_REPORT`
 
-> **Tool binding.** `MARKETPLACE_DIRECTORY_REPORT` is a legacy ADK name and does not exist.
-> Resolve it — and every other tool named in this file — via `knowledge/tool-map.md`.
-> Here it is `MARKETPLACE_DIRECTORY_REPORT`. Every external column carries a `perf_`
-> prefix; take exact names from the map, never from memory.
+> **Tool binding.** Resolve every report named in this file via `knowledge/tool-map.md`.
+> Every external column carries a `perf_` prefix; take exact names from the map, never
+> from memory.
 
 Fuzzy-match the name given; it filters out staging/sandbox and returns
 `perf_agency_id`, `perf_marketplace_client_id`, `perf_region`, `perf_currency`,
 `perf_timezone`.
+
+**If this call fails (KAM 5xx), retry once, then ASK the user** for the marketplace's
+currency and timezone. Do NOT fall back to a currency you remember or find written down
+elsewhere in the repo — those notes cover one or two marketplaces and will silently
+mislabel every figure in the report for any other. A wrong currency symbol on every
+number is worse than a question.
 
 - **no match** → ask the user to verify the name.
 - **single match** → state it ("Matched: Flipkart") and proceed; do not ask to confirm.

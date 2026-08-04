@@ -127,6 +127,11 @@ CONCENTRATED drop, present the problem segments and use the known drill patterns
   RR **CEILING**: `RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display) per network (parallel). RR ≥ 95% in a
   network×category combo → ceiling (no headroom; report and stop unless partial). No combos near 100%
   → not a ceiling → 2C.
+  **Before stopping on a ceiling:** a near-100% RR can mean a floor-price house/filler
+  campaign is absorbing unsold inventory, not that demand is healthy. Check the eligible
+  campaigns' CPMs and end dates (`DISPLAY_INVENTORY_CAMPAIGNS_REPORT` /
+  `CAMPAIGNS_IN_CATEGORY_REPORT`) — see the saturation warning in `debug-rr`. Judge a
+  departed campaign by whether it could *fill*, never by whether its spend was material.
 - **store_id** → `RR_PLA_REPORT` (must pass group by `perf_store_id`, `perf_category`, `perf_day`, `perf_hour`) (session dates; `page_type_filter`)
   for hourly eligibility. `has_store_eligibility_issue = True` → specific stores
   ineligible; report and stop.
@@ -157,7 +162,9 @@ campaigns. 2. `PAGE_PERFORMANCE_PLA_REPORT` (PLA) / `DISPLAY_AD_UNIT_PERFORMANCE
 `DISPLAY_INVENTORY_CAMPAIGNS_REPORT` for problem slots; **low RR → `HANDOFF_TO_ROOT`
 for the RR skill**; RR stable → low CPC / delivery issue, continue. 3. Sellers with
 budget increase but flat spend → `RR_PLA_REPORT` (must pass `perf_category_l1` != '' + `perf_page_type` NOT IN ('', 'NA')); category RR = 100%
-→ CEILING, report and stop for those sellers. 4. `MERCHANT_PERFORMANCE_REPORT` →
+→ CEILING, report and stop for those sellers — after checking it is real demand and not
+floor-price filler (see the saturation warning in `debug-rr`).
+4. `MERCHANT_PERFORMANCE_REPORT` →
 STEP 6.
 
 ### STEP 3-RR

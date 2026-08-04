@@ -97,7 +97,34 @@ limit; same for `RR_PLA_REPORT` (must pass group by `perf_store_id`, `perf_categ
 - **network** → if a campaign is in scope, `CAMPAIGN_NETWORKS_REPORT` (filter `perf_internal_campaign_id`, not `perf_campaign_id`) FIRST to scope to its actual targeted
   networks (skip untargeted ones). Then ceiling check:
   `RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display) per network (parallel) — RR ≥ 95% → CEILING, report/stop unless
-  partial.
+  partial. **But see the saturation warning below before you stop on a ceiling.**
+
+> ### ⚠️ A near-100% baseline RR is a warning, not a clean bill of health
+>
+> Before treating RR ≥ 95% as a healthy ceiling, ask **what is filling the slot and at
+> what price.** Run `DISPLAY_INVENTORY_CAMPAIGNS_REPORT` (Display) or
+> `CAMPAIGNS_IN_CATEGORY_REPORT` (PLA) for the affected ad unit / category and read the
+> CPMs and end dates of the eligible campaigns.
+>
+> A **floor-price house or filler campaign** — very low CPM against a large daily budget —
+> wins essentially every auction, because nothing outbids the floor. That produces a
+> 99.99% RR that reflects unsold inventory being absorbed, **not** advertiser demand. When
+> such a campaign hits its end date, RR falls to whatever real demand supports, and the
+> drop looks exactly like a serving failure.
+>
+> Tells to check:
+> - one or more eligible campaigns at a CPM far below the others (e.g. 1.01 vs 150–400)
+> - a campaign name or `end_date` implying a fixed window ("23 - 28 July")
+> - **few eligible campaigns overall** — a slot with 2–3 eligible campaigns collapses to
+>   near-zero when the filler leaves; one with ~65 degrades only partially
+>
+> **Do not test this by asking whether the lost campaigns' SPEND was material.** Filler
+> spends almost nothing while answering everything — ZAR 1,782 of spend can fill 2.4M
+> requests. Ask whether a departed campaign could *fill*, not whether it spent.
+>
+> If a filler expiry explains the drop, that is **not a platform defect** and must not be
+> escalated as one. Report it as inventory coming off schedule, and ask whether a
+> replacement placement was intended.
 - **store_id** → `RR_PLA_REPORT` (must pass group by `perf_store_id`, `perf_category`, `perf_day`, `perf_hour`) (both PLA & Display via
   `program_type`; prerequisite: `RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display) for PLA, or `(group_by_column="filter_store_id",
   program_type="display")` for Display, confirmed store IDs sent with some near-0
