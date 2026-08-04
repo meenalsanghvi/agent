@@ -123,7 +123,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_page_name_performance_facts` AS pf JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON pf.marketplace_client_id = mc.marketplace_client_id LEFT JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE mc.agency_id = '__AGENCY_ID__' AND pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND pf.page_type IS NOT NULL AND pf.page_type NOT IN ('', 'NA') AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_product_ads_page_name_performance_facts` AS pf JOIN `prj-onlinesales-prod-01.reporting.clients` AS mc ON pf.marketplace_client_id = mc.client_id LEFT JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE mc.agency_id = '__AGENCY_ID__' AND pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND pf.page_type IS NOT NULL AND pf.page_type NOT IN ('', 'NA') AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },
