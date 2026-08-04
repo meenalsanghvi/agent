@@ -28,8 +28,11 @@ compute `days = (end_date − start_date + 1)`. If it exceeds the limit, STOP, w
 the user, and wait for confirmation:
 - `CATEGORY_REQUEST_VOLUME_REPORT`, `FILTER_PRESENCE_RR_REPORT` →
   15-day limit (`FILTER_PRESENCE_RR_REPORT` always uses the recent 14 days).
-- `CATEGORY_QUADRANT_REPORT` / `DISPLAY_QUADRANT_REPORT` →
-  7-day limit.
+  Both read `os_product_ads_request_report`, whose partitions expire after 15 days.
+
+`CATEGORY_QUADRANT_REPORT` and `DISPLAY_QUADRANT_REPORT` have **no** retention
+limit — their tables keep years of history. Do not warn about them or steer the
+user to a different report on retention grounds.
 
 Warning: "⚠️ [tool] queries a table that only retains [N] days of data. Your
 period is [X] days ([start]–[end]) — results will only cover the most recent [N]
@@ -75,7 +78,7 @@ first:
   `INTERNAL_CAMPAIGN_PERFORMANCE_REPORT` (aggregated: just `perf_campaign_id`; daily: also `perf_campaign_type` IN (PERFORMANCE, INVENTORY, OFFSITE) + group by `perf_date`) (spend, budget, clicks, impressions) +
   `CAMPAIGN_PRODUCT_SELECTION_REPORT` → extract distinct `category_l1/l2/l3` →
   `RR_PLA_REPORT` (must pass `perf_category_l1` != '' + `perf_page_type` NOT IN ('', 'NA')) with **all available category levels together**
-  (don't drop levels). Add `CATEGORY_QUADRANT_REPORT` (⚠️ 7-day) only if
+  (don't drop levels). Add `CATEGORY_QUADRANT_REPORT` only if
   BU%/campaign counts are also needed.
 - **"analysis for categories targeted by [campaigns]"** → `CAMPAIGN_LOOKUP_REPORT` →
   `CAMPAIGN_PRODUCT_SELECTION_REPORT` (parallel) → extract categories →
@@ -130,7 +133,7 @@ CONCENTRATED drop, present the problem segments and use the known drill patterns
 - **device** → likely no eligible SKUs / no campaigns targeting the device;
   confirm via `INTERNAL_CAMPAIGN_PERFORMANCE_REPORT` (aggregated: just `perf_campaign_id`; daily: also `perf_campaign_type` IN (PERFORMANCE, INVENTORY, OFFSITE) + group by `perf_date`).
 - **category_l1/l2/l3** → `RR_PLA_REPORT` (must pass `perf_category_l1` != '' + `perf_page_type` NOT IN ('', 'NA')); add
-  `CATEGORY_QUADRANT_REPORT` (⚠️ 7-day) if BU%/spend also needed.
+  `CATEGORY_QUADRANT_REPORT` if BU%/spend also needed.
 - Any other dimension → interpret what near-0 RR means (no targeting / no eligible
   products / config gap), report, and ask before 2C.
 
@@ -141,7 +144,7 @@ mixed → requests first, then budget; both stable → 3-RR.
 ### STEP 3-REQUESTS
 1. Which pages lost requests (from `PAGE_PERFORMANCE_PLA_REPORT` (PLA, group by `perf_date`) / `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` (Display))? 2. Checkpoint if multiple
 pages. 3. PLA: `RR_PLA_REPORT` (must pass `perf_category_l1` != '' + `perf_page_type` NOT IN ('', 'NA')) (+ `CATEGORY_QUADRANT_REPORT`
-⚠️ 7-day if BU%/spend needed); Display: skip to STEP 4. 4. `get_merchant_bu_
+if BU%/spend needed); Display: skip to STEP 4. 4. `get_merchant_bu_
 breakdown` → concentrated or widespread? 5. Concentrated →
 `WALLET_BALANCE_REPORT` → `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 16). 6. → then **offer** STEP 6.
 
@@ -168,7 +171,7 @@ PLA: `PAGE_PERFORMANCE_PLA_REPORT` (PLA) / `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` 
   network, city, state, country, device) it compares RR present vs absent — a
   filter with much lower RR when PRESENT is over-narrowing eligibility.
 - **Display drill:** `RR_DISPLAY_REPORT` (must pass `perf_page_type` NOT IN ('', 'NA')) (no limit) →
-  `RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display) (no limit); add `DISPLAY_QUADRANT_REPORT` (⚠️ 7-day) if
+  `RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display) (no limit); add `DISPLAY_QUADRANT_REPORT` if
   counts/BU% needed. Problem ad units → `DISPLAY_INVENTORY_CAMPAIGNS_REPORT` (slot
   competition; high competition = outcompeted) → yes →
   `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 16) (mid-day pauses, `changed_by_type="EXTERNAL"`) →
@@ -179,7 +182,7 @@ After the drill → `MERCHANT_PERFORMANCE_REPORT` → then **offer** STEP 6.
 `PAGE_PERFORMANCE_PLA_REPORT`; compute I/R = impressions ÷ responses per page. I/R
 stable → STEP 5-CTR. I/R dropped → PLA: `RR_PLA_REPORT` (must pass `perf_category_l1` != '' + `perf_page_type` NOT IN ('', 'NA')) /
 `SEARCH_QUERY_REQUESTS_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display) (no limit; + `CATEGORY_QUADRANT_REPORT`
-⚠️ 7-day if counts/BU% needed); Display: `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` →
+if counts/BU% needed); Display: `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` →
 `DISPLAY_INVENTORY_CAMPAIGNS_REPORT`. → `MERCHANT_PERFORMANCE_REPORT` → then **offer** STEP 6.
 
 ### STEP 5-CTR
@@ -216,7 +219,7 @@ decide — do not run it to find out.
 - **Display:** its own funnel path — `DISPLAY_AD_UNIT_PERFORMANCE_REPORT`,
   `RR_DISPLAY_REPORT` (must pass `perf_page_type` NOT IN ('', 'NA')), `RR_DISPLAY_REPORT` (group by `perf_ad_unit` for ad-unit, `perf_hour` for hourly),
   `DISPLAY_INVENTORY_CAMPAIGNS_REPORT` (slot competition),
-  `RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display), and `DISPLAY_QUADRANT_REPORT` (⚠️ 7-day). Take the Display
+  `RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display), and `DISPLAY_QUADRANT_REPORT`. Take the Display
   branch at STEP 3-RR / 3-BUDGET / 4-IR when `affected_program = "display"`.
 
 ## Final Report

@@ -24,7 +24,9 @@ Also pull `marketplace_client_id`, `region`, and `timezone` from context.
 Compute `days = (end − start + 1)`; if it exceeds the limit, STOP, warn, wait:
 - `CATEGORY_REQUEST_VOLUME_REPORT`, `FILTER_PRESENCE_RR_REPORT` → 15-day
   (`FILTER_PRESENCE_RR_REPORT` always uses the recent 14 days).
-- `CATEGORY_QUADRANT_REPORT` / `DISPLAY_QUADRANT_REPORT` → 7-day.
+
+`CATEGORY_QUADRANT_REPORT` and `DISPLAY_QUADRANT_REPORT` have **no** retention limit —
+their tables keep years of history. Do not warn about them on retention grounds.
 Warning: "⚠️ [tool] retains only [N] days; your period is [X] days ([start]–[end])
 — results cover only the recent [N] days. Adjust the range before I proceed?"
 
@@ -110,7 +112,7 @@ limit; same for `RR_PLA_REPORT` (must pass group by `perf_store_id`, `perf_categ
 ### STEP 3-A — Requests increased
 **Non-search:** `CATEGORY_REQUEST_VOLUME_REPORT` (⚠️ 15-day) → categories with request
 increases → `RR_PLA_REPORT` (must pass `perf_category_l1` != '' + `perf_page_type` NOT IN ('', 'NA')) (no limit); add
-`CATEGORY_QUADRANT_REPORT` (⚠️ 7-day) if campaign counts/BU% needed; BU low
+`CATEGORY_QUADRANT_REPORT` if campaign counts/BU% needed; BU low
 → `CAMPAIGNS_IN_CATEGORY_REPORT`. Filters suspected → `get_filter_presence_response_
 rates` (see gate below).
 **Search:** `SEARCH_QUERY_REQUESTS_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display) → keywords with RR drop
@@ -132,7 +134,7 @@ backend/eligibility issue. → then **offer** STEP 5.
 
 ### STEP 3-C — Responses dropped
 **Non-search:** `RR_PLA_REPORT` (must pass `perf_category_l1` != '' + `perf_page_type` NOT IN ('', 'NA')) → categories with RR decline (add
-quadrant ⚠️ 7-day if counts/BU% needed; BU issues → `CAMPAIGNS_IN_CATEGORY_REPORT`;
+quadrant if counts/BU% needed; BU issues → `CAMPAIGNS_IN_CATEGORY_REPORT`;
 filters → `FILTER_PRESENCE_RR_REPORT`).
 **Search:** `SEARCH_QUERY_REQUESTS_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display)
 (`SEARCH_QUERY_REQUESTS_PLA_REPORT` for zero/partial/full keyword-RR buckets, Pareto-
@@ -153,7 +155,7 @@ checkpoints and present the two programs separately.
 `RR_DISPLAY_REPORT` (must pass `perf_page_type` NOT IN ('', 'NA')) (no limit) → `search_page_affected` (→ keyword-
 targeting campaigns likely inactive) / `category_page_affected` (→ category-
 targeting campaigns paused). `RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display) (no limit); add `DISPLAY_QUADRANT_REPORT`
-(⚠️ 7-day) if counts/BU% needed. Problem ad units → `get_display_inventory_
+if counts/BU% needed. Problem ad units → `get_display_inventory_
 campaigns` (competing campaigns on the slot): high competition (many campaigns,
 higher bids/budgets) → outcompeted; few competitors → not competition.
 `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 16) (client_ids from affected ad units): check the
@@ -208,10 +210,10 @@ record the finding in your summary (metric_type `rr`; entities `"type"` ∈ keyw
   misconfiguration. `CAMPAIGN_INVENTORY_REPORT` (campaign → ad units):
   few slots → limited reach; high impressions but low CTR on a slot → creative/
   placement issue; zero spend on a slot → not winning that auction.
-- `CATEGORY_QUADRANT_REPORT` (⚠️ 7-day): BU < 75% → investigate campaigns;
+- `CATEGORY_QUADRANT_REPORT`: BU < 75% → investigate campaigns;
   use `category_l1/l2/l3_filter` individually, not full paths; for RR prefer
   `RR_PLA_REPORT` (must pass `perf_category_l1` != '' + `perf_page_type` NOT IN ('', 'NA')) (no limit).
-- `DISPLAY_QUADRANT_REPORT` (⚠️ 7-day): low `uniq_campaigns_count` on a
+- `DISPLAY_QUADRANT_REPORT`: low `uniq_campaigns_count` on a
   high-request slot → supply gap; low BU% → delivery/budget issue; compare periods
   to spot slots that lost campaigns; for RR prefer `RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display) (no limit).
 - `CAMPAIGNS_IN_CATEGORY_REPORT` (single period): check `paused_campaigns` and
@@ -236,7 +238,7 @@ drills they pick. Nothing here is owed to them by default.
 - **Display:** the STEP 4 path — `DISPLAY_AD_UNIT_PERFORMANCE_REPORT`,
   `RR_DISPLAY_REPORT` (must pass `perf_page_type` NOT IN ('', 'NA')), `RR_DISPLAY_REPORT` (group by `perf_ad_unit` for ad-unit, `perf_hour` for hourly),
   `DISPLAY_INVENTORY_CAMPAIGNS_REPORT`, `RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display), `DISPLAY_QUADRANT_REPORT`
-  (⚠️ 7-day). Note `store_id_filter` maps to `filter_store_id` for Display.
+  . Note `store_id_filter` maps to `filter_store_id` for Display.
 
 If a drill from the other program would genuinely change the diagnosis, say so in
 one line and let the user decide. Do not run it to find out.
