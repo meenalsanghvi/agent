@@ -40,7 +40,7 @@
   "metrics": {
     "requests": {
       "key": "requests",
-      "selector": "ROUND(AVG(q.request_count), 2)",
+      "selector": "ROUND(SAFE_DIVIDE(SUM(q.request_count / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2)",
       "type": "FLOAT",
       "externalColumnName": "perf_requests",
       "description": "Average daily ad requests received for this inventory over the period.",
@@ -50,7 +50,7 @@
     },
     "response_rate": {
       "key": "response_rate",
-      "selector": "CASE WHEN ROUND(AVG(q.response_percentage), 2) > 100 THEN 100 ELSE ROUND(AVG(q.response_percentage), 2) END",
+      "selector": "CASE WHEN ROUND(SAFE_DIVIDE(SUM(q.response_percentage / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) > 100 THEN 100 ELSE ROUND(SAFE_DIVIDE(SUM(q.response_percentage / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) END",
       "type": "FLOAT",
       "externalColumnName": "perf_response_rate",
       "description": "Response rate (%) = non-zero responses / requests * 100 for this inventory, capped at 100.",
@@ -60,7 +60,7 @@
     },
     "impression_responses_ratio": {
       "key": "impression_responses_ratio",
-      "selector": "CASE WHEN ROUND(AVG(q.impression_responses_ratio), 2) > 100 THEN 100 ELSE ROUND(AVG(q.impression_responses_ratio), 2) END",
+      "selector": "CASE WHEN ROUND(SAFE_DIVIDE(SUM(q.impression_responses_ratio / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) > 100 THEN 100 ELSE ROUND(SAFE_DIVIDE(SUM(q.impression_responses_ratio / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) END",
       "type": "FLOAT",
       "externalColumnName": "perf_impression_responses_ratio",
       "description": "Impression/response ratio (%) = impressions / non-zero responses for this inventory, capped at 100 (share of responses that rendered as impressions).",
@@ -70,7 +70,7 @@
     },
     "spend": {
       "key": "spend",
-      "selector": "ROUND(AVG(q.cost), 2)",
+      "selector": "ROUND(SAFE_DIVIDE(SUM(q.cost / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
       "description": "Ad spend for this inventory over the period, converted to the marketplace currency.",
@@ -80,7 +80,7 @@
     },
     "budget_utilisation_perc": {
       "key": "budget_utilisation_perc",
-      "selector": "CASE WHEN AVG(q.daily_budget) < AVG(q.cost) OR ROUND(AVG(q.budget_utilisation_perc), 2) > 100 THEN 100 ELSE ROUND(AVG(q.budget_utilisation_perc), 2) END",
+      "selector": "CASE WHEN SAFE_DIVIDE(SUM(q.daily_budget / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))) < SAFE_DIVIDE(SUM(q.cost / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))) OR ROUND(SAFE_DIVIDE(SUM(q.budget_utilisation_perc / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) > 100 THEN 100 ELSE ROUND(SAFE_DIVIDE(SUM(q.budget_utilisation_perc / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) END",
       "type": "FLOAT",
       "externalColumnName": "perf_budget_utilisation_perc",
       "description": "Budget utilisation (%) = spend / budget * 100 for this inventory, capped at 100.",
@@ -115,7 +115,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM (SELECT qd.page_type, qd.ad_unit_name, SUM(qd.requests) AS request_count, SUM(qd.responses) AS response_count, CASE WHEN SUM(qd.requests) > 0 THEN SUM(qd.responses) * 100.0 / SUM(qd.requests) ELSE 0 END AS response_percentage, COALESCE(SAFE_DIVIDE(SUM(qd.impressions), SUM(qd.responses)), 0) AS impression_responses_ratio, SUM(qd.cost_usd * scc.conversion_factor) AS cost, SUM(qd.daily_budget_usd * scc.conversion_factor) AS daily_budget, CASE WHEN SUM(qd.daily_budget_usd) > 0 THEN SUM(qd.cost_usd) * 100.0 / SUM(qd.daily_budget_usd) ELSE 0 END AS budget_utilisation_perc FROM `prj-onlinesales-prod-01.reporting.os_display_ads_daily_quadrant_report` AS qd INNER JOIN `prj-onlinesales-prod-01.reporting.agencies` AS a ON a.marketplace_client_id = qd.marketplace_client_id AND a.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = a.currency WHERE qd.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND qd.page_type IS NOT NULL GROUP BY 1, 2 HAVING SUM(qd.requests) > 1000) AS q LEFT JOIN (SELECT tr.page_type, tr.ad_unit_name, tr.merchant_id, tr.campaign_id, SUM(tr.cost) AS spend FROM `prj-onlinesales-prod-01.reporting.os_display_ads_ad_targeting_report` AS tr INNER JOIN `prj-onlinesales-prod-01.reporting.agencies` AS a2 ON a2.marketplace_client_id = tr.marketplace_client_id AND a2.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.os_ads_db_campaigns` AS c ON tr.campaign_id = SAFE_CAST(c.id AS STRING) AND tr.client_id = SAFE_CAST(c.client_id AS STRING) INNER JOIN `prj-onlinesales-prod-01.reporting.os_ads_db_campaign_types` AS ct ON c.campaign_type_id = ct.id LEFT JOIN `prj-onlinesales-prod-01.reporting.os_ads_db_campaign_inventory_configurations` AS cic ON SAFE_CAST(cic.marketplace_client_id AS STRING) = a2.marketplace_client_id AND SAFE_CAST(cic.marketplace_client_id AS STRING) = tr.marketplace_client_id AND SAFE_CAST(cic.client_id AS STRING) = tr.client_id AND SAFE_CAST(cic.campaign_id AS STRING) = tr.campaign_id AND cic.campaign_id = c.id INNER JOIN `prj-onlinesales-prod-01.reporting.os_ads_db_status_types` AS st ON cic.status_type_id = st.id WHERE tr.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (ct.name = 'BLOCK_BUY' OR st.name = 'ACTIVE') GROUP BY 1, 2, 3, 4) AS s ON LOWER(q.page_type) = LOWER(s.page_type) AND LOWER(q.ad_unit_name) = LOWER(s.ad_unit_name) WHERE q.page_type IS NOT NULL AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM (SELECT qd.page_type, qd.ad_unit_name, SUM(qd.requests) AS request_count, SUM(qd.responses) AS response_count, CASE WHEN SUM(qd.requests) > 0 THEN SUM(qd.responses) * 100.0 / SUM(qd.requests) ELSE 0 END AS response_percentage, COALESCE(SAFE_DIVIDE(SUM(qd.impressions), SUM(qd.responses)), 0) AS impression_responses_ratio, SUM(qd.cost_usd * scc.conversion_factor) AS cost, SUM(qd.daily_budget_usd * scc.conversion_factor) AS daily_budget, CASE WHEN SUM(qd.daily_budget_usd) > 0 THEN SUM(qd.cost_usd) * 100.0 / SUM(qd.daily_budget_usd) ELSE 0 END AS budget_utilisation_perc FROM `prj-onlinesales-prod-01.reporting.os_display_ads_daily_quadrant_report` AS qd INNER JOIN `prj-onlinesales-prod-01.reporting.agencies` AS a ON a.marketplace_client_id = qd.marketplace_client_id AND a.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = a.currency WHERE qd.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND qd.page_type IS NOT NULL GROUP BY 1, 2 HAVING SUM(qd.requests) > 1000) AS q LEFT JOIN (SELECT sx.*, COUNT(*) OVER (PARTITION BY LOWER(sx.page_type), LOWER(sx.ad_unit_name)) AS n_rows FROM (SELECT tr.page_type, tr.ad_unit_name, tr.merchant_id, tr.campaign_id, SUM(tr.cost) AS spend FROM `prj-onlinesales-prod-01.reporting.os_display_ads_ad_targeting_report` AS tr INNER JOIN `prj-onlinesales-prod-01.reporting.agencies` AS a2 ON a2.marketplace_client_id = tr.marketplace_client_id AND a2.agency_id = '__AGENCY_ID__' INNER JOIN `prj-onlinesales-prod-01.reporting.os_ads_db_campaigns` AS c ON tr.campaign_id = SAFE_CAST(c.id AS STRING) AND tr.client_id = SAFE_CAST(c.client_id AS STRING) INNER JOIN `prj-onlinesales-prod-01.reporting.os_ads_db_campaign_types` AS ct ON c.campaign_type_id = ct.id LEFT JOIN `prj-onlinesales-prod-01.reporting.os_ads_db_campaign_inventory_configurations` AS cic ON SAFE_CAST(cic.marketplace_client_id AS STRING) = a2.marketplace_client_id AND SAFE_CAST(cic.marketplace_client_id AS STRING) = tr.marketplace_client_id AND SAFE_CAST(cic.client_id AS STRING) = tr.client_id AND SAFE_CAST(cic.campaign_id AS STRING) = tr.campaign_id AND cic.campaign_id = c.id INNER JOIN `prj-onlinesales-prod-01.reporting.os_ads_db_status_types` AS st ON cic.status_type_id = st.id WHERE tr.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND (ct.name = 'BLOCK_BUY' OR st.name = 'ACTIVE') GROUP BY 1, 2, 3, 4) AS sx) AS s ON LOWER(q.page_type) = LOWER(s.page_type) AND LOWER(q.ad_unit_name) = LOWER(s.ad_unit_name) WHERE q.page_type IS NOT NULL AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },
