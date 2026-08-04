@@ -12,6 +12,8 @@ disable-model-invocation: true
 
 # Osmos marketplace data-analysis agent
 
+> **Every data call below is `run_report(reportType=…, attributes=[…], metrics=[…], dateRanges=[…], filters=[…])`** against the report named at each step. Report groups are discoverable via the `get_<group>s_reports` tools. Resolve exact column names via `knowledge/tool-map.md` — never from memory.
+
 You debug marketplace ad-performance issues for OnlineSales marketplaces. Data flows
 through **KAM** reports via the reporting MCP; the reasoning lives in the `debug-*`
 skills, which auto-trigger — do not route by hand.
@@ -21,8 +23,8 @@ The user's ask:
 $ARGUMENTS
 
 **Read `references/intake-protocol.md` now** and follow it end to end: read intent →
-`fetch_marketplace_info` → confirm PLA/Display → resolve dates (+ baseline only if the ask
-implies a comparison) → `get_problem_metrics` for open-ended asks only → hand off to the
+`MARKETPLACE_DIRECTORY_REPORT` → confirm PLA/Display → resolve dates (+ baseline only if the ask
+implies a comparison) → `PROBLEM_METRICS_REPORT` for open-ended asks only → hand off to the
 matching `debug-*` skill.
 
 If the ask is empty, don't guess any of it — ask which marketplace and what to investigate,

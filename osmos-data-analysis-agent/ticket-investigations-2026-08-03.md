@@ -1,6 +1,6 @@
 # Support ticket investigations — 2026-08-03
 
-Five marketplace ad-performance tickets worked through the `debug-*` SOP skills.
+Ten marketplace ad-performance tickets worked through the `debug-*` SOP skills.
 All data via `run_report` against the KAM internal-performance reports
 (`osmos-performance-local` MCP). Currency INR throughout.
 
@@ -12,6 +12,10 @@ All data via `run_report` against the KAM internal-performance reports
 | 4 | Centrum Ostocalcium — keyword CPC issue | apollo-hospitals (434) | debug-keyword-delivery | Invalid premise — self-competition, table misread |
 | 5 | FirstCry managed service — performance improvement | firstcry (366) | debug-roas | Budget target unreachable; CUGO already at target |
 | 6 | FirstCry — new/restarted campaigns spend too fast | firstcry (366) | debug-budget-pacing | ACCELERATED delivery; no new-campaign priority |
+| 7 | #2026073189000536 — Apollo HOME page RR down | apollo-hospitals (434) | debug-rr | One placement (App Pharma CLP Skin Care) at ~2% fill; Skin Care budget-capped |
+| 8 | #2026073189000689 — Category page highest requests, lowest RR | apollo-hospitals (434) | debug-rr | 92.2% of category requests arrive untagged; tagging defect, not a fill problem |
+| 9 | Tira — BU improvement, RR improvement, category L2 fallback | tira (576) | debug-bu | BU 28%; constraint is eligible supply not budget; L2 fallback immaterial (0.5% of requests) |
+| 10 | Mr D Food — CTR and CPC drop | mr-d (306) | debug-ctr | Impression expansion is the sole cause of the CTR/CPC fall; KFC burst ending = 59% of revenue loss only *(revised 04 Aug)* |
 
 ---
 
@@ -38,6 +42,32 @@ These constrained several investigations and are worth fixing:
   and `CAMPAIGN_KEYWORDS_REPORT.perf_campaign_id` hold the
   **marketing_campaign_id**, while `RESPONDED_SKUS_REPORT.perf_internal_campaign_id`
   holds the **campaign_id**. Worth documenting in `knowledge/reports.md`.
+- **BigQuery access outage (ticket 7).** Mid-session, *every* report began failing
+  with `Access Denied` on `reporting.marketplace_clients` and `reporting.agencies`
+  — including `MARKETPLACE_DIRECTORY_REPORT`, which had worked earlier in the same
+  session. The hosted `osmos-reporting-mcp` also returned `Access denied`. It
+  cleared on retry a few minutes later. Transient, but it recurred as the second
+  infra failure of the session and may repeat.
+- **Filter type bug:** the shim wraps filter values in `LOWER()`, so filtering on
+  an INT64 column fails with `No matching signature for function LOWER / Argument
+  types: INT64`. Hit when filtering `perf_hour`. Workaround: omit the filter and
+  slice client-side. Affects any integer attribute (`perf_hour`, `perf_day`).
+- **`CAMPAIGNS_IN_CATEGORY_REPORT` unit inconsistency:** `perf_spend` runs ~1000×
+  the `perf_campaign_group_daily_budget` column (e.g. Neutrogena — daily budget
+  10,000, spend 4,480,896). Per-campaign BU cannot be computed from this report.
+  Use `CATEGORY_QUADRANT_REPORT`, where spend and budget are consistent.
+- **`TRUE_BU_CAMPAIGN_REPORT` budget semantics contradict the skill (ticket 9).**
+  `debug-bu`'s terminology note says `daily_budget` is the **sum over the queried
+  range**. In this report it is **one day's budget**: on Tira it summed to 2,664,012
+  which ×14 days ≈ 37.3M, closely matching `perf_total_budget` (38.4M). Using
+  `daily_budget` as the denominator gives a nonsensical BU of 403%. **Use
+  `perf_total_budget`.** Also `perf_budget_utilization` is a **ratio, not a
+  percentage** (report `1.07` = 107.4%) — it agrees exactly with
+  `spend ÷ total_budget`, which confirms the correct denominator. Worth correcting
+  in the skill's Key Concepts block.
+- **Negative budget values** appear on PAUSED / DRAFT / ARCHIVED campaigns
+  (e.g. −196, −85, −51). Small in absolute terms but they corrupt any naive
+  aggregate; filter to ACTIVE or to `total_budget > 0`.
 
 ---
 
@@ -560,3 +590,856 @@ top-up timestamp could not be correlated with the spend burst. Campaign ages are
 creation-order proxies, not exact dates. Sample covers active campaigns only.
 The category traffic/competition comparison Shivam also asked for needs reports
 outside the pacing SOP's tool whitelist and was not run.
+
+---
+
+# Ticket 7 — #2026073189000536 | Why is Apollo home page RR down in last 2 days?
+
+**Marketplace:** apollo-hospitals-marketplace, agency 434, client 10084549, INR,
+Asia/Kolkata · **Program:** PLA · **Page:** HOME
+**Raised:** 31/07/2026 05:46 by Sayali Vanjari · **Severity:** HIGH
+**Period:** 28–31 Jul 2026 (baseline 15–27 Jul)
+
+> Ticket article bodies came through empty (headers only); worked from the subject
+> line. "Last 2 days" relative to the 31 Jul creation date = 29–30 Jul.
+> **Solution-time SLA lapsed 03/08/2026 05:46.**
+
+## Root cause
+
+A single HOME placement — **`App Pharma CLP Skin Care`** — fell from 100% to ~2%
+fill during afternoon/evening hours, driven by the Skin Care category reaching
+**100% budget utilisation**. Every other HOME placement served at 100% throughout.
+
+## Daily HOME series (PLA)
+
+| Date | Requests | Responses | **RR** | Impressions | Clicks | Spend (INR) |
+|---|---|---|---|---|---|---|
+| 15–19 Jul | 515k–546k | = requests | **100.00%** | 33k–44k | 88–135 | 4,093–5,853 |
+| 20 Jul | 541,059 | 518,032 | 95.74% | 39,110 | 94 | 4,267 |
+| 21 Jul | 553,549 | 467,330 | **84.42%** | 34,240 | 123 | 6,478 |
+| 22–26 Jul | 521k–662k | = requests | **100.00%** | 35k–57k | 89–123 | 5,134–7,886 |
+| 27 Jul | 659,528 | 657,835 | 99.74% | 54,168 | 127 | 7,771 |
+| **28 Jul** | 641,172 | 562,658 | **87.75%** | 54,715 | 126 | 7,922 |
+| **29 Jul** | 630,567 | 489,707 | **77.66%** | 51,641 | 93 | 5,653 |
+| **30 Jul** | 638,215 | 470,120 | **73.66%** | 49,523 | 101 | 6,337 |
+| 31 Jul | 634,298 | 566,092 | 89.25% | 53,526 | 98 | 6,393 |
+| 1 Aug | 722,656 | 714,886 | 98.92% | 52,962 | 110 | 6,223 |
+| 2 Aug | 778,857 | 765,670 | 98.31% | 66,667 | 150 | 7,935 |
+
+**Scenario C — requests stable, responses dropped.** Requests 659,528 (27 Jul) →
+638,215 (30 Jul) = −3%; responses 657,835 → 470,120 = **−29%**. ~455,700 requests
+unfilled across 28–31 Jul. A precursor dip occurred on 20–21 Jul (95.74%, 84.42%).
+
+## Hourly pattern
+
+| Day | Daily RR | Hours ~100% | **Hours ~60%** | Onset → end |
+|---|---|---|---|---|
+| 27 Jul | 99.74% | all (h20 96.79%) | none | — |
+| 28 Jul | 87.75% | 00–18 | **19–23** | 19:00 → |
+| 29 Jul | 77.66% | 02–14 | **00–01, 15–23** | 15:00 → |
+| 30 Jul | 73.66% | 01–12 | **00, 13–23** | 13:00 → |
+| 31 Jul | 89.25% | 02–12, **18–23** | **00–01, 13–17** | 13:00 → **17:00 (ended)** |
+
+Affected hours pin to a hard floor between **58.67% and 62.14%** — never zero,
+never noisy. Onset moved earlier each day, recovering ~01:00, then stopped after
+31 Jul 17:00.
+
+## Placement breakdown — 30 Jul (the finding)
+
+`perf_page_name` resolves it; `perf_device` (always `"default"`), `perf_network`
+(always `""`) and `perf_store_id` (always `""`) carry no segmentation on HOME.
+
+| Hour | **App Pharma CLP Skin Care** | **Pharma Homepage Skin Care** | Health & Nutrition | VMS | Pharma Homepage | Daily Nutrition |
+|---|---|---|---|---|---|---|
+| 00 | **1.74%** (4,930 req) | **59.26%** | 100% | 100% | 100% | 100% |
+| 01–12 | **100%** | **100%** | 100% | 100% | 100% | 100% |
+| 13 | **31.12%** (14,087) | **65.64%** | 100% | 100% | 100% | 100% |
+| 14 | **2.17%** (13,324) | **47.37%** | 100% | 100% | 100% | 100% |
+| 15 | **1.89%** (12,606) | **44.65%** | 100% | 100% | 100% | 100% |
+| 16 | **2.17%** (13,291) | **51.38%** | 100% | 100% | 100% | 100% |
+| 17 | **2.51%** (14,162) | **39.81%** | 100% | 100% | 100% | 100% |
+| 18 | **2.28%** (16,163) | **46.48%** | 100% | 100% | 100% | 100% |
+| 19 | **2.53%** (23,048) | **54.26%** | 100% | 100% | 100% | 100% |
+| 20 | **2.49%** (20,285) | **41.80%** | 100% | 100% | 100% | 100% |
+| 21 | **2.76%** (19,236) | **56.64%** | 99.995% | 100% | 100% | 100% |
+| 22 | **2.97%** (14,891) | **47.35%** | 100% | 100% | 100% | 100% |
+| 23 | **2.00%** (9,165) | **56.00%** | 100% | 100% | 100% | 100% |
+
+### Attribution is near-exact
+
+| Source | Unfilled requests, 30 Jul |
+|---|---|
+| App Pharma CLP Skin Care | **166,932** |
+| Pharma Homepage Skin Care | 1,143 |
+| **Sum** | **168,075** |
+| **HOME total unfilled (638,215 − 470,120)** | **168,095** |
+| **Share explained** | **99.99%** |
+
+This also explains the hard ~60% floor: one placement carrying ~40% of volume went
+to near-zero while the remaining 60% served perfectly. At hour 15 — 30,214 requests,
+12,606 of them Skin Care at 1.89%, remainder at 100% → 58.77% observed.
+
+## Supply cause — category quadrant, 28 Jul – 2 Aug
+
+> 6-day window, inside the report's 7-day retention limit.
+
+| Category | Requests | RR | Spend (INR) | Daily budget (INR) | **BU%** | Campaigns | Merchants |
+|---|---|---|---|---|---|---|---|
+| **personal care > skin care** | 1,019,539 | 100% | **147,463.60** | **147,463.60** | **100.00%** | 40 | 9 |
+| ↳ face care | 726,482 | 100% | 121,813.61 | 121,813.61 | **100.00%** | 34 | 9 |
+| ↳ body care | 239,251 | 100% | 25,099.40 | 25,099.40 | **100.00%** | 11 | 5 |
+| ↳ **hand & feet care** | 34,051 | **0.97%** | 0 | 0 | 0% | **0** | **0** |
+| ↳ **lip care** | 14,468 | **0.69%** | 0 | 0 | 0% | **0** | **0** |
+
+Skin Care spent **exactly** its available budget. All 40 campaigns across 9
+merchants (Neutrogena, Bepanthen, CeraVe, La Roche-Posay, Nivea, Aveeno, Rivela,
+Excela, NUA) are **ACTIVE** — no pauses, so this is exhaustion, not a status change.
+The daily rhythm matches: serve at 100% each morning, exhaust mid-afternoon, stay
+down through evening peak, reset after midnight, exhausting earlier as traffic grows.
+
+## Recommendations
+1. **Raise Skin Care daily budgets** — the category lands exactly on its cap.
+2. **Add supply to hand & feet care and lip care** — zero campaigns against ~48,500 requests.
+3. **Add placement-level RR monitoring** — a placement at 2% fill was invisible in
+   the page aggregate, which showed only a ~60% floor.
+4. **Confirm what changed on 31 Jul ~17:00** that ended the pattern; make it permanent.
+
+## Caveats
+- The budget-exhaustion cause is **strongly evidenced, not conclusively proven**.
+  The quadrant reports Skin Care category RR as 100%, which could not be reconciled
+  against the placement-level 2% — most likely because category RR covers only
+  category-attributed requests. Backend confirmation recommended before closure.
+- `CAMPAIGNS_IN_CATEGORY_REPORT` unit inconsistency (see limitations section) meant
+  per-campaign BU could not be computed; that report was used only for the roster
+  and statuses.
+- Display was **not examined**. PLA matched the reported symptom precisely, so scope
+  was set to PLA; Display was not ruled out by evidence.
+- Placement-level cuts were run for **30 Jul only**; 28, 29 and 31 Jul were not
+  broken down by placement.
+
+---
+
+# Ticket 8 — #2026073189000689 | Category page highest requests but lowest RR
+
+**Marketplace:** apollo-hospitals-marketplace, agency 434, client 10084549, INR ·
+**Program:** PLA · **Page:** CATEGORY
+**Raised:** 31/07/2026 06:54 by Sayali Vanjari · **Severity:** HIGH
+**Period:** 25 Jul – 2 Aug 2026 (single period — structural state, not a change)
+
+> Ticket carried **no Client List and no CustomerID**, and the article body was empty
+> (headers only). Proceeded on Apollo based on the same reporter, queue and timing as
+> ticket 7 (raised ~1 hour apart), and the data matches the reported symptom exactly.
+> **Solution-time SLA lapsed 03/08/2026 06:54.**
+
+## Root cause
+
+The 1.36% category-page RR is **not a fill problem — it is a request-tagging problem.**
+92.2% of category-page requests arrive with no `page_name` and no `category_l1`, so
+nothing can be matched to them. Correctly tagged category pages fill at **~55.6%**,
+better than SEARCH, PRODUCT or TPA.
+
+## Page-type comparison
+
+| Page type | Requests | Share | Responses | **RR** | Impressions | Clicks | Spend (INR) |
+|---|---|---|---|---|---|---|---|
+| **CATEGORY** | **27,546,810** | **41.6%** | 374,687 | **1.36%** | 110,052 | 1,590 | 79,393 |
+| TPA | 17,881,703 | 27.0% | 4,715,449 | 26.37% | 417,344 | 8,916 | 373,668 |
+| SEARCH | 10,697,742 | 16.1% | 1,684,533 | 15.75% | 1,318,341 | 25,284 | 1,137,619 |
+| HOME | 6,017,623 | 9.1% | 5,539,256 | 92.05%* | 492,591 | 1,037 | 63,097 |
+| PRODUCT | 2,420,378 | 3.7% | 807,629 | 33.37% | 743,704 | 6,407 | 282,602 |
+| CUSTOM | 1,733,277 | 2.6% | 1,729,197 | 99.76% | 918,676 | 2,869 | 273,253 |
+| **Total** | **66,297,533** | 100% | 14,850,751 | 22.40% | 4,000,708 | 46,103 | 2,209,632 |
+
+\* depressed by the 28–31 Jul Skin Care outage (ticket 7); normally ~100%.
+
+CATEGORY = **41.6% of requests, 2.5% of responses, 3.6% of spend.**
+
+## Category L1 decomposition (rows sum exactly to the page total)
+
+| Category L1 | Requests | Share | Responses | **RR** |
+|---|---|---|---|---|
+| **`""` (untagged)** | **25,470,691** | **92.46%** | **0** | **0.00%** |
+| FOOD & BEVERAGES | 1,165,912 | 4.23% | 95 | **0.008%** |
+| PERSONAL CARE | 568,765 | 2.06% | 188,206 | 33.09% |
+| HEALTH & NUTRITION | 188,583 | 0.68% | 168,386 | 89.29% |
+| BABY CARE | 79,063 | 0.29% | 15,028 | 19.01% |
+| AYURVEDA | 63,803 | 0.23% | 0 | **0.00%** |
+| OTC | 6,826 | 0.02% | 2,972 | 43.54% |
+| HEALTH DEVICES | 3,167 | 0.01% | 0 | **0.00%** |
+| **Total** | **27,546,810** | 100% | 374,687 | 1.36% |
+
+Excluding the untagged slice: 2,076,119 requests → 374,687 responses = **18.05% RR**.
+
+## Localisation by page_name × category_l1
+
+**The dominant row:**
+
+| page_name | category_l1 | Requests | Responses | RR |
+|---|---|---|---|---|
+| **`""` (blank)** | **`""` (blank)** | **25,412,159** | **0** | **0.00%** |
+
+25,412,159 = 92.2% of category requests and **38.3% of Apollo's entire ad request
+volume**. Direct evidence of a tagging defect: the literal string
+**`{{parent.page_name}}`** appears as a page_name on 75 requests — an unrendered
+template variable leaking into the ad call.
+
+**Named pages that fill normally — the system works when tagged:**
+
+| page_name | Category | Requests | Responses | RR |
+|---|---|---|---|---|
+| PPLA Supplements tabular widget | HEALTH & NUTRITION | 97,428 | 96,082 | **98.62%** |
+| App Pharma CLP Fever Cold | OTC | 2,973 | 2,972 | **99.97%** |
+| App Category Landing Page | PERSONAL CARE | 7,823 | 7,776 | **99.40%** |
+| App Pharma CLP Baby Feeding | BABY CARE | 3,600 | 3,591 | **99.75%** |
+| PPLA women nutrition app homepage recursive women | HEALTH & NUTRITION | 9,772 | 9,663 | **98.88%** |
+| App Pharma CLP Vitamin Minerals / Nutritional Drinks / Women Care | mixed | 12,065 | 12,065 | **100%** |
+| PPLA VMS clp essential vitamins tabular widget | HEALTH & NUTRITION | 8,304 | 7,595 | **91.46%** |
+| PPLA Haircare clp tab widget | PERSONAL CARE | 23,943 | 17,097 | **71.41%** |
+
+**Named pages with genuine zero supply (~1.46M requests):**
+
+| page_name | Category | Requests | Responses | RR |
+|---|---|---|---|---|
+| **PPLA Healthy Snacks tabular widget** | FOOD & BEVERAGES | **1,065,958** | 89 | **0.008%** |
+| PPLA Healthy India Nutrition tabular widget | FOOD & BEVERAGES | 92,782 | 0 | 0% |
+| PPLA Support performance tabular widget | AYURVEDA | 63,570 | 0 | 0% |
+| PPLA Summer Essentials app home page recursive summer | *(blank)* | 58,532 | 0 | 0% |
+| PPLA sexual wellness app homepage recursive sexual health | PERSONAL CARE | 47,368 | 0 | 0% |
+| PPLA baby diaper clp tab widget | BABY CARE | 35,321 | 98 | 0.28% |
+| App Pharma CLP Sexual Wellness | PERSONAL CARE | 22,571 | 0 | 0% |
+| PPLA mens grooming app homepage recurisve men | PERSONAL CARE | 21,774 | 0 | 0% |
+| PPLA mens sexual wellness app homepage recursive mens | PERSONAL CARE | 18,973 | 0 | 0% |
+| PPLA Baby wipes Static Tab Widget | BABY CARE | 14,060 | 0 | 0% |
+| App Pharma CLP Health Devices | HEALTH DEVICES | 3,070 | 0 | 0% |
+| *(others below 8k)* | mixed | 16,962 | 1 | ~0% |
+
+## Three causes, in descending size
+
+1. **Untagged requests — 25.41M (92.2%).** No page_name, no category. Instrumentation
+   gap on Apollo's category pages, corroborated by the `{{parent.page_name}}` leak.
+2. **Zero-supply named surfaces — ~1.46M (5.3%).** `PPLA Healthy Snacks tabular
+   widget` alone (1,065,958 requests → 89 responses) is the entire FOOD & BEVERAGES gap.
+3. **Sexual-wellness cluster at exactly 0%** across three page names (88,912 requests)
+   — likely eligibility or advertiser policy rather than supply.
+
+**Properly tagged, properly supplied category pages fill at ~55.6%** (673,710 requests
+→ 374,499 responses). 97.5% of category requests are either untagged or pointed at
+empty inventory.
+
+## Recommendations
+1. **Route the tagging gap to the integration team** — 25.4M requests in 9 days with no
+   page or category identifier. Largest monetisation opportunity on Apollo. The
+   `{{parent.page_name}}` placeholder is a concrete starting point.
+2. **Recruit supply for PPLA Healthy Snacks / Healthy India Nutrition** (Food & Beverages).
+3. **Confirm whether sexual wellness surfaces are intentionally restricted.**
+4. **Audit surfaces still on retired taxonomy labels** — `App Pharma CLP Health Devices`
+   uses "Health Devices", replaced by "Medical Equipments & Devices" in the June
+   re-categorisation (cross-ref ticket 2), and fills at 0% as a result.
+5. **Do not treat this as a category-page performance problem.**
+
+**Sizing:** untagged requests filled at the observed attributed rate would be roughly
+**4.6M additional responses** on Apollo's highest-volume surface.
+
+## Caveats
+- Marketplace was **inferred**, not stated — see the note under the heading.
+- Display was **not examined**; PLA matches the symptom.
+- Supply/campaign data was **not run** for the zero-fill widgets, so "no supply" is
+  observed at the response level rather than confirmed against campaign counts.
+- The untagged requests were **not** broken down by store_id, device or hour, which
+  might have pinpointed a specific app build for the integration team.
+- Structural, not a regression: June data showed the same shape (63.7M requests at
+  2.04% RR).
+
+---
+
+# Ticket 9 — Tira | BU Improvement
+
+**Marketplace:** tira-marketplace, agency 576, client 10119611, INR, Asia/Kolkata ·
+**Programs:** PLA + Display · **Severity:** MEDIUM
+**Raised by:** internal (to Mayur, following discussion with Harshita) — advisory, not a regression
+**Period:** 20 Jul – 2 Aug 2026 (14 days; no dates given in the ticket)
+
+**Three asks:** (a) how to improve BU, (b) how to improve response rate,
+(c) is category L2 fallback enabled for PLA, and what would enabling it do.
+
+## Root cause
+
+**Eligible advertiser supply is too narrow to cover available demand.** Budget and
+wallets are healthy; campaigns cannot match enough traffic to spend what they hold.
+The low BU and the low RR are the same problem seen from opposite ends.
+
+## Budget utilisation
+
+> **Budget-field caveat:** `perf_daily_budget` here is **one day's** budget, not the
+> period sum the skill warns about (2,664,012 × 14 ≈ 37.3M ≈ `total_budget` 38.4M).
+> All figures use `perf_total_budget`. Cross-checked against the report's own
+> `perf_budget_utilization`, which is a ratio not a percentage. See limitations section.
+
+| | INR |
+|---|---|
+| Total budget (14 days) | **38,413,719** |
+| Spend | **10,758,635** |
+| **Budget Utilisation** | **28.01%** |
+| **Unspent** | **27,655,084** |
+
+Budget is **3.6× spend**. Per the skill's thresholds this is the "low (5–30%)" band.
+**Only 1 campaign of 1,876 has a wallet balance ≤ 0** — wallets are not the constraint.
+
+### Where unspent budget sits (ACTIVE campaigns, denominator = total_budget)
+
+| BU band | Campaigns | Budget | % of budget | Unspent |
+|---|---|---|---|---|
+| **0–1%** | 63 | 5,838,383 | 15.2% | 5,810,546 |
+| **1–5%** | 75 | 9,235,243 | 24.1% | 8,987,616 |
+| **5–30%** | 175 | 15,342,063 | **40.1%** | 13,118,186 |
+| 30–60% | 92 | 2,512,232 | 6.6% | 1,445,587 |
+| 60–90% | 91 | 2,371,356 | 6.2% | 515,293 |
+| 90%+ | 159 | 2,987,823 | 7.8% | −45,064 |
+
+**79.4% of active budget is in campaigns spending under 30%; 39.3% under 5%.**
+
+### Merchant concentration — top 15 hold 88.7% of unspent budget
+
+| Merchant | Campaigns | Budget | Spend | Unspent | **BU%** | Wallet |
+|---|---|---|---|---|---|---|
+| **Lakme (566)** | 46 | **17,477,523** | 1,418,303 | **16,059,220** | **8.1%** | 1,811,439 |
+| L'Oreal Paris (27) | 62 | 4,455,921 | 854,788 | 3,601,133 | 19.2% | 2,351,334 |
+| Dove (558) | 12 | 1,795,078 | 142,363 | 1,652,715 | 7.9% | 610,247 |
+| Hyue Beauty (1328) | 31 | 941,800 | 169,870 | 771,930 | 18.0% | 1,196,244 |
+| SKIN1004 (1121) | 2 | 749,759 | 16,128 | 733,632 | **2.2%** | 85,197 |
+| KERASTASE (1329) | 1 | 644,000 | 68,006 | 575,994 | 10.6% | 1,350,919 |
+| Bioderma (666) | 7 | 692,000 | 194,739 | 497,261 | 28.1% | 273,162 |
+| Foxtale (1109) | 15 | 670,000 | 179,722 | 490,278 | 26.8% | 642,867 |
+| Nivea (203) | 18 | 506,000 | 25,137 | 480,863 | **5.0%** | 107,306 |
+| Moxie (1303) | 8 | 560,000 | 213,152 | 346,848 | 38.1% | 403,871 |
+
+**Lakme alone = 45.5% of all active budget and 54% of all unspent budget.**
+
+## The PLA funnel
+
+| Page | Requests | Responses | **RR** | Impressions | I/R | Clicks | CTR | Spend | CPC |
+|---|---|---|---|---|---|---|---|---|---|
+| SEARCH | 6,320,942 | 4,535,876 | **71.76%** | 10,616,075 | 234% | 157,888 | 1.49% | 5,502,645 | 34.85 |
+| CUSTOM | 7,419,708 | 4,251,067 | **57.29%** | 4,758,459 | 112% | 61,705 | 1.30% | 2,545,684 | 41.26 |
+| **Total** | **13,740,650** | **8,786,943** | **63.95%** | 15,374,534 | | 219,593 | 1.43% | 8,048,328 | |
+
+**Tira PLA serves on two page types only — SEARCH and CUSTOM. No CATEGORY, HOME or
+PRODUCT page exists.** I/R above 100% is normal for PLA (one response fills multiple
+SKU slots).
+
+## Programs
+
+| Channel | Spend | Impressions | Clicks | CTR | CPC | GMV | **ROAS** |
+|---|---|---|---|---|---|---|---|
+| PLA (`os_product_ads`) | 8,136,493 | 15,374,534 | 219,593 | 1.43% | 37.05 | 27,087,430 | **3.33** |
+| Guaranteed Display | 2,597,600 | 2,364,218 | 45,369 | 1.92% | 57.26 | 2,037,811 | **0.78** |
+| Auction Display | 24,542 | 35,935 | 81 | 0.23% | 302.98 | 153,197 | 6.24 |
+
+## Category attribution and the L2 fallback question
+
+| Category L1 | Requests | Share | Responses | RR |
+|---|---|---|---|---|
+| **`""` (no category)** | **13,672,313** | **99.50%** | 8,751,479 | **64.01%** |
+| MAKEUP | 34,444 | 0.25% | 18,544 | 53.84% |
+| SKIN | 11,554 | 0.08% | 7,101 | 61.46% |
+| HAIR | 8,092 | 0.06% | 4,893 | 60.47% |
+| FRAGRANCE | 5,344 | 0.04% | 1,829 | 34.23% |
+| BATH & BODY | 3,621 | 0.03% | 1,900 | 52.47% |
+| MEN | 3,598 | 0.03% | 552 | **15.34%** |
+| TOOLS & APPLIANCES | 1,452 | 0.01% | 641 | 44.15% |
+| MOM & BABY | 161 | — | 3 | **1.86%** |
+| WELLNESS | 59 | — | 0 | **0.00%** |
+| TIRA MERCH | 12 | — | 1 | 8.33% |
+
+**Unlike Apollo (ticket 8), blank category here is benign** — these are keyword-driven
+SEARCH/CUSTOM requests, not expected to carry a category, and they fill at 64%. All
+7,419,708 CUSTOM requests are uncategorised; every categorised request comes from SEARCH.
+
+### Empirical read on fallback
+
+Sub-categories with no own supply return **zero** fill even when a sibling under the
+same parent fills well:
+
+| L1 (parent RR) | L2 | Requests | Responses | RR |
+|---|---|---|---|---|
+| **BATH & BODY** (52.47%) | BATH & SHOWER | 3,036 | 1,800 | **59.29%** |
+| | HANDS & FEET | 323 | 82 | 25.39% |
+| | BODY CARE | 155 | 18 | 11.61% |
+| | SHAVING & HAIR REMOVAL | 63 | 0 | **0%** |
+| | BATHING ACCESSORIES | 33 | 0 | **0%** |
+| | FEMININE HYGIENE | 7 | 0 | **0%** |
+| | ORAL CARE | 4 | 0 | **0%** |
+| **MEN** (15.34%) | SKINCARE | 3,178 | 549 | 17.28% |
+| | SHAVING | 254 | 0 | **0%** |
+| | BATH AND BODY | 89 | 0 | **0%** |
+| | MENS FRAGRANCE | 36 | 1 | 2.78% |
+| | BEARD CARE | 26 | 0 | **0%** |
+
+Consistent with **no upward category fallback**. ⚠️ This is inference from L2-vs-L1
+behaviour, **not proof**, and not the L3-to-L2 path as asked. **No report exposes
+platform config flags** — the actual setting must come from the relevancy team.
+
+### Sizing — this is the decisive point
+
+Categorised requests = **68,337 of 13,740,650 = 0.50%**, currently returning 35,464.
+
+| Scenario | Additional responses | Marketplace RR |
+|---|---|---|
+| Today | — | 63.95% |
+| Every categorised request filled at 100% (ceiling for L2 fallback) | +32,873 | 64.19% (**+0.24pp**) |
+| CUSTOM lifted to SEARCH's 71.98% | +1,089,955 | 71.88% (**+7.93pp**) |
+
+**Closing the CUSTOM gap is worth ~33× more than a perfect fallback outcome.**
+
+## CUSTOM drill — supply saturation
+
+**CUSTOM carries no dimensional attribution:** `page_name` = literal `"CUSTOM"`,
+`device` = `"default"`, `network` and `store_id` blank, across all 7.42M requests.
+Tira's largest PLA surface cannot be segmented in reporting. Only `hour` is populated.
+
+### RR by hour (27 Jul – 2 Aug) — fill falls as volume rises
+
+| Hour | Requests | RR | | Hour | Requests | RR |
+|---|---|---|---|---|---|---|
+| 04 | 36,585 | 54.92% | | 12 | 217,945 | 47.58% |
+| 05 | 38,766 | 58.83% | | 13 | 202,058 | 49.51% |
+| **06** | **53,093** | **60.77%** | | 14 | 214,440 | 52.08% |
+| 03 | 56,803 | 57.58% | | 15 | 228,820 | 49.27% |
+| 07 | 69,408 | 57.61% | | 16 | 205,033 | 48.56% |
+| 08 | 93,584 | 55.89% | | 17 | 215,146 | 47.54% |
+| 09 | 126,255 | 55.79% | | 18 | 206,451 | 51.97% |
+| 10 | 149,778 | 52.99% | | 19 | 215,957 | 48.02% |
+| 11 | 181,911 | 53.01% | | 20 | 207,365 | 48.92% |
+| 00 | 186,269 | 49.49% | | **21** | **218,682** | **41.45%** |
+| 01 | 135,456 | 50.94% | | 22 | 224,216 | 45.97% |
+| 02 | 91,838 | 53.44% | | 23 | 220,672 | 46.05% |
+
+Low-volume hours (36k–69k) fill at **55–61%**; peak hours (200k–229k) at **41–52%**.
+4.1× the volume → 19pp worse fill. Signature of **supply saturation**, not a hard cutoff.
+
+### ⚠️ CUSTOM RR is actively declining
+
+| Week | Requests | Responses | **RR** |
+|---|---|---|---|
+| 20–26 Jul | 3,623,177 | 2,356,640 | **65.04%** |
+| 27 Jul – 2 Aug | 3,796,531 | 1,894,427 | **49.90%** |
+| **Change** | +4.8% | **−19.6%** | **−15.14pp** |
+
+**Undiagnosed.** A 15pp fall in one week while requests rose — recent deterioration on
+top of the structural ceiling. Needs its own investigation.
+
+## Recommendations
+1. **Audit Lakme's 46 campaigns** — INR 17.5M budget at 8.1% BU, wallet full. Targeting
+   breadth / product selection, not money. Largest single BU lever on the marketplace.
+2. **Review the 138 campaigns holding INR 15.07M that spend under 5%** — broaden
+   targeting or right-size budgets.
+3. **Widen eligible supply on CUSTOM** — raises fill *and* lets existing budget spend.
+   Closing to the best observed hourly rate ≈ **+412,500 responses/week**.
+4. **Raise the 15pp CUSTOM decline as its own ticket** — urgent, undiagnosed.
+5. **Do not prioritise L2 fallback on BU/RR grounds** — 0.5% of requests, +0.24pp
+   ceiling. Harmless to enable if low-effort; may matter if Tira launches category pages.
+6. **Review Guaranteed Display** — INR 2.60M at ROAS 0.78 vs PLA's 3.33.
+7. **Add reporting attribution to CUSTOM** — no page/device/network/store dimension
+   exists on Tira's largest surface, which blocks diagnosis.
+
+## Caveats
+- Advisory ticket with **no dates specified**; 14-day window chosen.
+- **Config flags are not readable** from any available report — the fallback answer is
+  behavioural inference plus sizing, not a config confirmation.
+- The **15pp CUSTOM decline was not diagnosed**.
+- **Not run:** Lakme campaign-level audit, category L3 drill, Display ROAS drill.
+
+---
+
+# Ticket 10 — Mr D Food | Drop in CTR and CPC
+
+**Marketplace:** mr-d-marketplace, agency 306, client 384653, **ZAR**, Africa/Johannesburg ·
+**Program:** PLA · **Severity:** HIGH
+**Period:** baseline 15–19 Jul vs current 29 Jul – 2 Aug 2026
+**Scenario:** Mixed — impressions +70.2% (A) **and** clicks −46.0% (B). Neither label alone fits.
+
+> **Scope note:** "mrd food" read as this marketplace (Mr D Food), not a Food category —
+> a separate `mr-d-grocery-marketplace` exists on agency 572. Rescope if that was wrong.
+
+## Root cause
+
+> ⚠️ **REVISED 2026-08-04** after a 30-day non-KFC-only trend was run (see the
+> follow-up section below). The original conclusion attributed part of the CTR fall to
+> KFC; the direct non-KFC series disproves that. Superseded figures are marked.
+
+**A marketplace-wide impression expansion is the sole cause of the CTR and CPC decline.**
+Non-KFC impressions **doubled** while non-KFC clicks fell 17% — the full rate collapse is
+present with KFC excluded entirely.
+
+**The KFC campaign ending is a separate, coincident event.** It accounts for ~59% of the
+absolute revenue loss but **essentially none of the CTR/CPC decline**.
+
+~~Original: "two independent events compounding; KFC = 57% of spend loss and ~24% of the
+CTR fall."~~ The spend split roughly holds; the CTR attribution does not.
+
+## Timing — the decline is NOT recent
+
+Ran **20–26 July** as a six-day glide, then stable for eight days. The ticket's
+"last few days" framing is ~2 weeks off.
+
+| Date | Requests | RR | Impressions | Clicks | Spend (ZAR) | **CTR** | **CPC** |
+|---|---|---|---|---|---|---|---|
+| 15 Jul | 1,218,210 | 62.86% | 33,173 | 5,623 | 30,590.80 | **16.95%** | **5.44** |
+| 16 Jul | 1,201,038 | 62.51% | 33,947 | 5,594 | 29,876.93 | 16.48% | 5.34 |
+| 17 Jul | 1,453,000 | 64.55% | 44,680 | 6,968 | 34,827.89 | 15.60% | 5.00 |
+| 18 Jul | 1,265,056 | 65.34% | 39,066 | 6,163 | 29,009.71 | 15.78% | 4.71 |
+| 19 Jul | 1,124,545 | 62.05% | 30,951 | 4,873 | 22,384.11 | 15.74% | 4.59 |
+| 20 Jul | 978,596 | 63.79% | 28,257 | 3,754 | 18,500.17 | 13.29% | 4.93 |
+| 21 Jul | 918,044 | 64.31% | 30,435 | 3,585 | 16,723.12 | 11.78% | 4.66 |
+| 22 Jul | 935,332 | 64.81% | 31,904 | 3,225 | 13,339.86 | 10.11% | 4.14 |
+| 23 Jul | 1,132,906 | 66.97% | 43,773 | 3,330 | 9,844.69 | 7.61% | 2.96 |
+| 24 Jul | 1,978,339 | 67.96% | 74,719 | 4,415 | 11,481.97 | 5.91% | 2.60 |
+| 25 Jul | 1,787,221 | 67.63% | 63,462 | 3,514 | 9,051.46 | 5.54% | 2.58 |
+| 26 Jul | 1,392,150 | 67.17% | 46,466 | 2,747 | 6,749.71 | 5.91% | 2.46 |
+| 27 Jul | 1,253,621 | 71.78% | 45,347 | 2,410 | 6,484.66 | 5.31% | 2.69 |
+| 28 Jul | 1,392,003 | 70.83% | 51,411 | 2,671 | 6,754.52 | 5.20% | 2.53 |
+| 29 Jul | 1,292,805 | 72.81% | 57,156 | 3,080 | 8,133.85 | 5.39% | 2.64 |
+| 30 Jul | 1,341,431 | 74.41% | 59,736 | 3,127 | 8,354.92 | 5.23% | 2.67 |
+| 31 Jul | 1,994,518 | 72.37% | 85,136 | 3,914 | 9,425.43 | **4.60%** | 2.41 |
+| 1 Aug | 1,760,946 | 71.85% | 62,225 | 3,183 | 8,458.87 | 5.11% | 2.66 |
+| 2 Aug | 1,384,035 | 69.20% | 45,252 | 2,466 | 6,262.60 | 5.45% | 2.54 |
+
+## Decomposition
+
+| Metric | Baseline (15–19 Jul) | Current (29 Jul–2 Aug) | Change |
+|---|---|---|---|
+| Requests | 6,261,849 | 7,773,735 | +24.1% |
+| Responses | 3,978,792 | 5,605,763 | **+40.9%** |
+| Response Rate | 63.54% | 72.11% | **+8.57pp** |
+| **Impressions** | 181,817 | 309,505 | **+70.2%** |
+| **Clicks** | 29,221 | 15,770 | **−46.0%** |
+| **Spend (ZAR)** | 146,689 | 40,636 | **−72.3%** |
+| **CTR** | **16.07%** | **5.10%** | **−68.3%** |
+| **CPC (ZAR)** | **5.02** | **2.58** | **−48.7%** |
+| I/R | 4.57% | 5.52% | +20.8% |
+
+**Impression-driven gate: PASSED** — I/R rose 4.57% → 5.52%, so impressions are genuine
+renders, not a rendering artefact. Proceeding was appropriate.
+
+**Commercial impact: ad revenue −72.3%** = ZAR ~21,200/day ≈ **ZAR 640,000/month**.
+
+## Page types
+
+**Mr D PLA runs on ONE page type — HOME.** No page-mix shift is possible; the entire
+change is within it.
+
+| Page | Baseline CTR | Current CTR | CTR Δ | Impressions Δ | Clicks Δ | I/R |
+|---|---|---|---|---|---|---|
+| HOME (only) | 16.07% | 5.10% | −68.3% | +70.2% | −46.0% | 4.57% → 5.52% |
+
+## Merchant cohorts
+
+| Cohort | Merchants | Baseline spend | Current spend | Baseline impr | Current impr | Baseline clicks | Current clicks | Baseline CTR | Current CTR | Baseline CPC | Current CPC |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **KFC stores** | 22 → 4 | **61,542** | **1,080** | 22,372 | 2,179 | 10,164 | 440 | **45.43%** | 20.19% | 6.05 | 2.45 |
+| **Non-KFC** | 335 → 391 | 85,147 | 39,559 | 159,445 | 307,326 | 19,057 | 15,331 | 11.95% | **4.99%** | 4.47 | 2.58 |
+| **Churned** | 99 | 83,001 | — | 66,086 | — | 15,264 | — | **23.10%** | — | 5.44 | — |
+| ↳ of which KFC | 19 | 59,514 | — | 21,648 | — | 9,841 | — | **45.46%** | — | 6.05 | — |
+| ↳ of which non-KFC | 80 | 23,487 | — | 44,438 | — | 5,423 | — | 12.20% | — | 4.33 | — |
+| **New** | 137 | — | 19,478 | — | 122,249 | — | 7,388 | — | **6.04%** | — | 2.64 |
+| **Active both** | 258 | 63,689 | 21,161 | 115,731 | 187,256 | 13,957 | 8,383 | 12.06% | **4.48%** | 4.56 | 2.52 |
+
+**KFC were the marketplace's most efficient advertisers: 42.0% of spend and 34.8% of
+clicks from 12.3% of impressions, at 45.43% CTR.** The fifteen highest-spending
+baseline advertisers were **all** KFC outlets; every one churned.
+
+**Textbook dilution on both sides** (baseline avg CTR threshold 16.07%): 99 merchants
+churned at **23.10%** (above average); 137 new merchants arrived at **6.04%** (below).
+
+### Attribution — superseded, see follow-up below
+
+~~| Metric | KFC departure | Everything else |~~
+~~| **Spend** (−ZAR 106,053) | −60,462 (57%) | −45,588 (43%) |~~
+~~| **CTR** (−10.97pp) | ~2.63pp (24%) | ~8.34pp (76%) |~~
+
+The CTR row was a **mix-effect estimate** and is wrong. The direct non-KFC series
+(follow-up section) shows the rate decline is **fully present** with KFC removed.
+
+Even in these 5-day windows the signal was there: excluding KFC, non-KFC showed
+impressions **+92.7%**, clicks −19.6%, CTR 11.95% → 4.99%, CPC 4.47 → 2.58; merchants
+active in both periods showed CTR 12.06% → 4.48%.
+
+---
+
+## FOLLOW-UP (2026-08-04) — 30-day non-KFC-only trend
+
+**Question posed:** exclude KFC stores and check the remaining merchants over 30 days,
+to confirm whether KFC's exit is the only reason.
+**Answer: no. KFC is not the reason for the CTR/CPC decline.**
+
+**Method:** PLA daily totals (`PAGE_PERFORMANCE_PLA_REPORT`) minus KFC daily
+(`INTERNAL_CAMPAIGN_PERFORMANCE_REPORT`, `perf_merchant_name LIKE %KFC%`,
+`perf_campaign_type = PERFORMANCE`). **Reconciliation exact** — KFC from the campaign
+report matched the merchant report to the rupee in both windows
+(22,372 / 10,164 / 61,542 and 2,179 / 440 / 1,080).
+
+### Non-KFC only, daily
+
+| Date | Impr | Clicks | **CTR** | **CPC** | Spend | KFC stores live |
+|---|---|---|---|---|---|---|
+| 05 Jul | 24,820 | 3,257 | 13.12% | 4.47 | 14,545 | 2 |
+| 06 Jul | 25,751 | 3,452 | 13.41% | 5.02 | 17,317 | 3 |
+| 07 Jul | 30,019 | 3,764 | 12.54% | 4.92 | 18,513 | 2 |
+| 08 Jul | 32,339 | 7,179 | 22.20% | 5.79 | 41,567 | **22** |
+| 09 Jul | 33,300 | 8,447 | 25.37% | 6.03 | 50,922 | 21 |
+| 10 Jul | 41,129 | 6,983 | 16.98% | 5.50 | 38,380 | 21 |
+| 11 Jul | 30,771 | 4,307 | 14.00% | 5.08 | 21,889 | 22 |
+| 12 Jul | 24,597 | 3,029 | 12.31% | 4.69 | 14,209 | 21 |
+| 13 Jul | 20,162 | 2,658 | 13.18% | 5.10 | 13,561 | 21 |
+| 14 Jul | 25,185 | 3,243 | 12.88% | 5.03 | 16,314 | 22 |
+| 15 Jul | 28,416 | 3,457 | 12.17% | 4.90 | 16,942 | 21 |
+| 16 Jul | 29,569 | 3,565 | 12.06% | 4.77 | 16,996 | 21 |
+| 17 Jul | 39,452 | 4,546 | 11.52% | 4.53 | 20,572 | 22 |
+| 18 Jul | 34,640 | 4,146 | 11.97% | 4.08 | 16,923 | 21 |
+| 19 Jul | 27,368 | 3,343 | 12.21% | 4.10 | 13,714 | 22 |
+| **20 Jul** | 26,740 | 3,091 | **11.56%** | 4.76 | 14,723 | 14 |
+| **21 Jul** | 29,805 | 3,366 | **11.29%** | 4.63 | 15,599 | 7 |
+| **22 Jul** | 31,296 | 3,000 | **9.59%** | 4.06 | 12,186 | 4 |
+| **23 Jul** | 43,126 | 3,151 | **7.31%** | 2.93 | 9,228 | 5 |
+| **24 Jul** | 73,676 | 4,107 | **5.57%** | 2.57 | 10,535 | 6 |
+| **25 Jul** | 62,798 | 3,370 | **5.37%** | 2.58 | 8,705 | 4 |
+| 26 Jul | 46,008 | 2,659 | 5.78% | 2.44 | 6,479 | 2 |
+| 27 Jul | 44,928 | 2,334 | 5.19% | 2.66 | 6,219 | 4 |
+| 28 Jul | 50,915 | 2,571 | 5.05% | 2.53 | 6,497 | 3 |
+| 29 Jul | 56,749 | 2,977 | 5.25% | 2.65 | 7,894 | 4 |
+| 30 Jul | 59,330 | 3,036 | 5.12% | 2.68 | 8,128 | 2 |
+| 31 Jul | 84,602 | 3,816 | 4.51% | 2.42 | 9,225 | 2 |
+| 01 Aug | 61,728 | 3,091 | 5.01% | 2.66 | 8,224 | 2 |
+| 02 Aug | 44,917 | 2,421 | 5.39% | 2.52 | 6,112 | 2 |
+| 03 Aug | 39,580 | 2,018 | 5.10% | 2.90 | 5,854 | 1 |
+
+### Non-KFC weekly
+
+| Week | Impressions | Clicks | Spend | **CTR** | **CPC** |
+|---|---|---|---|---|---|
+| 05–11 Jul | 218,129 | 37,389 | 203,132 | **17.14%** | 5.43 |
+| 12–18 Jul | 202,021 | 24,644 | 115,517 | **12.20%** | 4.69 |
+| 19–25 Jul | 294,809 | 23,428 | 84,690 | **7.95%** | 3.61 |
+| 26 Jul – 01 Aug | 404,260 | 20,484 | 52,666 | **5.07%** | 2.57 |
+| 02–03 Aug | 84,497 | 4,439 | 11,966 | **5.25%** | 2.70 |
+
+**With KFC removed entirely:** CTR 12.20% → 5.07% (**−58%**), CPC 4.69 → 2.57 (**−45%**),
+impressions 202,021 → 404,260 (**+100%**), clicks −16.9%. Blended marketplace was CTR
+−68%, CPC −49%. **Same shape, same timing (20–26 Jul), same magnitude.**
+
+### Two corrections this produced
+
+**1. KFC did not churn — they ran a 12-day burst.** Store count: 2–3 active 5–7 Jul,
+jumping to **22 on 8 Jul**, holding to 19 Jul, then tapering 14 → 7 → 4 across 20–22 Jul.
+A campaign that started and ended, not a long-standing advertiser leaving. **The original
+baseline (15–19 Jul) sat inside that burst**, inflating it.
+
+**2. Corrected attribution** (against the cleaner 12–18 Jul baseline):
+
+| Metric | KFC | Non-KFC |
+|---|---|---|
+| **Spend decline** (−ZAR 151,955) | −89,104 (**59%**) | −62,851 (41%) |
+| **CTR decline** | **~none** — non-KFC fell 58% alone | **effectively all of it** |
+
+**Implication:** even if every KFC store returned, CTR would recover only to roughly
+6–7%, not 12–17%, because the extra ~200,000 impressions/week would remain.
+
+---
+
+## FOLLOW-UP 2 (2026-08-04) — non-KFC merchant decomposition
+
+**Question posed:** for the non-KFC merchants, pre vs post — who contributed earlier, who
+stopped, who was added, and why did impressions rise so much while clicks did not?
+
+### Cohorts (non-KFC, 15–19 Jul vs 29 Jul–2 Aug)
+
+| Cohort | Merchants | Impressions | Clicks | Spend (ZAR) | CTR | CPC |
+|---|---|---|---|---|---|---|
+| **PRE total** | 335 | 159,445 | 19,057 | 85,147 | **11.95%** | 4.47 |
+| **POST total** | 391 | 307,326 | 15,331 | 39,559 | **4.99%** | 2.58 |
+| | | **+92.7%** | **−19.6%** | **−53.5%** | | |
+| **STOPPED** (pre only) | 80 | 44,438 | 5,423 | 23,487 | **12.20%** | 4.33 |
+| **ADDED** (post only) | 136 | 120,428 | 6,971 | 18,473 | **5.79%** | 2.65 |
+| **CONTINUED** — pre | 255 | 115,007 | 13,634 | 61,661 | **11.85%** | 4.52 |
+| **CONTINUED** — post | 255 | 186,898 | 8,360 | 21,086 | **4.47%** | 2.52 |
+
+### Attribution of the +147,881 impressions
+
+| Source | Impressions | Share |
+|---|---|---|
+| **136 merchants added** | **+120,428** | **81.4%** |
+| Continued merchants growing | +71,891 | 48.6% |
+| 80 merchants stopped | −44,438 | −30.0% |
+
+### Attribution of the −3,726 clicks
+
+| Source | Clicks | Share |
+|---|---|---|
+| Continued merchants | −5,274 | 141.5% |
+| 80 merchants stopped | −5,423 | 145.5% |
+| 136 merchants added | +6,971 | −187.1% |
+
+### ⭐ The decisive test — it is NOT a mix effect
+
+Of the **73 continued merchants with ≥500 pre-period impressions**:
+- **CTR fell for 72 of them — 99%**
+- Impressions grew for 43 of them — 59%
+
+**Merchant composition cannot make almost every individual advertiser's own CTR halve.
+This is platform-side.**
+
+Sample of continued merchants:
+
+| Merchant | Pre impr | Post impr | Impr Δ | Pre clicks | Post clicks | **Pre CTR** | **Post CTR** |
+|---|---|---|---|---|---|---|---|
+| Moreish Delights By Dash | 3,629 | 7,585 | +109% | 165 | 118 | 4.55% | **1.56%** |
+| Ribs & Burgers, Menlyn Maine | 478 | 3,773 | +689% | 82 | 274 | 17.15% | **7.26%** |
+| Pizza Perfect, Glenbalad | 301 | 2,853 | +848% | 59 | 97 | 19.60% | **3.40%** |
+| Sizzlin Shwarma Edenglen | 92 | 2,506 | +2,624% | 11 | 78 | 11.96% | **3.11%** |
+| Archies Pizza Pasta Phoenix | 2,726 | 5,017 | +84% | 227 | 77 | 8.33% | **1.53%** |
+| Pitstop Springs Restaurant | 254 | 2,537 | +899% | 30 | 64 | 11.81% | **2.52%** |
+| Orexi Greek Street Food | 1,590 | 3,428 | +116% | 250 | 209 | 15.72% | **6.10%** |
+| Grubhouse Terranova | 403 | 2,232 | +454% | 135 | 190 | 33.50% | **8.51%** |
+
+**The key number:** continued merchants got **+62.5% impressions but −38.7% clicks**. The
+incremental 71,891 impressions delivered **negative** clicks. Their original 115,007
+impressions at the old 11.85% CTR would alone have produced 13,634 clicks; the whole book
+fell to 8,360. **So the existing impressions degraded too — this is not merely low-quality
+inventory bolted on at the bottom.**
+
+### Who stopped (80 merchants @ 12.20% CTR)
+
+| Merchant | Pre impr | Pre clicks | Pre spend | Pre CTR |
+|---|---|---|---|---|
+| The Braai Republic, Northgate | 2,741 | 377 | 1,831 | 13.75% |
+| Fishaways Columbine Square | 4,190 | 275 | 1,437 | 6.56% |
+| Debonairs Benmore Gardens | 1,448 | 178 | 1,377 | 12.29% |
+| Steers Columbine Square | 2,337 | 168 | 1,148 | 7.19% |
+| **Pedros Willows Crossing** | 432 | 285 | 855 | **65.97%** |
+| **Barcelos, Sunnyside–Hatfield** | 238 | 128 | 764 | **53.78%** |
+| Grubhouse Kolonnade | 512 | 145 | 830 | 28.32% |
+| Grubhouse, Glen Balad | 570 | 161 | 787 | 28.25% |
+
+### Who was added (136 merchants @ 5.79% CTR)
+
+| Merchant | Post impr | Post clicks | Post spend | Post CTR |
+|---|---|---|---|---|
+| Aladdin Schwarma | 5,590 | 159 | 510 | 2.84% |
+| Southern Corner Cafe – Bloemfontein | 4,925 | 45 | 66 | **0.91%** |
+| Mammzo's Fish and Chips, Bloemfontein | 4,636 | 109 | 162 | 2.35% |
+| The Fish & Chip Co Pietermaritzburg | 3,973 | 93 | 111 | 2.34% |
+| Corner Restaurant & Tasteroom | 3,269 | 63 | **58** | 1.93% |
+| Col'Cacchio GO Oliver Road | 2,809 | 82 | 75 | 2.92% |
+
+**Profile of the added cohort — over half barely spend:**
+
+| Added cohort | Merchants | Impressions | Clicks | Spend | CTR |
+|---|---|---|---|---|---|
+| Spending < ZAR 100 over 5 days | **73** | 46,642 | 1,860 | 3,125 | 3.99% |
+| Spending ≥ ZAR 100 | 63 | 73,786 | 5,111 | 15,348 | 6.93% |
+
+### ❌ Geographic-expansion hypothesis — TESTED AND DISPROVEN
+
+Initially suspected from Bloemfontein/Pietermaritzburg names in the top-10 added table.
+**That was cherry-picking; the full cohort does not support it.**
+
+| City in merchant name | Stopped | Added | Continued |
+|---|---|---|---|
+| Midrand | 1 | 6 | 9 |
+| Boksburg | 0 | 6 | 1 |
+| Sandton | 0 | 2 | 8 |
+| Durban | 0 | 0 | 6 |
+| **Bloemfontein / Bloem** | 2 | 4 | 0 |
+
+Only **27 of 136** added merchants carry an identifiable city, clustering in the **same
+Gauteng metros as the existing roster**. Token analysis shows the additions are **chain
+rollouts and individual store/mall names**, not new territory: **Debonairs 6 → 22 outlets**,
+Col'Cacchio new, plus Polofields / Oakdene / Comaro / Carlton / Midway / Mews / Waterfall.
+
+### Why impressions rose but clicks did not — the mechanics
+
+The marketplace +70.2% decomposes multiplicatively:
+
+| Layer | Change | Factor |
+|---|---|---|
+| Ad **requests** | +24.1% | 1.241 |
+| **Response rate** (63.54% → 72.11%) | +13.5% | 1.135 |
+| **Impressions per response** (I/R 4.57% → 5.52%) | **+20.8%** | 1.208 |
+| **Combined** | **+70.2%** | 1.702 |
+
+**The I/R rise is the telling layer — each response now renders ~21% more impressions,
+i.e. literally more ads displayed per page.** Slots beyond the first few convert far worse,
+which hits every merchant equally and explains the 99% universality.
+
+Had all 307,326 post-period non-KFC impressions converted at the pre-period 11.95%, they
+would have produced **36,725 clicks**. Actual: **15,331**. Gap: **21,394 clicks**.
+
+### Hypotheses tested
+
+| Hypothesis | Verdict |
+|---|---|
+| KFC exit caused the CTR/CPC fall | **Disproven** — non-KFC alone fell 58% |
+| Geographic expansion into new regions | **Disproven** — same metros; only 20% of added merchants name a city |
+| Merchant-mix dilution | **Partial** — real but the smaller effect |
+| **Ads-per-page increase (I/R +20.8%)** | **Supported** — 99% universality is the proof |
+
+### ⛔ Data exhausted
+
+**Mr D's PLA request stream carries no `store_id`, `network`, `device` or `category`** —
+every dimension returns a single blank row in both windows. No cut remains that would
+isolate *which* placements or slots changed. Resolving "what changed on 20 July" now needs:
+- engineering/product to confirm an ad-density, slot-count or relevance-threshold change, **or**
+- placement-level attribution added to the request stream.
+
+**This is the third marketplace in this file with an unattributed primary PLA surface**
+(Apollo HOME, Tira CUSTOM, Mr D HOME). Worth raising as a systemic reporting gap.
+
+**Infra note:** `test-data.onlinesales.ai` timed out twice at 120s on these dimension queries.
+
+## Other programs
+
+| Channel | Spend (ZAR) | Impressions | Clicks | CTR | CPC | GMV | **ROAS** |
+|---|---|---|---|---|---|---|---|
+| PLA | 53,878 | 406,263 | 20,852 | 5.13% | 2.58 | 286,827 | 5.32 |
+| Auction Display | 29,850 | 118,996 | 1,133 | 0.95% | 26.35 | 9,426 | **0.32** |
+
+(27 Jul – 2 Aug. Display is separate from the daily series above, which reconciles
+exactly to the PLA channel.)
+
+## Recommendations (reprioritised after the follow-up)
+
+1. **PRIORITY — investigate the impression expansion.** Non-KFC impressions **doubled**
+   (202,021 → 404,260/week) while clicks fell 17%. This drives the **entire** CTR and CPC
+   decline and 41% of the revenue loss. Establish what changed around 20 July: ad density,
+   slot count, or relevance thresholds. Requests +24%, RR +8.6pp and I/R +21% all
+   contributed.
+2. **Separately — establish whether the KFC campaign returns.** ZAR 89,104 of the
+   ZAR 151,955 revenue drop. It was a **12-day burst (8–19 Jul), not a churn**, so the
+   commercial question is whether that campaign recurs, not why an advertiser left.
+3. **The CPC fall is not efficiency** — it is a thinner auction against doubled inventory.
+   Do not report it as a win.
+4. **Review the 137 new advertisers at 6.04% CTR** for relevance and placement quality.
+5. **Auction Display at ROAS 0.32 on ZAR 29,850** warrants separate commercial review.
+6. **Set expectations:** restoring KFC alone recovers CTR to ~6–7%, not the ~12–17% seen
+   pre-20 July.
+
+## Caveats
+- **The mechanism is identified but not confirmed at source.** Ads-per-response rose 20.8%
+  and CTR fell for 99% of continuing merchants — the evidence is strong, but *what* changed
+  on 20 July (ad density, slot count, relevance threshold) cannot be read from any available
+  report. Needs engineering/product confirmation. **This is the top open item.**
+- **Mr D's PLA stream has no dimensional attribution** — `store_id`, `network`, `device`,
+  `category_l1` all blank. No further drill is possible. Third marketplace in this file with
+  this gap (Apollo HOME, Tira CUSTOM, Mr D HOME) — systemic reporting issue.
+- **`get_campaign_status_changes` unavailable** (audit events blocked), so whether the KFC
+  burst ended by design, by end-date, or by fault could not be established from data.
+- **The I/R change date was not pinned** — the daily I/R series was not run, so the exact
+  date ad density stepped up is unknown. Would be the natural next step for engineering.
+- **Mr D Grocery (agency 572) was not checked** for the same pattern — if identical, it
+  points to a platform-wide rather than marketplace-specific change.
+- Scope inference on "mrd food" — see note under the heading.
+- **Two methodological lessons from this ticket:**
+  1. The original 15–19 Jul baseline sat inside an unrecognised 12-day advertiser burst.
+     A 30-day view exposed it. Check baselines against a longer series before attributing cause.
+  2. The geographic hypothesis came from reading two city names in a top-10 table. Testing
+     it across the full cohort disproved it. **Don't infer a pattern from a sorted head.**

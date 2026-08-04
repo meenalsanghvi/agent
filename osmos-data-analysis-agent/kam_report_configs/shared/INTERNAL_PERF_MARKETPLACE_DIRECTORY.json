@@ -95,7 +95,7 @@
     "maxDataFetchDaysDuration": 3650
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.agencies` AS a JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.marketplace_client_id = a.marketplace_client_id WHERE LOWER(a.name) NOT LIKE '%staging%' AND LOWER(a.name) NOT LIKE '%sandbox%' AND a.status_type = 'ACTIVE' AND a.marketplace_type = 'monetize' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.agencies` AS a JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON mc.marketplace_client_id = a.marketplace_client_id WHERE LOWER(a.name) NOT LIKE '%staging%' AND LOWER(a.name) NOT LIKE '%sandbox%' AND a.status_type = 'ACTIVE' AND a.marketplace_type = 'monetize' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

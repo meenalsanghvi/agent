@@ -25,7 +25,10 @@ Run standalone sanity check:  python3 local_dev_server.py --selftest
 from __future__ import annotations
 
 import json
+import os
+import re
 import sys
+import tempfile
 import traceback
 
 import requests
@@ -62,25 +65,83 @@ def _with_baseline(args, fn):
 
 
 # ── External-report path — mirrors osmos-reporting-mcp (run_report over the catalogue) ──
-def _fetch_ext(agency_id, report_type, attributes, metrics, filters, start, end, limit=1000):
+# Rows are never dropped. The only real constraint is how much JSON can cross stdio in one
+# response — ~27 MB of CAMPAIGN_LOOKUP_REPORT drops the connection. So above this many rows
+# we write the COMPLETE result to a file and hand back the path plus its shape. The caller
+# analyses the file with shell tools, which is what an analysis agent needs: all the data,
+# without paying for it in context.
+INLINE_ROW_CAP = 400
+KAM_MAX_LIMIT = 100_000          # kamService rejects anything above this
+SPILL_DIR = os.environ.get("OSMOS_MCP_SPILL_DIR") or tempfile.gettempdir()
+
+
+def _page(agency_id, report_type, attributes, metrics, filters, start, end, limit, offset):
     body = {"application": APPLICATION, "agencyId": int(agency_id), "reportType": report_type,
             "requestType": "REPORTING", "useExternalNames": True,
             "attributes": attributes or [], "metrics": metrics or [],
             "dateRanges": [{"startDate": start, "endDate": end}], "filters": filters or [],
-            "limit": limit, "offset": 0}
+            "limit": limit, "offset": offset}
     r = _session.post(f"{BASE}/kamService/report/fetch", headers=HEADERS,
-                      data=json.dumps(body), timeout=120)
+                      data=json.dumps(body), timeout=300)
     if r.status_code != 200:
         raise RuntimeError(f"KAM HTTP {r.status_code}: {r.text[:400]}")
     out = r.json()
     return out.get("data", out) if isinstance(out, dict) else out
 
 
+def _fetch_ext(agency_id, report_type, attributes, metrics, filters, start, end, limit=None):
+    # No limit given means "the whole answer". kamService caps a single page at 100k, and
+    # several reports exceed that (CAMPAIGN_LOOKUP_REPORT is ~186k), so walk pages with
+    # offset until one comes back short. This is only sound because the report configs now
+    # carry ORDER BY — without a stable sort, BigQuery may order pages differently and
+    # offset paging would silently overlap or skip rows.
+    args = (agency_id, report_type, attributes, metrics, filters, start, end)
+    if limit is not None:
+        data = _page(*args, int(limit), 0)
+        pages = 1
+    else:
+        data, off, pages = [], 0, 0
+        while True:
+            chunk = _page(*args, KAM_MAX_LIMIT, off)
+            pages += 1
+            if not isinstance(chunk, list):
+                return chunk
+            data.extend(chunk)
+            if len(chunk) < KAM_MAX_LIMIT:
+                break
+            off += KAM_MAX_LIMIT
+
+    if not isinstance(data, list) or len(data) <= INLINE_ROW_CAP:
+        return data
+
+    # Spill the full set. JSONL so it streams and every row survives verbatim.
+    slug = re.sub(r"[^A-Za-z0-9]+", "_", f"{report_type}_{agency_id}_{start}_{end}").strip("_")
+    path = os.path.join(SPILL_DIR, f"kam_{slug}_{len(data)}rows.jsonl")
+    with open(path, "w") as fh:
+        for row in data:
+            fh.write(json.dumps(row) + "\n")
+    return {
+        "rows_file": path,
+        "format": "jsonl",
+        "row_count": len(data),
+        "complete": limit is None,
+        "pages_fetched": pages,
+        "columns": sorted(data[0].keys()) if isinstance(data[0], dict) else None,
+        "sample": data[:5],
+        "note": (f"COMPLETE result set — all {len(data):,} rows written to {path}. Nothing was "
+                 f"dropped. Too large to return inline without risking the stdio connection, so "
+                 f"analyse the file directly (python/jq/awk) rather than re-fetching a smaller "
+                 f"slice: totals, Pareto and per-entity aggregates are all valid on it. "
+                 f"`sample` is the first 5 rows for shape only — row order follows the report's "
+                 f"attributes, not magnitude, so do not read it as a ranking."),
+    }
+
+
 def t_run_report(a):
     """Generic run_report over the external catalogue — the shape osmos-reporting-mcp exposes."""
     return _with_baseline(a, lambda s, e: _fetch_ext(
         a["agency_id"], a["report_type"], a.get("attributes", []), a.get("metrics", []),
-        a.get("filters", []), s, e, int(a.get("limit", 1000))))
+        a.get("filters", []), s, e, a.get("limit")))
 
 
 def t_list_reports(a):

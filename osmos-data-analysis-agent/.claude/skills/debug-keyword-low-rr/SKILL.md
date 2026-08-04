@@ -13,6 +13,8 @@ description: >-
 
 # Debugging low RR on specific keyword(s)
 
+> **Every data call below is `run_report(reportType=…, attributes=[…], metrics=[…], dateRanges=[…], filters=[…])`** against the report named at each step. Report groups are discoverable via the `get_<group>s_reports` tools. Resolve exact column names via `knowledge/tool-map.md` — never from memory.
+
 You are diagnosing **why specific keyword(s) have low RR** (supply-side). **Read
 `references/common-rules.md`** for STEP 0 context setup, the checkpoint model, and
 output rules. Also pull `marketplace_client_id`, `timezone`, and `agency_id`.
@@ -32,7 +34,7 @@ outbidding us still lets us respond — we just lose the impression, which is a
 **win-rate / delivery** problem, not an RR problem. **There is no competition check
 in this SOP.** If the user's real concern is lost impressions/delivery despite us
 responding, that's win-rate → STEP 9 (delegate to the keyword-delivery skill). The
-`get_campaigns_in_category` call in STEP 5 is used ONLY to confirm supply exists
+`CAMPAIGNS_IN_CATEGORY_REPORT` call in STEP 5 is used ONLY to confirm supply exists
 (active campaigns in the mapped category), never for bid competition.
 
 ## SOP
@@ -48,12 +50,11 @@ Do not run a whole chain in one turn just because you already hold the inputs.
 ### STEP 1 — Inputs
 Keyword(s) (required). Optional: campaign ID(s) — if given, ASK the id-type
 (`marketing_campaign_id` / `marketing_campaign_group_id` / `campaign_id` /
-`campaign_group_id`), then `lookup_campaign(raw_ids=[...], id_type="<confirmed>")`
+`campaign_group_id`), then `CAMPAIGN_LOOKUP_REPORT`
 and keep the `marketing_campaign_id`s.
 
 ### STEP 2 — Request-volume threshold (MUST be first)
-`check_keyword_request_volume(marketplace_client_id, timezone, search_queries=[...],
-end_date=<current end_date>)`. OnlineSales only creates a category mapping once a
+`SEARCH_QUERY_REQUESTS_PLA_REPORT` (must pass request `perf_days_with_requests`). OnlineSales only creates a category mapping once a
 keyword gets > 100 requests in the trailing 7 days.
 - **below_threshold** → "'[kw]' has only [N] requests in the last 7 days (threshold
   > 100). No category has been created, so it cannot receive responses. Expected —
@@ -68,7 +69,7 @@ keyword gets > 100 requests in the trailing 7 days.
 > the **observed** categories instead, and say clearly that a mis-mapping can be neither
 > confirmed nor ruled out.
 
-`get_responded_skus` filtered on the keyword → the categories of SKUs that DID serve.
+`RESPONDED_SKUS_REPORT` filtered on the keyword → the categories of SKUs that DID serve.
 Call this set **O** (observed).
 - **O is non-empty** → the keyword does reach inventory; low RR is a fill/supply or
   budget problem, not a mapping gap → **offer** STEP 4.
@@ -78,21 +79,20 @@ Call this set **O** (observed).
   campaign's own product categories instead.
 
 ### STEP 4 — (Only if campaign IDs given) campaign products vs the keyword
-`get_campaign_product_selection(marketplace_client_id, marketing_campaign_id)` per
+`CAMPAIGN_PRODUCT_SELECTION_REPORT` per
 campaign → product `category_l1/l2/l3` and `product_name`. Call this set **P**.
 - **O non-empty and P ∩ O ≠ ∅** → the campaign's products are in categories the keyword
   demonstrably reaches → not a relevance problem → **offer** STEP 5.
 - **O empty, and the keyword string appears in some `product_name`** → products look
   relevant yet nothing serves. Flag for engineering: "Keyword [K] appears in product
-  name(s) [...] but `get_responded_skus` returns no rows." **STOP.**
+  name(s) [...] but `RESPONDED_SKUS_REPORT` returns no rows." **STOP.**
 - **O empty, and the keyword relates to nothing in P by name or category** → the
   campaign has no plausibly relevant inventory. Recommend adding relevant products or
   dropping the keyword. **STOP.**
 
 ### STEP 5 — Active campaigns in those categories (supply check)
 Use **O** if non-empty, otherwise **P**, as the category set to probe.
-`get_campaigns_in_category(agency_id, start/end, category_level="l1"/"l2"/"l3",
-category_l*_filter=..., top_n=50)` → active campaigns with spend, daily budget, status.
+`CAMPAIGNS_IN_CATEGORY_REPORT` → active campaigns with spend, daily budget, status.
 - `paused_campaigns` — flag any paused that should be running.
 - `low_bu_campaigns` (spend < 50% of budget) — **POTENTIAL ROOT CAUSE**: budget
   exhaustion / under-pacing of performing campaigns; highlight.
@@ -100,7 +100,7 @@ category_l*_filter=..., top_n=50)` → active campaigns with spend, daily budget
   categories this keyword reaches. The keyword has no supply-side coverage." **STOP.**
 
 ### STEP 6 — Products relevancy spot-check
-For the top 2–3 campaigns from STEP 5, `get_campaign_product_selection` and inspect
+For the top 2–3 campaigns from STEP 5, `CAMPAIGN_PRODUCT_SELECTION_REPORT` and inspect
 whether their products' L1/L2/L3 and `product_name` plausibly relate to the keyword
 (there is no mapped-category set to compare against — see STEP 3).
 **Relevancy note (you cannot run the relevancy algorithms):** suggest — "Verify
@@ -110,9 +110,7 @@ the relevancy cache is the likely culprit — raise internally for algorithm/cac
 inspection."
 
 ### STEP 7 — Filter audit (only if STEPs 5–6 didn't conclude)
-`get_response_rate_by_dimension(marketplace_client_id, start_date=<end_date − 6
-days>, end_date=<end_date>, program_type="pla", group_by_columns=
-"f_kw,network,store_id,page_type,category_l1")`.
+`RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display).
 **CRITICAL date rule:** this MUST use a 7-day trailing window (relative to the
 period end_date), NOT the full range. Interpret: requests concentrating on one
 `f_kw` but low RR across many network/store/category combos → filters too
@@ -122,7 +120,7 @@ requests but RR [Z]% — too many filters narrow the pool; consider relaxing
 store_id / network / page_type restrictions."
 
 ### STEP 8 — Budget-exhaustion deep-dive (only if STEP 5 flagged low-BU performers)
-`get_true_bu_campaign_data(...)` on the flagged campaigns to confirm spend vs budget
+`TRUE_BU_CAMPAIGN_REPORT` on the flagged campaigns to confirm spend vs budget
 daily. If confirmed → "Performing campaigns [IDs] in the mapped category are
 budget-exhausted (spend ≥ [X]% of budget on [N] days). Recommend budget increase OR
 better pacing."

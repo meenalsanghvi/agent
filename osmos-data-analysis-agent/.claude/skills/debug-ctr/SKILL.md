@@ -13,6 +13,8 @@ description: >-
 
 # Debugging a CTR change
 
+> **Every data call below is `run_report(reportType=…, attributes=[…], metrics=[…], dateRanges=[…], filters=[…])`** against the report named at each step. Report groups are discoverable via the `get_<group>s_reports` tools. Resolve exact column names via `knowledge/tool-map.md` — never from memory.
+
 You are debugging a CTR move for an OnlineSales marketplace. **Read
 `references/common-rules.md` first** — context setup, date handling, PLA-vs-Display
 rules, the checkpoint model, the pre-summary checkpoint, the final-report
@@ -42,10 +44,16 @@ checkpoint: present what came back, then let the user narrow before drilling fur
 Do not run a whole chain in one turn just because you already hold the inputs.
 
 ### STEP 1 — Triage
-`check_ctr_overall` in COMPARISON mode → current+baseline clicks/impressions/CTR/
-spend + the changes in ONE call (marketplace TOTAL, no per-entity contribution;
-use `get_merchant_ctr_breakdown` for contribution). Decompose clicks vs
-impressions before any classification.
+`MERCHANT_PERFORMANCE_REPORT` in COMPARISON mode, filtered to the program the user
+chose (`perf_channel`) → current+baseline clicks/impressions/CTR/spend, and the
+per-merchant contribution you need later. Aggregate it for the marketplace total.
+
+**Do NOT use `CTR_OVERALL_REPORT` for a program-scoped figure.** It reads a
+multi-channel table and exposes no channel column, so its totals blend PLA and
+Display with no way to separate them. Use it only when the user genuinely wants the
+blended marketplace total, and say that is what it is.
+
+Decompose clicks vs impressions before any classification.
 
 ### STEP 2 — Classify, then ASK which branch
 
@@ -65,30 +73,44 @@ evidence for it. Always offer a way out — a different cut, or stop here.
 The thresholds are guides, not verdicts. When the numbers sit near a boundary (or
 fit two scenarios), say so plainly rather than forcing one, and let the user pick.
 
-**IMPRESSION-DRIVEN GATE (distinctive to CTR):** whenever impressions are the
-culprit (up OR down), you MUST run `get_page_level_performance` in COMPARISON mode
-and read **I/R** (`ir` = impressions ÷ responses, pre vs post) **FIRST** — I/R is
-how many of our ad responses actually rendered as impressions. Stop/go:
-- **I/R DROPPED** → fewer responses rendering as impressions = a client-side
-  serving/rendering issue, **not within our control**. **STOP and RAISE TO
-  CLIENT:** report I/R fell [baseline]→[current] and that the impression change is
-  on the marketplace's rendering side. Do NOT proceed to merchant/keyword analysis.
-- **I/R INCREASED / held** → serving pipeline healthy, the impression change is
-  real. Go forward (page → merchant → keyword).
+**IMPRESSION-DRIVEN GATE (distinctive to CTR):** whenever impressions moved (up OR
+down), you MUST run `PAGE_PERFORMANCE_PLA_REPORT` in COMPARISON mode and read **I/R**
+(`ir` = impressions ÷ responses, pre vs post) — I/R is how many of our ad responses
+actually rendered as impressions.
+
+**The gate terminates on impression direction, not on I/R alone.** CTR is
+clicks ÷ impressions, so which way impressions moved decides whether they can explain
+the CTR change at all:
+
+- **Impressions ROSE and I/R dropped** → the rise is not reaching users as
+  impressions; a client-side serving/rendering issue, **not within our control**.
+  **STOP and RAISE TO CLIENT:** report I/R fell [baseline]→[current]. Do NOT proceed
+  to merchant/keyword analysis.
+- **Impressions ROSE and I/R increased / held** → serving pipeline healthy, the rise
+  is real and is diluting CTR. Go forward (page → merchant → keyword).
+- **Impressions FELL** → they cannot be the CTR cause. A smaller denominator *raises*
+  CTR, so a CTR decline alongside falling impressions means clicks fell faster, and
+  the cause is on the **clicks** side. If I/R also dropped, that is a real client-side
+  finding — report it separately as an impression/spend issue, **not** as the CTR
+  diagnosis — and continue to the clicks side regardless.
+
+Never report a rendering issue as the CTR cause when impressions fell.
 
 At this checkpoint the ONLY options are: (1) Analyze page-level performance, or
 (2) Analyze merchant-level breakdown. **Do NOT offer search-query analysis here** —
 that needs page-level data first to confirm the search page is affected.
 
 ### STEP 3-A — Impression dilution
-`get_page_level_performance` (comparison). Apply the I/R gate per page using
-`ir_change`: I/R dropped → raise to client and stop; I/R increased/held →
-impressions real, continue. Then: impression share shifted to low-CTR pages → mix
+`PAGE_PERFORMANCE_PLA_REPORT` (comparison). Apply the I/R gate per page using
+`ir_change` — **with the direction rule from STEP 2**: impressions rose + I/R dropped
+→ raise to client and stop; impressions rose + I/R held → continue; impressions fell
+→ report I/R separately and continue to the clicks side. Then: impression share
+shifted to low-CTR pages → mix
 effect; new page type with high impressions + low CTR → new inventory diluting;
 all pages similar → systemic (→ STEP 4). Checkpoint if multiple pages affected.
-- **SEARCH page CTR drop (PLA):** `get_search_query_performance` (comparison,
+- **SEARCH page CTR drop (PLA):** `INTERNAL_SEARCH_QUERY_PERF_REPORT` (comparison,
   `sort_by="impressions"`) → top keywords by impressions with CTR change; find
-  keywords where impressions rose but CTR dropped. `get_keyword_seller_breakdown`
+  keywords where impressions rose but CTR dropped. `INTERNAL_SEARCH_QUERY_PERF_REPORT`
   for those keywords → which new sellers appeared with low CTR, dragging keyword
   CTR down. Report keyword, baseline vs current CTR, new sellers vs keyword avg.
 - **NON-SEARCH page (category/product) CTR drop (PLA):** `get_category_level_
@@ -97,30 +119,30 @@ all pages similar → systemic (→ STEP 4). Checkpoint if multiple pages affect
   Drill **progressively** into the dominant child: L1 → (`category_l1_filter`,
   l2) → (`+category_l2_filter`, l3). Report category at the level you stopped,
   baseline vs current CTR, impressions change%.
-- `get_campaign_status_changes` → new low-quality campaigns activated?
+- `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 16) → new low-quality campaigns activated?
 
 ### STEP 3-B — Engagement decline
-`get_page_level_performance` (current + baseline). Search CTR drop → keyword/bid
+`PAGE_PERFORMANCE_PLA_REPORT` (current + baseline). Search CTR drop → keyword/bid
 changes; category → relevance; product page → creative/positioning. Checkpoint if
 multiple pages.
-- **SEARCH page (PLA):** `get_search_query_performance` (comparison,
+- **SEARCH page (PLA):** `INTERNAL_SEARCH_QUERY_PERF_REPORT` (comparison,
   `sort_by="impressions"`) → keywords where clicks didn't keep pace / dropped.
-  `get_keyword_seller_breakdown` → which sellers lost CTR; new low-CTR sellers
+  `INTERNAL_SEARCH_QUERY_PERF_REPORT` → which sellers lost CTR; new low-CTR sellers
   dragging the keyword. Report keyword, CTR pre/post, auto-vs-manual split,
   new/churned sellers + each seller's contribution. **If clicks fell because we
   lost position, that points OUTWARD** — competition is a possible cause; note it,
   and STEP 4.5 OFFERS a competition check (only on user request). (New-low-CTR-
   seller dilution is a marketplace mix shift, distinct from our campaign being
   outbid.)
-- **NON-SEARCH page (PLA):** `get_category_level_performance` (l1, + baseline) →
+- **NON-SEARCH page (PLA):** `CATEGORY_PERFORMANCE_REPORT` (l1, + baseline) →
   which L1 categories lost CTR (clicks falling vs impressions). Drill
   progressively to L3; `group_by_merchant=True` at any level to see which
   merchants drive the decline. Report category, CTR pre/post, clicks% vs
   impressions%.
-- `get_sku_level_ctr_performance` (comparison, if merchant-concentrated) → ranks
+- `SKU_PERFORMANCE_REPORT` (comparison, if merchant-concentrated) → ranks
   SKUs by contribution to the impressions change, with `status` + `ctr change` →
-  which products losing clicks. `get_product_selection_changes` → new SKUs with no
-  clicks / removed high-CTR products. `get_campaign_status_changes` → rule out
+  which products losing clicks. `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` IN (50, 51)) → new SKUs with no
+  clicks / removed high-CTR products. `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 16) → rule out
   pauses.
 
 ### STEP 3-C — Volume decline
@@ -131,7 +153,7 @@ cause is volume/traffic, not CTR. Investigate further or redirect to BU/RR?"
   [BU/RR].`
 
 ### STEP 4 — Merchants
-`get_merchant_ctr_breakdown` (comparison). **MANDATORY checkpoint — lead with the
+`MERCHANT_PERFORMANCE_REPORT` (comparison). **MANDATORY checkpoint — lead with the
 high-impact spenders, then report ALL of these every time, even if empty:**
 - `high_impact_merchants` (Pareto — highest CURRENT spenders, ~80% cumulative,
   with `cumulative_spend_share_pct`) — RAW baseline & current spend, impressions,
@@ -146,12 +168,12 @@ high-impact spenders, but could be any bucket) → their `os_client_id`s for the
 drill.
 
 **Merchant drill (branch on the affected page from STEP 3):**
-- **SEARCH** → `get_merchant_keyword_performance(client_ids, + baseline)`:
+- **SEARCH** → `INTERNAL_KEYWORD_PERFORMANCE_REPORT` (must pass `perf_campaign_type` = 'performance' + `perf_campaign_subtype` IN (os_ads_search, smart_shopping)):
   keywords × campaign, pre/post CTR. NO rows = purely AUTO →
-  `get_search_query_performance` instead.
-- **NON-SEARCH** → `get_merchant_category_performance(client_ids, + baseline)`:
+  `INTERNAL_SEARCH_QUERY_PERF_REPORT` instead.
+- **NON-SEARCH** → `MERCHANT_CATEGORY_PERFORMANCE_REPORT`:
   categories × campaign, pre/post CTR.
-- **OVERALL** → run both, then `get_sku_level_ctr_performance` if still needed.
+- **OVERALL** → run both, then `SKU_PERFORMANCE_REPORT` if still needed.
 Checkpoint if multiple merchants.
 
 ### STEP 4.5 — Competition (CONDITIONAL — only on explicit user request)
@@ -161,8 +183,7 @@ This is a **secondary** cause for CTR — do NOT run it automatically. When the
 merchant step points outward (we lost position, not engagement or seller-mix
 dilution), REPORT competition as a possible cause and OFFER it at the summary.
 Only on an explicit user request, and only once narrowed to ONE problem merchant:
-find the driving campaign (`get_campaign_performance(client_ids=[os_client_id],
-current + baseline)`), then follow the **COMPETITION CHECK in
+find the driving campaign (`INTERNAL_CAMPAIGN_PERFORMANCE_REPORT` (daily also needs `perf_campaign_type` IN (PERFORMANCE, INVENTORY, OFFSITE) + group by `perf_date`)), then follow the **COMPETITION CHECK in
 `references/common-rules.md`** scoped to that campaign and its problem keywords.
 
 ### STEP 5 — Summary
@@ -177,14 +198,14 @@ severity by CTR drop: high >15%, medium 5–15%, low <5%; impacted entities keye
 Summary below.
 
 ## Additional drill tools (beyond the linear SOP)
-- `get_campaign_product_selection` — current active products; needs
+- `CAMPAIGN_PRODUCT_SELECTION_REPORT` — current active products; needs
   `marketplace_client_id` + `marketing_campaign_id` (resolve a
-  `marketing_campaign_group_id` via `lookup_campaign` first).
-- `lookup_merchant` — convert `client_id` ↔ `merchant_id`.
-- `lookup_campaign` — call when the user gives a campaign ID, **but FIRST ask which
+  `marketing_campaign_group_id` via `CAMPAIGN_LOOKUP_REPORT` first).
+- `MERCHANT_LOOKUP_REPORT` — convert `client_id` ↔ `merchant_id`.
+- `CAMPAIGN_LOOKUP_REPORT` — call when the user gives a campaign ID, **but FIRST ask which
   ID type it is** (`marketing_campaign_id` / `marketing_campaign_group_id` /
   `campaign_id` / `campaign_group_id`); do NOT guess. Then
-  `lookup_campaign(raw_ids=[...], id_type="<confirmed>")` — it errors without a
+  `CAMPAIGN_LOOKUP_REPORT` — it errors without a
   valid `id_type` and returns all 4 resolved IDs.
 
 ## Available drills by program — a menu, not a checklist
@@ -193,9 +214,15 @@ Summary below.
 drills they pick. Nothing here is owed to them by default. If a drill from the other
 program would genuinely change the diagnosis, say so in one line and let the user
 decide — do not run it to find out.
-- **PLA + Display:** `check_ctr_overall`, `get_page_level_performance`, and
-  `get_merchant_ctr_breakdown` accept `program_type`. For Display ad-unit detail
-  use `get_display_ad_unit_performance` — ONLY when `affected_program = "display"`.
+- **PLA + Display — how program scoping works, report by report:**
+  - `MERCHANT_PERFORMANCE_REPORT` reads a multi-channel table and is the ONLY report
+    here that takes a program filter. Pass `perf_channel`.
+  - The PLA- and Display-specific reports are already scoped by their source table.
+    Do NOT pass any program filter to them.
+  - `CTR_OVERALL_REPORT` is marketplace-total and **program-blended**. It cannot be
+    scoped at all.
+  - For Display ad-unit detail use `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` — ONLY when
+    `affected_program = "display"`.
 - **PLA only:** search-query / keyword-seller drills, category drill, SKU-level
   CTR, merchant keyword/category drills, and the competition check.
 

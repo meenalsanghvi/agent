@@ -105,7 +105,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_search_query_performance_report` AS resp JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON ctd.campaign_id = resp.campaign_id LEFT JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd ON mcd.marketing_campaign_id = ctd.marketing_campaign_id JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON resp.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND resp.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_search_query_performance_report` AS resp JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON ctd.campaign_id = resp.campaign_id LEFT JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd ON mcd.marketing_campaign_id = ctd.marketing_campaign_id JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON resp.marketplace_client_id = mc.marketplace_client_id WHERE mc.agency_id = '__AGENCY_ID__' AND resp.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

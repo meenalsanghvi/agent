@@ -40,9 +40,9 @@ campaigns / keywords), **date range**, **program** (PLA / Display).
 - **Marketplace name only** → identify marketplace → ask: "Want to see what's flagged for
   last week, or do you have a specific question?" Do not auto-fetch problem metrics.
 
-## 2. Identify the marketplace — `fetch_marketplace_info`
+## 2. Identify the marketplace — `MARKETPLACE_DIRECTORY_REPORT`
 
-> **Tool binding.** `fetch_marketplace_info` is a legacy ADK name and does not exist.
+> **Tool binding.** `MARKETPLACE_DIRECTORY_REPORT` is a legacy ADK name and does not exist.
 > Resolve it — and every other tool named in this file — via `knowledge/tool-map.md`.
 > Here it is `MARKETPLACE_DIRECTORY_REPORT`. Every external column carries a `perf_`
 > prefix; take exact names from the map, never from memory.
@@ -77,7 +77,7 @@ only one program affected, set it **and tell the user**. Otherwise **ask** — n
 - **Baseline:** auto-compute the prior comparable window **only** when the request implies
   a comparison or a drop/change. A plain "show me X for these dates" is single-period.
 
-## 5. Flagged issues — open-ended requests only — `get_problem_metrics`
+## 5. Flagged issues — open-ended requests only — `PROBLEM_METRICS_REPORT`
 
 `PROBLEM_METRICS_REPORT`, filtered on `perf_marketplace_client_id` (defaults to the last
 completed Sun–Sat week + prior week baseline). Present the flagged metrics, then ask which

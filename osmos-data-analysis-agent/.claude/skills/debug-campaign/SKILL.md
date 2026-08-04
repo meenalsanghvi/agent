@@ -12,6 +12,8 @@ description: >-
 
 # Single-campaign diagnostic
 
+> **Every data call below is `run_report(reportType=…, attributes=[…], metrics=[…], dateRanges=[…], filters=[…])`** against the report named at each step. Report groups are discoverable via the `get_<group>s_reports` tools. Resolve exact column names via `knowledge/tool-map.md` — never from memory.
+
 You are doing a **single-campaign deep-dive**. Entry points: low impressions, high
 CPC, not spending / budget unutilised, a targeted keyword not spending, overall
 underperforming, paused unexpectedly. **Read `references/common-rules.md`** for
@@ -33,10 +35,9 @@ Campaign ID(s); complaint type; any time window (else the auto-computed
 current-vs-baseline).
 
 ## STEP 1.5 — Resolve campaign IDs (MANDATORY id-type confirmation)
-ASK the id-type before `lookup_campaign`; don't guess — "Is [ID] a
+ASK the id-type before `CAMPAIGN_LOOKUP_REPORT`; don't guess — "Is [ID] a
 `marketing_campaign_id`, `marketing_campaign_group_id`, `campaign_id`, or
-`campaign_group_id`?" `lookup_campaign(raw_ids=
-[...], id_type="<confirmed>")` resolves: `marketing_campaign_id` (downstream),
+`campaign_group_id`?" `CAMPAIGN_LOOKUP_REPORT` resolves: `marketing_campaign_id` (downstream),
 `client_id` (advertiser os_client_id — required by targeted-keyword tools),
 `campaign_subtype`, `bidding_strategy` (CPC/CPM/AUTO_CPC/AUTO_CPM — decides
 CPC-vs-CPM competitor comparison), `campaign_status`, `campaign_name`.
@@ -55,28 +56,28 @@ exist. Brief acknowledgement is fine ("Resolved [ID] as a SEARCH campaign —
 proceeding"); don't pose it as a question.
 
 ## STEP 2 — Campaign health snapshot (always)
-`get_campaign_performance` (current + baseline): spend vs budget (under-pacing /
+`INTERNAL_CAMPAIGN_PERFORMANCE_REPORT` (aggregated: just `perf_campaign_id`; daily: also `perf_campaign_type` IN (PERFORMANCE, INVENTORY, OFFSITE) + group by `perf_date`) (current + baseline): spend vs budget (under-pacing /
 on-pace / exhausted?), impressions/clicks/CTR/CPC trend, ROI/orders trend, daily
 rollup (when did it start?). Optional merchant zoom-out to see if spend/keywords
-are concentrated here vs sibling campaigns: `get_merchant_keyword_performance`
+are concentrated here vs sibling campaigns: `INTERNAL_KEYWORD_PERFORMANCE_REPORT` (must pass `perf_campaign_type` = 'performance' + `perf_campaign_subtype` IN (os_ads_search, smart_shopping))
 (also the auto-vs-manual gate — NO rows = purely AUTO) / `get_merchant_category_
 performance`.
 
 **Network targeting — do NOT call by default, and NEVER in parallel with the
 snapshot.** Not every client configures networks, so an empty result is normal.
-Call `get_campaign_targeted_networks` only if the user asks about networks / where
+Call `CAMPAIGN_NETWORKS_REPORT` (filter `perf_internal_campaign_id`, not `perf_campaign_id`) only if the user asks about networks / where
 the campaign serves; if it returns networks, scope any later network-level
 diagnostic to them.
 
 ## STEP 2.5 — BASIC CHECKS (ALWAYS, before any keyword/category analysis)
 Confirm the campaign can even serve — a keyword/category drill is wasted if it
 can't:
-- `get_campaign_product_selection` → active, in-stock products? Empty/sparse → that's
+- `CAMPAIGN_PRODUCT_SELECTION_REPORT` → active, in-stock products? Empty/sparse → that's
   the problem.
-- `get_merchant_wallet_balance(client_ids=[advertiser os_client_id])` → wallet
+- `WALLET_BALANCE_REPORT` → wallet
   balance? Zero/near-zero → can't spend regardless of keywords.
-- `get_true_bu_campaign_data` → is there budget, and is it being consumed?
-- `get_campaign_status_changes` → is it ACTIVE (not paused)?
+- `TRUE_BU_CAMPAIGN_REPORT` → is there budget, and is it being consumed?
+- `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 16) → is it ACTIVE (not paused)?
 
 **If ANY fails, that IS the answer — report and stop; do NOT proceed to
 keyword/category analysis.** Only once all pass → then **offer** STEP 3.
@@ -94,9 +95,7 @@ branch in one turn.
 
 ### 3a. Low impressions / high CPC (BOTH subtypes)
 Common pattern: aggressive manual bids on a few keywords eat the budget at high CPC,
-starving reach. `check_targeted_keyword_performance_in_campaigns(agency_id,
-client_ids=[advertiser os_client_id], marketing_campaign_ids=[ID], search_queries=
-[], start/end)` (`client_ids` REQUIRED) → all keywords served, per-keyword
+starving reach. `INTERNAL_KEYWORD_PERFORMANCE_REPORT` (`client_ids` REQUIRED) → all keywords served, per-keyword
 spend/impr/clicks/CPC/CTR/ROI by `keyword_match_type` (AUTO vs BROAD/EXACT/PHRASE).
 Aggregate into an AUTO-vs-MANUAL table (match_type | spend | impressions | clicks |
 CPC | CTR). Interpret from the DATA (not the expected subtype):
@@ -111,8 +110,7 @@ Conclusion (when offenders found): "Campaign [ID] spent ₹[X] at avg CPC ₹[Y]
 reducing manual bid on [K1,K2] to free budget for volume."
 
 **Search-query SOV check — REQUIRED for any low-impressions complaint.**
-`get_search_query_match_performance(agency_id, client_ids, marketing_campaign_ids,
-start/end)`. `sov` = our impressions for a query ÷ total across ALL advertisers ×
+`SEARCH_QUERY_MATCH_PERFORMANCE_REPORT`. `sov` = our impressions for a query ÷ total across ALL advertisers ×
 100 (low = others captured the query). `top_search_impressions_share` = % of OUR
 own impressions in a top-of-search slot (within-campaign placement, not competitive
 share). Interpret: LOW sov on high-impression queries → others winning → COMPETITION
@@ -127,14 +125,14 @@ levels: top-5 highest-impression queries (SOV + top-share) and the AUTO-vs-MANUA
 rollup.
 
 ### 3b. Product / catalog health (BOTH; primary for Smart-Shopping-no-manual)
-`get_campaign_product_selection` (sparse selection → narrow eligibility → low
-impressions); `get_product_selection_changes` (products removed in-window?);
-`get_campaign_status_changes` (effective_status flip?).
+`CAMPAIGN_PRODUCT_SELECTION_REPORT` (sparse selection → narrow eligibility → low
+impressions); `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` IN (50, 51)) (products removed in-window?);
+`AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 16) (effective_status flip?).
 
 ### 3c. Not spending / budget unutilised (BOTH)
 If the user names a SPECIFIC keyword not spending → use 3f instead.
-`get_true_bu_campaign_data` (spend vs budget daily), `get_campaign_status_changes`
-(pauses), `check_targeted_keyword_performance_in_campaigns` (most keywords serving
+`TRUE_BU_CAMPAIGN_REPORT` (spend vs budget daily), `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 16)
+(pauses), `INTERNAL_KEYWORD_PERFORMANCE_REPORT` (most keywords serving
 zero?). SEARCH / Smart-Shopping-with-manual mostly zero → escalate to the
 keyword-delivery skill (`HANDOFF_TO_ROOT`). Smart-Shopping AUTO-only mostly zero →
 product/eligibility (3b) **AND** the AUTO competition check below before concluding.
@@ -143,16 +141,14 @@ product/eligibility (3b) **AND** the AUTO competition check below before conclud
 keywords).** If AUTO and STEP 2.5 basics pass, it can still fail to spend because
 rivals win the auctions. Check BOTH surfaces:
 - **Keyword / search query:** source spend-driving queries from
-  `get_search_query_performance(marketing_campaign_ids=[campaign])` (low/zero
+  `INTERNAL_SEARCH_QUERY_PERF_REPORT` (low/zero
   presence or a drop = losing the auction), feed through
-  `get_targeted_keyword_competition` (comparison, exclude our campaign).
-- **Category (TWO-HOP at FULL L3):** `get_campaigns_in_category(marketing_campaign_
-  ids=[campaign], category_level="l3", + baseline)` for OUR category_l1/l2/l3 and
+  `INTERNAL_KEYWORD_PERFORMANCE_REPORT` (comparison, exclude our campaign).
+- **Category (TWO-HOP at FULL L3):** `CAMPAIGNS_IN_CATEGORY_REPORT` for OUR category_l1/l2/l3 and
   OUR cpc/cpm, then re-call with those `category_l*_filter` and NO campaign filter
   for RIVALS pre/post. Then you MUST do BOTH before concluding ("N new entrants"
   alone is NOT a conclusion):
-  (i) **Category RR** — `get_category_response_rates(agency_id, + baseline,
-  category_l*_filter, page_type)`: RR healthy/stable but spend/impr fell →
+  (i) **Category RR** — `RR_PLA_REPORT` (must pass `perf_category_l1` != '' + `perf_page_type` NOT IN ('', 'NA')): RR healthy/stable but spend/impr fell →
   auction-loss/outbid; RR low/dropped → eligibility/supply (relevance/catalog/
   serving), NOT a bid problem → pivot to 3b.
   (ii) **Bid comparison — PRE vs POST, OURS vs OTHERS, on cpc/cpm — NOT spend.**
@@ -177,7 +173,7 @@ competition.
 > unavailable. Reach the verdict from (b) and (c) instead, and say the mapping check was
 > skipped — do not substitute another report for it.
 Run STEP 2.5 basics first (a campaign-level block explains a zero keyword too). Then:
-1. `check_requests` for the WHOLE marketplace over the LAST 7 DAYS (`program_type=
+1. `PAGE_PERFORMANCE_PLA_REPORT` (PLA, group by `perf_date`) / `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` (Display) for the WHOLE marketplace over the LAST 7 DAYS (`program_type=
    "pla"`, no page filter) → marketplace RR (fixed trailing-7-day window, NOT the
    baseline).
 2. **RR ≈ 100%** (we respond to ~every request): supply healthy, we're not winning
@@ -194,13 +190,13 @@ Run STEP 2.5 basics first (a campaign-level block explains a zero keyword too). 
 
 ### 3d. Underperforming overall
 Use STEP 2's snapshot to pick the broken metric: ROI/ROAS →
-`get_sku_level_performance` + `check_gmv_attribution` → `HANDOFF_TO_ROOT` to the
+`SKU_PERFORMANCE_REPORT` + `GMV_ATTRIBUTION_REPORT` → `HANDOFF_TO_ROOT` to the
 ROAS skill if marketplace-wide; CPC → 3a flow; CTR → `get_search_query_performance
 (marketing_campaign_ids=[ID], baseline)`; BU → 3c flow.
 
 ### 3e. Paused unexpectedly
-`get_campaign_status_changes(... marketing_campaign_ids=[ID])` → exact pause event
-(who/when); `get_product_selection_changes` → product list emptied? If status is
+`AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 16) → exact pause event
+(who/when); `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` IN (50, 51)) → product list emptied? If status is
 ACTIVE but no impressions → escalate as a system issue.
 
 ### 3g. COMPETITION CHECK (shared — invoked from 3a / 3c / 3f)

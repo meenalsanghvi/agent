@@ -227,7 +227,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.audit.audit_logs_v2` AS al WHERE al.agency_id = '__AGENCY_ID__' AND al.timestamp >= TIMESTAMP('__START_DATE_1__', '__SP_TIMEZONE__') AND al.timestamp < TIMESTAMP(DATE_ADD('__END_DATE_1__', INTERVAL 1 DAY), '__SP_TIMEZONE__') AND __FILTER__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.audit.audit_logs_v2` AS al WHERE al.agency_id = '__AGENCY_ID__' AND al.timestamp >= TIMESTAMP('__START_DATE_1__', '__SP_TIMEZONE__') AND al.timestamp < TIMESTAMP(DATE_ADD('__END_DATE_1__', INTERVAL 1 DAY), '__SP_TIMEZONE__') AND __FILTER__ ORDER BY al.timestamp DESC LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

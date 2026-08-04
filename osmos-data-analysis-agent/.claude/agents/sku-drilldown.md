@@ -30,13 +30,15 @@ the calling skill.
 
 ## Procedure
 1. **Guard:** PLA only. Wrong/absent program → return `not_applicable` (above).
-2. **Fetch per merchant, in COMPARISON mode** (current + baseline), using the metric-
-   appropriate SKU tool — run the merchants **in parallel**:
-   - `roas` → `get_sku_level_performance`
-   - `cpc`  → `get_sku_level_cpc_performance`
-   - `ctr`  → `get_sku_level_ctr_performance`
-   Pass the `os_client_id`(s), both date windows, `program_type="pla"`. These tools cover
-   PLA performance campaigns only (`os_ads_search`, `smart_shopping`).
+2. **Fetch per merchant, in COMPARISON mode** (current + baseline) from
+   `SKU_PERFORMANCE_REPORT` (must pass `perf_os_client_id`) — run the merchants **in
+   parallel**. The metric decides which columns to request:
+   - `roas` → `perf_program_gmv`, `perf_program_orders`, `perf_spend`, plus
+     `perf_site_gmv` / `perf_site_orders` to separate program from organic
+   - `cpc`  → `perf_spend`, `perf_clicks`, `perf_cpc`
+   - `ctr`  → `perf_impressions`, `perf_clicks`, `perf_ctr`
+   Pass the `os_client_id`(s), both date windows, and `program_type="pla"`. The report
+   covers PLA performance campaigns only (`os_ads_search`, `smart_shopping`).
 3. **Rank** each merchant's SKUs by **contribution to the metric move**
    (SKU delta ÷ merchant delta), highest |contribution| first. Keep SITE (organic) vs
    PROGRAM (ad-attributed) distinct where the tool returns both.

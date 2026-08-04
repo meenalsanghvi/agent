@@ -6,14 +6,40 @@ agent_instructions.py`. Load this once at the start of an investigation.
 
 > ## ⚠️ Tool binding — read before your first data call
 >
-> The tool names in this file and in every skill (`check_gmv_attribution`,
-> `get_merchant_breakdown`, `get_context`, …) are the **legacy ADK agent's Python
-> functions**. **They do not exist here. There is no `get_*` or `check_*` tool.**
+> The MCP exposes **`run_report`** plus one `get_<group>s_reports` discovery tool per
+> report group. **There is no `get_*` / `check_*` data tool** — any such name you
+> encounter in older notes or tickets is a retired ADK function.
 >
-> - **Every data call is `run_report`** against a KAM report. Resolve each legacy
->   name to its report, columns and required filters via
->   **`knowledge/tool-map.md`** before calling. Do not guess a tool name, and do
->   not call one because the SOP prose names it.
+> - **Every data call is `run_report`** against the report type the step names. Take
+>   the **columns to request** and the **filters the call must pass** from
+>   **`knowledge/tool-map.md`**; full column lists and known issues are in
+>   **`knowledge/reports.md`**. Never guess a column name.
+> - **"must pass" is not optional.** Several steps use the same report with different
+>   filters (e.g. `AUDIT_EVENTS_REPORT` with `perf_action_type_id` 17 / 16 / 50,51) —
+>   omitting the filter returns the wrong rows, not an error.
+> - **Campaign IDs come in two forms**, and the column name tells you which one a report
+>   wants. One rule, no exceptions:
+>   - `perf_campaign_id` / `perf_campaign_group_id` → the **marketing** ID (the one shown
+>     in the UI). This is what almost every report keys on.
+>   - `perf_internal_campaign_id` / `perf_resolved_campaign_id` → the **internal** ID.
+>     `RESPONDED_SKUS_REPORT` and `CAMPAIGN_NETWORKS_REPORT` key on this.
+>
+>   `CAMPAIGN_LOOKUP_REPORT` maps between them and names both explicitly —
+>   `perf_marketing_campaign_id` and `perf_internal_campaign_id`. Filter it on the form
+>   the user gave you and read the other off the result.
+>
+>   **One exception:** on `CAMPAIGN_LOOKUP_REPORT` only, `perf_campaign_group_id` is the
+>   *internal* group ID (use `perf_marketing_campaign_group_id` for the marketing one).
+>   Everywhere else `perf_campaign_group_id` is the marketing group ID.
+>
+>   Passing the wrong form returns **zero rows and no error**. So if a campaign you know
+>   is live comes back with zero products or zero delivery, suspect the ID form before
+>   concluding anything about the campaign. Cross-check against a campaign that is
+>   demonstrably spending: if that one is also empty, the ID form is wrong, not the
+>   campaign.
+> - **Always filter `CAMPAIGN_LOOKUP_REPORT` and `MERCHANT_LOOKUP_REPORT`.** They ignore
+>   `limit` and return the marketplace's whole list (~186k rows / 27 MB for campaigns),
+>   which will drop the MCP connection mid-investigation.
 > - **State tools have no replacement** (`get_context`, `get_date_ranges`,
 >   `get_all_findings`, `get_discoveries`, `get_today`, `update_context`,
 >   `update_analysis`, `get_keyword_categories`). There is no state store — the
@@ -222,7 +248,7 @@ part of this ground, note the overlap and do not repeat completed analysis.
 - **Scope transparency:** if you can't answer with available tools, say so —
   state what you CAN provide and which tools exist. Never silently skip or invent
   data. (e.g. "I don't have keyword-level CPC; I can show merchant-level
-  (`get_merchant_cpc_breakdown`) or page-level (`get_page_level_performance`).")
+  (`MERCHANT_PERFORMANCE_REPORT`) or page-level (`PAGE_PERFORMANCE_PLA_REPORT`).")
 - **Hand back** with `HANDOFF_TO_ROOT: [reason]` when: the user asks about a
   different marketplace; needs a different metric; analysis is complete and they
   want other areas; context is missing (no agency_id / dates); or the request
@@ -266,7 +292,7 @@ when the metric move points OUTWARD — after internal causes are ruled out
 product-selection change).
 
 **First, the symptom depends on OUR campaign's targeting type** — confirm with
-`get_campaign_targeted_keywords` (count > 0 = MANUAL bids set, and each keyword's
+`CAMPAIGN_KEYWORDS_REPORT` (must pass `perf_is_negative` = 0 for targeted, = 1 for negative) (count > 0 = MANUAL bids set, and each keyword's
 `bidding_value` is our bid; count = 0 = AUTO / Smart-auto; Smart Shopping can have
 both — never infer from subtype, and never claim "no manual keywords" without the
 fetch; any EXACT/PHRASE/BROAD row proves manual targeting):
@@ -287,21 +313,18 @@ COMPARISON mode** so a rival entering/raising in post surfaces as `new_in_post` 
 
 1. **Keyword / search query** — a rival targeted a query we won cheaply, at a
    higher bid.
-   - a. `get_search_query_performance(sort_by="spend", + baseline)` scoped to the
+   - a. `INTERNAL_SEARCH_QUERY_PERF_REPORT` scoped to the
      campaign or the problem keyword(s) → the spend-driving queries pre/post;
      flag those that lost spend/impressions or whose CPC rose.
-   - b. `get_targeted_keyword_competition(search_queries=[those],
-     exclude_marketing_campaign_ids=[ours], + baseline)` → rivals targeting them
+   - b. `INTERNAL_KEYWORD_PERFORMANCE_REPORT` → rivals targeting them
      and their bids pre/post; a `new_in_post` rival, or one whose cpc/cpm rose, on
      a contested query = the bid pressure.
-   - c. `get_search_query_performance(search_queries=[those],
-     breakdown_by="campaign", + baseline)` marketplace-wide → served-on
+   - c. `INTERNAL_SEARCH_QUERY_PERF_REPORT` marketplace-wide → served-on
      competition + `keyword_match_type` (AUTO vs EXACT/PHRASE/BROAD) +
      `new_competitors`.
 2. **Category** — resolve to FULL L1 > L2 > L3 (`category_level="l3"`); never stop
    at L1. TWO HOPS:
-   (a) `get_campaigns_in_category(marketing_campaign_ids=[ours],
-   category_level="l3", + baseline)` to read OUR campaign's category_l1/l2/l3 and
+   (a) `CAMPAIGNS_IN_CATEGORY_REPORT` to read OUR campaign's category_l1/l2/l3 and
    pick the L3 categories where our spend fell;
    (b) re-call with those `category_l1/l2/l3_filter` values and NO campaign filter
    → the RIVAL campaigns in the same category pre vs post, with per-rival cpc/cpm,
@@ -314,11 +337,11 @@ COMPARISON mode** so a rival entering/raising in post surfaces as `new_in_post` 
    model. Only rivals bidding ABOVE us in post prove we're outbid; if rivals are
    at/below our cpc/cpm, we are NOT outbid — say so and look at RR/eligibility.
 3. **Merchant / seller** — a new seller entered the queries broadly
-   (`get_keyword_seller_breakdown` new sellers; merchant breakdowns
+   (`INTERNAL_SEARCH_QUERY_PERF_REPORT` new sellers; merchant breakdowns
    `new_merchants`).
 
 Compare rivals on OUR campaign's bid model (read `bidding_strategy` from
-`lookup_campaign`): CPC for CPC/AUTO_CPC, CPM for CPM/AUTO_CPM. Conclude only after
+`CAMPAIGN_LOOKUP_REPORT`): CPC for CPC/AUTO_CPC, CPM for CPM/AUTO_CPM. Conclude only after
 naming the contested query/category, the specific rival, and — for a new entrant —
 the timing vs when our metric moved. Always present every competition data point
 WITH its contribution (share per period + contribution to the spend/clicks

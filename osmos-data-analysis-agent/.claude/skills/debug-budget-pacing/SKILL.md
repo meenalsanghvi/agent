@@ -12,6 +12,8 @@ description: >-
 
 # Diagnosing budget-pacing overspend
 
+> **Every data call below is `run_report(reportType=…, attributes=[…], metrics=[…], dateRanges=[…], filters=[…])`** against the report named at each step. Report groups are discoverable via the `get_<group>s_reports` tools. Resolve exact column names via `knowledge/tool-map.md` — never from memory.
+
 You are diagnosing campaign **overspend** from budget pacing. **Read
 `references/common-rules.md`** for the STEP 0 context setup, date handling, the
 interactive checkpoint model, and the output/hand-off rules. Also pull
@@ -27,16 +29,19 @@ interactive checkpoint model, and the output/hand-off rules. Also pull
    for this skill — conclude with the diagnosis text from STEP 4. 
 
 ## Tool whitelist — these are the ONLY tools; never call another
-- `lookup_campaign` — resolve any campaign ID to the `marketing_campaign_id` the
+- `CAMPAIGN_LOOKUP_REPORT` — resolve any campaign ID to the `marketing_campaign_id` the
   other tools need.
-- `lookup_merchant` — only if the user references a merchant and you need its IDs
+- `MERCHANT_LOOKUP_REPORT` — only if the user references a merchant and you need its IDs
   (rare; pacing is campaign-level).
-- `get_budget_delivery_mode` — ACCELERATED vs STANDARD (mandatory first diagnostic).
-- `get_budget_pacing_buckets` — pacing time buckets for the marketplace + date.
-- `get_campaign_daily_budget` — effective daily budget for the campaign on a date.
-- `get_minute_level_cpc_data` — minute-level clicks + spend (CPC marketplaces).
-- `get_minute_level_cpm_data` — minute-level impressions + spend (CPM marketplaces).
-- `check_budget_changes_on_date` — budget-change audit events on the date.
+- `BUDGET_DELIVERY_MODE_REPORT` — ACCELERATED vs STANDARD (mandatory first diagnostic).
+- `BUDGET_PACING_BUCKETS_REPORT` — pacing time buckets for the marketplace + date.
+- `CAMPAIGN_DAILY_BUDGET_AVG_REPORT` — the **configured** daily budget.
+- `CAMPAIGN_DAILY_BUDGET_FLEXI_REPORT` — the **effective spendable** budget, capped by
+  the merchant's wallet balance. Fetch both; see STEP 2b.
+- `WALLET_BALANCE_REPORT` — merchant balance. Current snapshot only, no date column.
+- `MINUTE_LEVEL_CPC_REPORT` — minute-level clicks + spend (CPC marketplaces).
+- `MINUTE_LEVEL_CPM_REPORT` — minute-level impressions + spend (CPM marketplaces).
+- `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 17) — budget-change audit events on the date.
 
 Do NOT call any tool not in this list (no merchant breakdowns, no RR/CTR tools).
 
@@ -57,12 +62,17 @@ Do not run a whole chain in one turn just because you already hold the inputs.
   tool — this is NOT about PLA vs Display; it's always PLA).
 
 ### STEP 1.5 — Resolve campaign IDs
-`lookup_campaign(raw_ids=[...])` with every ID the user gave; extract the
-`marketing_campaign_id`s (what downstream tools require). If any ID fails to
-resolve, name it and ask for a correction before proceeding.
+`CAMPAIGN_LOOKUP_REPORT`, filtering **`perf_marketing_campaign_id`** with the IDs the
+user gave — that is the ID shown in the UI. Do **not** filter `perf_campaign_id`: on this
+report that column holds the INTERNAL id, so the UI id returns zero rows with no error.
+Extract the `perf_marketing_campaign_id`s (what downstream reports require). If an ID
+fails to resolve, name it and ask for a correction before proceeding.
+
+**Never call this report unfiltered.** It ignores `limit` and returns the marketplace's
+entire campaign list (~186k rows / 27 MB), which will kill the MCP connection.
 
 ### STEP 1.75 — Budget delivery mode (MANDATORY FIRST DIAGNOSTIC)
-`get_budget_delivery_mode(marketing_campaign_ids=[...])` for ALL resolved campaigns.
+`BUDGET_DELIVERY_MODE_REPORT` for ALL resolved campaigns.
 - **ACCELERATED** → front-loaded/burst spend is EXPECTED, not a pacing defect.
   Conclude: "Campaign [ID] is on ACCELERATED delivery — designed to spend the
   daily budget as fast as possible. Early/burst spending is expected, not a pacing
@@ -83,10 +93,28 @@ call. No default, no auto-detection.
   either before the user confirms.**
 
 ### STEP 2 — Fetch data (parallel; STANDARD campaigns only; confirmed strategy)
-a) `get_budget_pacing_buckets` — pacing time buckets for the marketplace + date.
-b) `get_campaign_daily_budget` — effective daily budget on that date.
-c) ONE minute-level tool (never both): CPC → `get_minute_level_cpc_data` (clicks +
-   spend by campaign, page_type, hour, minute); CPM → `get_minute_level_cpm_data`
+a) `BUDGET_PACING_BUCKETS_REPORT` — pacing time buckets for the marketplace + date.
+b) **Both** budget reports — they answer different questions:
+   - `CAMPAIGN_DAILY_BUDGET_AVG_REPORT` — the **configured** daily budget. It is derived as
+     an average over the range you pass, so query a **single date** for a single-date
+     question; a week-long range returns the week's average.
+   - `CAMPAIGN_DAILY_BUDGET_FLEXI_REPORT` — the **effective spendable** budget, capped by
+     the merchant's wallet. When the day's spend exceeded the remaining balance it returns
+     that spend, because that is all that was fundable.
+
+   **If flexi ≈ actual spend while avg is much higher, the campaign was wallet-capped on
+   that date, not pacing-capped** — that is the answer, not a report defect. Flexi is the
+   only report that reveals a *historical* wallet cap, so treat the match as the finding.
+
+   `WALLET_BALANCE_REPORT` **cannot confirm it**: the report has no date column and returns
+   a current snapshot, so a healthy balance today says nothing about the date in question —
+   the wallet may have been drained then and topped up since. Report the wallet cap on
+   flexi's evidence, state that the as-of-date balance is not available from these reports,
+   and do not treat a healthy current balance as contradicting it.
+
+   Use **avg** for the STEP 3 pacing comparison and report the wallet cap separately.
+c) ONE minute-level tool (never both): CPC → `MINUTE_LEVEL_CPC_REPORT` (clicks +
+   spend by campaign, page_type, hour, minute); CPM → `MINUTE_LEVEL_CPM_REPORT`
    (impressions + spend by campaign_group, hour, minute).
 
 ### STEP 3 — Compare actual vs expected spend per bucket
@@ -96,7 +124,7 @@ minute-level spend within each bucket's time window. For CPC data, split by
 where `actual_spend > expected_spend` (overspend).
 
 ### STEP 4 — Diagnose the overspend (apply rules IN ORDER)
-1. **Budget update** — `check_budget_changes_on_date`. If a budget change occurred
+1. **Budget update** — `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 17). If a budget change occurred
    AND overspend happened within a **40-minute window AFTER** the change timestamp
    → "Budget update is the reason: daily budget changed from [old] to [new] at
    [time], overspend occurred in the 40 minutes following." If a change occurred

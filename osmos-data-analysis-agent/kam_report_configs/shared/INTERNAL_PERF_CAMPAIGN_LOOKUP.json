@@ -32,7 +32,7 @@
       "key": "campaign_id",
       "selector": "ctd.campaign_id",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_id",
+      "externalColumnName": "perf_internal_campaign_id",
       "description": "Internal (serving-side) campaign id. Filter on this when the user supplied a campaign_id.",
       "filterTags": [
         "report_group:campaigns",
@@ -147,7 +147,7 @@
     "maxDataFetchDaysDuration": 3650
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd INNER JOIN `prj-onlinesales-prod-01.reporting.clients` AS cl ON cl.client_id = ctd.client_id LEFT JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd ON ctd.marketing_campaign_id = mcd.marketing_campaign_id AND ctd.client_id = mcd.client_id WHERE cl.agency_id = '__AGENCY_ID__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd INNER JOIN `prj-onlinesales-prod-01.reporting.clients` AS cl ON cl.client_id = ctd.client_id LEFT JOIN `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd ON ctd.marketing_campaign_id = mcd.marketing_campaign_id AND ctd.client_id = mcd.client_id WHERE cl.agency_id = '__AGENCY_ID__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

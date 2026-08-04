@@ -11,6 +11,8 @@ description: >-
 
 # Debugging an ROI / ROAS change
 
+> **Every data call below is `run_report(reportType=…, attributes=[…], metrics=[…], dateRanges=[…], filters=[…])`** against the report named at each step. Report groups are discoverable via the `get_<group>s_reports` tools. Resolve exact column names via `knowledge/tool-map.md` — never from memory.
+
 You are debugging an ROI/ROAS move for an OnlineSales marketplace. **Read
 `references/common-rules.md` first** — it covers the one-time context setup,
 date handling, PLA-vs-Display column rules, the interactive checkpoint model,
@@ -46,7 +48,7 @@ checkpoint: present what came back, then let the user narrow before drilling fur
 Do not run a whole chain in one turn just because you already hold the inputs.
 
 ### STEP 1 — Triage
-Pull the marketplace **GMV-attribution report** (`check_gmv_attribution`) in
+Pull the marketplace **GMV-attribution report** (`GMV_ATTRIBUTION_REPORT`) in
 comparison mode (current + baseline dates). Read `trend_verdict` (program
 attributed-CVR trend vs organic site-CVR trend) and `user_intent_diagnostic`.
 
@@ -66,7 +68,7 @@ attributed-CVR trend vs organic site-CVR trend) and `user_intent_diagnostic`.
   conversion down).
 
 ### STEP 3 — Merchant contribution (MANDATORY checkpoint)
-`get_merchant_breakdown` in comparison mode. Report **all** of these, every time:
+`MERCHANT_PERFORMANCE_REPORT` in comparison mode. Report **all** of these, every time:
 - Top GMV-change drivers — each with `contribution_to_program_gmv_change_pct`,
   status (active_both / new / churned), PROGRAM vs SITE GMV/orders, attributed vs
   site CVR.
@@ -81,20 +83,20 @@ Pick the top problem merchants by |contribution| → take their `os_client_id`s
 into STEP 4.
 
 ### STEP 4 — SKU drill-down (PLA only)
-`get_sku_level_performance` (comparison) for those `os_client_id`s. Rank SKUs by
+`SKU_PERFORMANCE_REPORT` (comparison) for those `os_client_id`s. Rank SKUs by
 contribution to the GMV change; compare `attributed_cvr` vs `site_cvr`
 (program-specific vs organic/intent issue at SKU level).
 
 Optional merchant drill (one shot across all the merchant's campaigns, each row
-tagged with `campaign_name`): `get_merchant_category_performance` for the
+tagged with `campaign_name`): `MERCHANT_CATEGORY_PERFORMANCE_REPORT` for the
 category × campaign that moved the merchant's ROI; if the move is search-driven,
-`get_merchant_keyword_performance` (no rows = purely AUTO → use
-`get_search_query_performance`). Optional: `get_product_selection_changes` —
+`INTERNAL_KEYWORD_PERFORMANCE_REPORT` (must pass `perf_campaign_type` = 'performance' + `perf_campaign_subtype` IN (os_ads_search, smart_shopping)) (no rows = purely AUTO → use
+`INTERNAL_SEARCH_QUERY_PERF_REPORT`). Optional: `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` IN (50, 51)) —
 removed high-revenue SKUs (direct hit) / new low-margin SKUs (dilution).
 
 ### STEP 4.5 — Did CPC drive the drop?
 ROAS = GMV ÷ spend, so the drop can be spend-side. On the top problem merchants,
-`get_merchant_cpc_breakdown` (comparison) → read `cpc_change` and contribution to
+`MERCHANT_PERFORMANCE_REPORT` (comparison) → read `cpc_change` and contribution to
 the spend change, plus `new_merchants_above_avg_cpc` (new merchants whose current
 CPC is above the baseline marketplace avg — the CPC-side mirror of the ROI
 diluters from STEP 3).
@@ -121,27 +123,27 @@ decide — do not run it to find out.
 
 Use these when the user narrows scope or a checkpoint points to them — they are
 NOT mandatory steps:
-- `get_daily_order_trends` — daily PROGRAM (spend/orders/GMV/views/add2carts) vs
+- `DAILY_ORDER_TRENDS_REPORT` — daily PROGRAM (spend/orders/GMV/views/add2carts) vs
   SITE funnel; totals carry `attributed_cvr` & `site_cvr`. Useful between STEP 1
   and STEP 3 to see the shape of the decline over time.
-- `get_category_level_performance` — category L1/L2/L3 performance (PLA): spend,
+- `CATEGORY_PERFORMANCE_REPORT` — category L1/L2/L3 performance (PLA): spend,
   impressions, clicks, CPC, CPM, CTR, program orders/revenue/ROI, site
   orders/revenue. `group_by_merchant=True` for per-merchant × category. In
   COMPARISON mode it returns per-category current+baseline + changes + contribution
   to the spend/clicks change **in ONE call — use that, not two calls.**
-- `get_campaign_performance` — campaign-level cost/orders/revenue/ROI/CPC; accepts
+- `INTERNAL_CAMPAIGN_PERFORMANCE_REPORT` (aggregated: just `perf_campaign_id`; daily: also `perf_campaign_type` IN (PERFORMANCE, INVENTORY, OFFSITE) + group by `perf_date`) — campaign-level cost/orders/revenue/ROI/CPC; accepts
   `marketing_campaign_ids`, `client_ids`, or `seller_ids`. Use to narrow to a
   merchant's driving campaign (e.g. before the competition check).
-- `get_campaign_product_selection` — current active products in a campaign; needs
+- `CAMPAIGN_PRODUCT_SELECTION_REPORT` — current active products in a campaign; needs
   `marketplace_client_id` + `marketing_campaign_id`. If you only hold a
-  `marketing_campaign_group_id` (e.g. from `get_campaign_performance`), resolve it
-  to a `marketing_campaign_id` via `lookup_campaign` first.
+  `marketing_campaign_group_id` (e.g. from `INTERNAL_CAMPAIGN_PERFORMANCE_REPORT` (aggregated: just `perf_campaign_id`; daily: also `perf_campaign_type` IN (PERFORMANCE, INVENTORY, OFFSITE) + group by `perf_date`)), resolve it
+  to a `marketing_campaign_id` via `CAMPAIGN_LOOKUP_REPORT` first.
 
-**Display path:** `check_gmv_attribution`, `get_merchant_breakdown`, and the CPC
-test (`get_merchant_cpc_breakdown`) all accept `program_type="display"`. For
-Display ad-unit detail use `get_display_ad_unit_performance` (ad-unit breakdown) —
+**Display path:** `GMV_ATTRIBUTION_REPORT`, `MERCHANT_PERFORMANCE_REPORT`, and the CPC
+test (`MERCHANT_PERFORMANCE_REPORT`) all accept `program_type="display"`. For
+Display ad-unit detail use `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` (ad-unit breakdown) —
 ONLY when `affected_program = "display"`. SKU-level
-(`get_sku_level_performance`) is PLA-only.
+(`SKU_PERFORMANCE_REPORT`) is PLA-only.
 
 ## Final Report
 

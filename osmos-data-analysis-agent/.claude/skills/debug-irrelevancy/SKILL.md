@@ -13,6 +13,8 @@ description: >-
 
 # Investigating keyword irrelevancy
 
+> **Every data call below is `run_report(reportType=…, attributes=[…], metrics=[…], dateRanges=[…], filters=[…])`** against the report named at each step. Report groups are discoverable via the `get_<group>s_reports` tools. Resolve exact column names via `knowledge/tool-map.md` — never from memory.
+
 You are investigating **why irrelevant products serve for a search keyword**. The
 goal is to identify which OnlineSales relevancy algorithm (`cache_type`) served the
 irrelevant SKU and confirm whether it's a genuine category divergence or an
@@ -41,14 +43,13 @@ Do not run a whole chain in one turn just because you already hold the inputs.
 
 ### STEP 1.5 — Resolve campaign IDs (MANDATORY id-type confirmation)
 ASK the id-type (`marketing_campaign_id` / `marketing_campaign_group_id` /
-`campaign_id` / `campaign_group_id`) before `lookup_campaign`; don't guess/default.
-Then `lookup_campaign(raw_ids=[...], id_type="<confirmed>")`; extract the
+`campaign_id` / `campaign_group_id`) before `CAMPAIGN_LOOKUP_REPORT`; don't guess/default.
+Then `CAMPAIGN_LOOKUP_REPORT`; extract the
 `marketing_campaign_id`s **and** note `seller_id` / `client_id` (needed in STEP 2).
 If an ID fails, re-ask (type may be wrong).
 
 ### STEP 2 — Campaign's TARGETED keywords (MUST run before STEP 3)
-`get_campaign_targeted_keywords(marketplace_client_id, marketing_campaign_id,
-client_id)` per campaign. **SEARCH campaigns only** — confirm with the user if
+`CAMPAIGN_KEYWORDS_REPORT` (must pass `perf_is_negative` = 0 for targeted, = 1 for negative) per campaign. **SEARCH campaigns only** — confirm with the user if
 ambiguous. Returns `targeted_keywords` (is_negative=0; each `(text,
 bidding_value)`, `bidding_value` = merchant's manual bid, null/0 = AUTO) and
 `negative_keywords` (is_negative=1). Why first:
@@ -70,14 +71,14 @@ Instead, judge relevance from the served set's own coherence. From STEP 4's data
 - The **dominant** category — the one holding the large majority of impressions.
 
 ### STEP 4 — Actually-responded SKUs
-`get_responded_skus` — `RESPONDED_SKUS_REPORT`. **Always filter on `perf_keyword`**:
+`RESPONDED_SKUS_REPORT` — `RESPONDED_SKUS_REPORT`. **Always filter on `perf_keyword`**:
 kamService does not enforce the report's required filter, so an unscoped fetch runs
 and never returns. Pass the investigated keyword(s) (or STEP 2's targeted keywords).
 
 To narrow to one campaign, filter `perf_internal_campaign_id` — **not**
 `perf_campaign_id`. This report keys on the INTERNAL campaign id; the id STEP 1.5
 returns is the MARKETING id, and filtering with it yields **0 rows and no error**.
-Get the internal id from `CAMPAIGN_LOOKUP_REPORT` (`perf_campaign_id` there), and
+Get the internal id from `CAMPAIGN_LOOKUP_REPORT` (`perf_internal_campaign_id` there), and
 note the two are not 1:1 — one internal id can map to several marketing ids.
 
 To narrow to one product, filter `perf_product_name`, `perf_brand` or

@@ -77,7 +77,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_db_campaign_targeting_mapping` AS ctm LEFT JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON SAFE_CAST(ctd.campaign_id AS INT64) = ctm.campaign_id AND SAFE_CAST(ctd.client_id AS INT64) = ctm.client_id WHERE ctm.target_type = 'NETWORK' AND ctm.is_deleted = 0 AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_db_campaign_targeting_mapping` AS ctm LEFT JOIN `prj-onlinesales-prod-01.reporting.campaign_tagging_data` AS ctd ON SAFE_CAST(ctd.campaign_id AS INT64) = ctm.campaign_id AND SAFE_CAST(ctd.client_id AS INT64) = ctm.client_id WHERE ctm.target_type = 'NETWORK' AND ctm.is_deleted = 0 AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

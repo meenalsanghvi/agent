@@ -92,7 +92,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.clients` AS clients JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON clients.agency_id = mc.agency_id JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE clients.agency_id = '__AGENCY_ID__' AND clients.seller_id IS NOT NULL AND clients.seller_id != '' AND mc.marketplace_client_id != clients.client_id AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.clients` AS clients JOIN `prj-onlinesales-prod-01.reporting.marketplace_clients` AS mc ON clients.agency_id = mc.agency_id JOIN `prj-onlinesales-prod-01.reporting.static_currency_conversion` AS scc ON scc.from_currency = 'USD' AND scc.to_currency = mc.currency WHERE clients.agency_id = '__AGENCY_ID__' AND clients.seller_id IS NOT NULL AND clients.seller_id != '' AND mc.marketplace_client_id != clients.client_id AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

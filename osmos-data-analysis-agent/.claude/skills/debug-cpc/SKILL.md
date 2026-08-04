@@ -13,6 +13,8 @@ description: >-
 
 # Debugging a CPC change
 
+> **Every data call below is `run_report(reportType=…, attributes=[…], metrics=[…], dateRanges=[…], filters=[…])`** against the report named at each step. Report groups are discoverable via the `get_<group>s_reports` tools. Resolve exact column names via `knowledge/tool-map.md` — never from memory.
+
 You are debugging a CPC move for an OnlineSales marketplace. **Read
 `references/common-rules.md` first** — one-time context setup, date handling,
 PLA-vs-Display column rules, the interactive checkpoint model, the pre-summary
@@ -48,7 +50,7 @@ checkpoint: present what came back, then let the user narrow before drilling fur
 Do not run a whole chain in one turn just because you already hold the inputs.
 
 ### STEP 1 — Triage (page-level)
-`get_page_level_performance` in COMPARISON mode. Identify pages by contribution to
+`PAGE_PERFORMANCE_PLA_REPORT` in COMPARISON mode. Identify pages by contribution to
 the spend change. For each page report the spend-mix shift using
 `spend_share_baseline_pct` (pre) vs `spend_share_current_pct` (post) — plain shares
 each summing to ~100% within a period — **alongside** the signed
@@ -78,7 +80,7 @@ Run whatever the user picks — never silently substitute another step.
 
 ### STEP 1.5 — Search-driven? Go straight to the queries (marketplace-level, NO merchant needed)
 When SEARCH dominates, the culprits ARE the search queries — no merchant pick
-needed. `get_search_query_performance` MARKETPLACE-WIDE (no client/campaign
+needed. `INTERNAL_SEARCH_QUERY_PERF_REPORT` MARKETPLACE-WIDE (no client/campaign
 filter), COMPARISON mode, `sort_by="spend"` — rank by CURRENT spend so material,
 still-running queries lead. **Never sort by `cpc_change` alone** (it floats
 tiny-spend queries with huge % swings and stopped queries to the top). Lead the
@@ -90,22 +92,22 @@ spend ≈ 0) — a stopped high-CPC query drags the average down but is a "query
 stopped" story, distinct from CPC compression on live queries.
 
 Competition on those queries (still marketplace-level, NO merchant):
-- `get_search_query_performance(search_queries=[contested], breakdown_by="campaign", + baseline)`
+- `INTERNAL_SEARCH_QUERY_PERF_REPORT`
   → who SERVED on the query pre/post, AUTO vs manual, `new_competitors`. CPC drop
   → a new/cheaper rival pulls the average down; CPC rise → a rival bidding up.
-- `get_targeted_keyword_competition(search_queries=[contested], + baseline)` →
+- `INTERNAL_KEYWORD_PERFORMANCE_REPORT` →
   rivals that TARGETED the query and their bids pre/post, `new_in_post`.
 Drop to merchants (STEP 3) only to attribute the query move to specific sellers,
 or if the user asks for the merchant view.
 
 ### STEP 2 — Subtype buckets (OPTIONAL narrowing — not a prerequisite)
-`get_campaign_subtype_cpc_breakdown` (comparison, marketplace-level, PLA). Which
+`CAMPAIGN_SUBTYPE_CPC_REPORT` (comparison, marketplace-level, PLA). Which
 subtype bucket (`smart_shopping` / `os_ads_search`) drove the CPC move, by
 contribution to spend change. Offer it; never force it ahead of a merchant
 request. Use it INSTEAD of jumping straight to SKU.
 
 ### STEP 3 — Merchants (contribution)
-`get_merchant_cpc_breakdown` in comparison mode. Report drivers by contribution to
+`MERCHANT_PERFORMANCE_REPORT` in comparison mode. Report drivers by contribution to
 the spend change (with `cpc_change`, status, PROGRAM vs SITE, attributed vs site
 CVR), plus `pre_period_top_contributors`, `new_merchants`,
 `new_merchants_above_avg_cpc` (new merchants above `baseline_avg_cpc_threshold` —
@@ -113,13 +115,13 @@ pushing CPC up) and `churned_merchants_below_avg_cpc` (cheap merchants that left
 their exit raised CPC). Take the top problem merchants' `os_client_id`s forward.
 
 **MERCHANT-SCOPED GATE:** STEP 4, STEP 5, STEP 6, and
-`get_merchant_keyword_performance` / `get_merchant_category_performance` all
+`INTERNAL_KEYWORD_PERFORMANCE_REPORT` (must pass `perf_campaign_type` = 'performance' + `perf_campaign_subtype` IN (os_ads_search, smart_shopping)) / `MERCHANT_CATEGORY_PERFORMANCE_REPORT` all
 REQUIRE a merchant's `os_client_id`. Do NOT offer or run them until STEP 3 has
 identified the problem merchant(s) — before then the only merchant-related option
 is "rank the merchants (STEP 3)".
 
 ### STEP 4 — Category vs category-average
-`get_merchant_category_cpc_comparison` for the top problem merchants. Read each
+`CATEGORY_PERFORMANCE_REPORT` (must pass use `perf_category_l1_raw` / `_l2_raw` / `_l3_raw`) for the top problem merchants. Read each
 category's verdict:
 - **cpc_benign** — lower CPC, conversions held → no CPC problem.
 - **competition_reduced** — category-wide CPC fell (reduced competition), merchant
@@ -134,8 +136,7 @@ for every problem merchant — the default flow stops at merchant/category level
 (STEPs 1–4). If multiple merchants are still in play, checkpoint and ask which to
 drill.
 
-**a. Find the driving campaign** — `get_campaign_performance(client_ids=[merchant
-os_client_id], + baseline)` → one call returns the merchant's campaigns with
+**a. Find the driving campaign** — `INTERNAL_CAMPAIGN_PERFORMANCE_REPORT` (daily also needs `perf_campaign_type` IN (PERFORMANCE, INVENTORY, OFFSITE) + group by `perf_date`) → one call returns the merchant's campaigns with
 current+baseline CPC/spend, `cpc_change`, status, contribution to the spend
 change. Identify the driving campaign(s) by contribution; lead with raw
 current+baseline numbers. (`daily=True` + `marketing_campaign_ids` for date-level
@@ -145,64 +146,58 @@ rows.)
 `marketing_campaign_id` + `campaign_name` + contribution to the merchant's spend
 change. Carry the top-contribution row's `marketing_campaign_id` (and the
 keyword/category) forward — it's the handle the competition tools take.
-- **SEARCH page** → `get_merchant_keyword_performance(client_ids, + baseline)`:
+- **SEARCH page** → `INTERNAL_KEYWORD_PERFORMANCE_REPORT` (must pass `perf_campaign_type` = 'performance' + `perf_campaign_subtype` IN (os_ads_search, smart_shopping)):
   the merchant's targeted keywords × campaign. High-contribution keywords whose
   CPC rose are the drivers. Zoom in on the winning row:
-  `get_targeted_keyword_competition(search_queries=[that keyword],
-  exclude_marketing_campaign_ids=[that row's marketing_campaign_id], + baseline)`
-  and `get_search_query_performance(marketing_campaign_ids=[that id],
-  breakdown_by="campaign", + baseline)`. NO rows → purely AUTO → use the
+  `INTERNAL_KEYWORD_PERFORMANCE_REPORT`
+  and `INTERNAL_SEARCH_QUERY_PERF_REPORT`. NO rows → purely AUTO → use the
   search-query route in (b).
 - **NON-SEARCH page** (category/home/product) →
-  `get_merchant_category_performance(client_ids, + baseline)`: categories ×
+  `MERCHANT_CATEGORY_PERFORMANCE_REPORT`: categories ×
   campaign — which category/campaign drove the move. For the competitive
   landscape (**two hops**): (1)
-  `get_campaigns_in_category(marketing_campaign_ids=[winning id], + baseline)` to
+  `CAMPAIGNS_IN_CATEGORY_REPORT` to
   read that campaign's `category_l1/l2/l3` in the campaign-category taxonomy
   (filtering by campaign id alone returns only OUR campaign); (2) re-call
-  `get_campaigns_in_category` with those `category_l1/l2/l3_filter` values (no
+  `CAMPAIGNS_IN_CATEGORY_REPORT` with those `category_l1/l2/l3_filter` values (no
   campaign filter) → RIVAL campaigns + `new_entrants_in_period`. Do NOT feed this
   tool's `product_type` text into `category_*_filter` — different taxonomy, won't
   match.
 - **OVERALL / both pages** → run both.
 
 **b. Decide manual vs auto by FETCHING the campaign's keywords.** ALWAYS call
-`get_campaign_targeted_keywords(marketplace_client_id, marketing_campaign_id,
-client_id)` FIRST, before any manual-vs-auto statement. **Never claim a Smart
+`CAMPAIGN_KEYWORDS_REPORT` (must pass `perf_is_negative` = 0 for targeted, = 1 for negative) FIRST, before any manual-vs-auto statement. **Never claim a Smart
 Shopping (or any) campaign "has no manual/targeted keywords" as an inference from
 subtype — that is a forbidden hallucination.** Smart Shopping is AUTO by default
 but CAN carry manual keywords (EXACT/PHRASE/BROAD); state "no manual keywords"
 ONLY if the fetch returned count = 0. Any EXACT/PHRASE/BROAD `keyword_match_type`
 in the data is PROOF manual targeting exists — never contradict it.
 - **targeted_keyword_count > 0 (MANUAL)** →
-  `get_targeted_keyword_competition` on those keywords in comparison mode (baseline
+  `INTERNAL_KEYWORD_PERFORMANCE_REPORT` on those keywords in comparison mode (baseline
   dates + `exclude_marketing_campaign_ids=[our campaign]`) → per-rival pre/post
   cpc/cpm/spend + CTR/ROI + `campaign_creation_date` (the rival campaign's creation
   date — lets you correlate a rival's entry with when our CPC moved) + `new_in_post`.
   Compare OUR campaign vs rivals on the bid model's metric (read `bidding_strategy`
-  from `lookup_campaign`): CPC for CPC/AUTO_CPC, CPM for CPM/AUTO_CPM. A rival higher
+  from `CAMPAIGN_LOOKUP_REPORT`): CPC for CPC/AUTO_CPC, CPM for CPM/AUTO_CPM. A rival higher
   on that metric, or a `new_in_post` rival, = we're outbid.
 - **targeted_keyword_count = 0 (AUTO, no manual keywords)** — NOT a dead end and
   NOT a reason to stop. Auto campaigns compete on the queries their products
   match; pull those from DATA (never hand-derive from product names). MANDATORY:
-  1. `get_search_query_performance(marketing_campaign_ids=[campaign],
-     sort_by="spend", + baseline)` → OUR campaign's queries pre/post ranked by
+  1. `INTERNAL_SEARCH_QUERY_PERF_REPORT` → OUR campaign's queries pre/post ranked by
      CURRENT spend; lead with raw spend & CPC + `cpc_change` +
      `contribution_to_spend_change`; ≈10–20 rows; read the `auto_*` columns.
      Contested = high-spend queries whose CPC moved most; note high-CPC queries
      that churned.
-  2. `get_targeted_keyword_competition(search_queries=[contested],
-     exclude_marketing_campaign_ids=[campaign], + baseline)` → the competitor side:
+  2. `INTERNAL_KEYWORD_PERFORMANCE_REPORT` → the competitor side:
      a `new_in_post` rival, or one whose cpc/cpm rose, on a query where OUR CPC
      rose = the competitor that bid up the auction. This is the core deduction: a
      query we won cheaply in pre stops performing in post because a rival targeted
      it at a higher bid, forcing our auto campaign's CPC up.
-  3. (Corroboration) `get_search_query_performance(search_queries=[contested],
-     breakdown_by="campaign", + baseline)` (no campaign filter) → served-on
+  3. (Corroboration) `INTERNAL_SEARCH_QUERY_PERF_REPORT` (no campaign filter) → served-on
      competition pre/post with `keyword_match_type` + `new_competitors`.
   Only after running these may you characterise the auto campaign's competition.
 - **Broad / category-level bid pressure** →
-  `get_campaigns_in_category` for the campaign's categories in comparison mode →
+  `CAMPAIGNS_IN_CATEGORY_REPORT` for the campaign's categories in comparison mode →
   per-rival pre/post cpc/cpm, `new_entrants_in_period`, `subtype_summary`.
 
 Report whether the CPC move is bid-competition driven (rivals raised bids / new
@@ -210,7 +205,7 @@ entrants in post) vs the merchant's own bid change — citing the contested
 queries/categories and the specific rival, on OUR campaign's bid model.
 
 ### STEP 6 — SKU (optional, PLA)
-`get_sku_level_cpc_performance` for a specific merchant if category/subtype isn't
+`SKU_PERFORMANCE_REPORT` for a specific merchant if category/subtype isn't
 enough. Spend up + clicks stable → bidding pressure; clicks down + spend stable →
 CTR issue (consider handing off to the **CTR skill**).
 
@@ -221,7 +216,7 @@ increase: high >15%, medium 5–15%, low <5%; impacted entities = merchants keye
 `client_id`, `"type": "merchant"`) → then write the Final Report below.
 
 ## Additional drill tools (beyond the linear SOP)
-- `get_product_selection_changes` — product additions/removals (audit log); needs
+- `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` IN (50, 51)) — product additions/removals (audit log); needs
   `client_ids` or `marketing_campaign_ids` + timezone. Use to check whether a
   catalog change (added expensive-click SKUs / removed cheap ones) moved CPC.
 
@@ -231,7 +226,7 @@ increase: high >15%, medium 5–15%, low <5%; impacted entities = merchants keye
 drills they pick. Nothing here is owed to them by default. If a drill from the other
 program would genuinely change the diagnosis, say so in one line and let the user
 decide — do not run it to find out.
-- **PLA + Display:** `get_page_level_performance` and `get_merchant_cpc_breakdown`
+- **PLA + Display:** `PAGE_PERFORMANCE_PLA_REPORT` and `MERCHANT_PERFORMANCE_REPORT`
   accept `program_type` — the STEP 1 triage and STEP 3 merchant breakdown work for
   both. Use the columns matching `affected_program`.
 - **PLA only:** subtype buckets (STEP 2), category-vs-average (STEP 4), the STEP 5
