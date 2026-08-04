@@ -219,7 +219,15 @@ TOOLS = {
                  "attributes": {"type": "array", "items": {"type": "string"}},
                  "metrics": {"type": "array", "items": {"type": "string"}},
                  "filters": {"type": "array", "items": {"type": "object"}},
-                 "limit": {"type": "integer"}},
+                 "limit": {"type": "integer",
+                           "description": "OMIT THIS to get the complete result set — the "
+                                          "server pages with offset past kamService's "
+                                          "100,000-row-per-page cap and returns every row. "
+                                          "Only pass a limit when you deliberately want a "
+                                          "bounded page; passing one is what truncates. "
+                                          "Note filters on METRIC columns are silently "
+                                          "ignored by kamService — filter on attributes and "
+                                          "apply metric thresholds yourself."}},
                 ["agency_id", "report_type", "start_date", "end_date"])),
 }
 
