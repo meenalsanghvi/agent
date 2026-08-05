@@ -1,6 +1,6 @@
 # Draft ticket replies — 2026-08-05
 
-Customer-facing draft responses for the two tickets worked on 2026-08-05.
+Customer-facing draft responses for the three tickets worked on 2026-08-05.
 Full analysis, data tables and caveats: **`ticket-investigations-2026-08-05.md`**.
 
 > ⚠️ **These are drafts, not sent messages.**
@@ -14,15 +14,26 @@ Full analysis, data tables and caveats: **`ticket-investigations-2026-08-05.md`*
 >   reaches the seller.
 > - **Ticket 2's** category recommendation is a **Takealot catalogue change**, not
 >   something we can action. Confirm who owns it before promising it.
-> - **Both:** do not add SKU-level figures from `RESPONDED_SKUS_REPORT` alongside
->   campaign-level figures — they use different denominators, and on ticket 1 their
->   spend columns disagree ~60×. Category *shares* are safe to quote; absolute
+> - **Ticket 3** corrects the dates Harshita reported (Jul 16–19 → **Jul 17–18**) and
+>   puts a question back to TIRA's engineering side. It is **internal-facing**; if any
+>   part reaches TIRA directly, have the account team review the framing first — "the
+>   change is on your request side" needs care.
+> - **Ticket 3** relies on an audit trail we could not read (`AUDIT_EVENTS_REPORT` is
+>   blocked). The reply is written so that the request-side cause is presented as *what
+>   the delivery data points to*, not as a confirmed config change. Keep it that way.
+> - **Ticket 3** was analysed **without** the `image.png` attached to the ticket. Confirm
+>   the chart shows marketplace-wide PLA before sending; if it shows a narrower cut, the
+>   scope may need revisiting.
+> - **Tickets 1 and 2:** do not add SKU-level figures from `RESPONDED_SKUS_REPORT`
+>   alongside campaign-level figures — they use different denominators, and on ticket 1
+>   their spend columns disagree ~60×. Category *shares* are safe to quote; absolute
 >   SKU-impression counts next to campaign impressions are not.
 
 | # | Ticket | To | Verdict in one line |
 |---|---|---|---|
 | 1 | 10088009 — PLA ads not serving, FF_Snacks | bigbasket support | Both terms serving; mapping correct; six-day new-campaign ramp |
 | 2 | SPA Query, Seller ID 29899805 — CREA/ASHWA/TYRO | Tatwik, cc Mayur Rathod | Both serving; dip self-inflicted by weekly campaign re-creation; not outbid |
+| 3 | TIRA — low RR despite increased Requests | Harshita Kulshreshtha (Client Growth) | Responses held normal; RR fell because **brand-filtered** CUSTOM requests tripled (99.5% of the increase) — non-brand fill was 96.2%; window is Jul 17–18, not Jul 16–19 |
 
 ---
 
@@ -187,3 +198,121 @@ creation dates and CPCs for R10164 and M29892540) — the outbidding claim is cu
 answered from our own CPC-versus-bid only. Separately, ROAS on this campaign is weak
 though improving (0.82 → 0.00 → **1.60** across the three windows); worth a commercial
 conversation independent of this ticket.
+
+---
+
+# 3. TIRA — Low RR despite increased Requests
+
+**To:** Harshita Kulshreshtha (Client Growth) · **Via:** Product Support Team
+**Marketplace:** TIRA · **Program:** PLA · **Page type:** CUSTOM
+**Dates investigated:** Jul 16–19 and Jul 31, 2026
+
+> Hi Harshita,
+>
+> Investigated. Short version: the system did keep serving normally on these dates — what moved was the request count, not the response count. Details below.
+>
+> **First, a correction on the window.** Only **17–18 July** shows the issue, not 16–19. 16 July (RR 68.6%) and 19 July (RR 67.9%) are both normal days, in line with TIRA's usual range of 64.7–70.9%. So there are three affected days in total: **17 July, 18 July and 31 July**.
+>
+> **1. On all three dates the drop is confined to CUSTOM pages.**
+>
+> SEARCH response rate was completely stable throughout — 75.1% → 74.7% across the July window, and 68.9% → 70.7% on 31 July. There was no marketplace-wide serving problem.
+>
+> On CUSTOM pages:
+>
+> | | Requests | Responses | RR |
+> |---|---|---|---|
+> | 15–16 Jul (normal) | 850,317 | 526,202 | 61.9% |
+> | **17–18 Jul** | **2,272,226** (+167%) | **546,761** (+3.9%) | **24.1%** |
+> | 30 Jul (normal) | 414,456 | 250,200 | 60.4% |
+> | **31 Jul** | **1,005,400** (+143%) | **225,926** (−9.7%) | **22.5%** |
+>
+> **2. Responses did not fall — they stayed at their normal level.**
+>
+> CUSTOM delivered roughly 250,000 responses a day throughout, on the affected days and the normal ones alike. What changed is that requests more than doubled.
+>
+> Of the ~1.42 million extra requests on 17–18 July, only about **20,500 could be filled — 1.4%**. On 31 July the extra ~591,000 requests produced **no additional responses at all**.
+>
+> Because response rate is responses ÷ requests, a large volume of unfillable requests in the denominator halves the ratio even when delivery to advertisers is completely unchanged. **This is why the two figures look incoherent: the ratio moved, the delivery did not.**
+>
+> **3. We can now tell you exactly which requests were unfillable: brand-scoped ones.**
+>
+> Splitting 31 July's CUSTOM requests by whether they carried a **brand filter** — i.e. a request asking specifically for ads from a named brand — gives this:
+>
+> | CUSTOM requests on 31 Jul | Requests | Responses | Fill rate |
+> |---|---|---|---|
+> | **With** a brand filter | 836,883 (+237% vs 30 Jul) | 63,793 | **7.6%** |
+> | **Without** a brand filter | 168,517 (+1.6% vs 30 Jul) | 162,133 | **96.2%** |
+>
+> Two things to draw from this:
+>
+> - **99.5% of the entire request increase was brand-filtered** — 588,237 of the 590,944 extra requests. Ordinary, unscoped request volume was essentially flat, up 1.6%.
+> - **Requests without a brand filter were filled 96.2% of the time** — slightly *better* than the 96.0% we managed on 30 July. On the very surface and the very day under complaint, the system filled all but 4% of everything it was able to fill.
+>
+> So the picture is not "the system stopped scaling". It is that a large volume of requests arrived asking for specific brands that had no active campaign to answer them, while everything else was served almost perfectly.
+>
+> **4. One part of the response dip was ours, and it is a small one.**
+>
+> Brand-filtered responses did fall on 31 July, by 27,169. We traced this: **seven brand slot bookings reached their end date and stopped serving at 05:30 that morning** — Wella Professional, Lakme (two placements), Bare Minerals, Laura Mercier, Moxie Beauty and Too Faced — and the next set of bookings was not activated until 23:24 that night, for 1 August. That gap accounts for the fall, and it is why 1 August recovered to 62.8%.
+>
+> To be clear about proportion: of the 29-point fall in brand-filtered response rate, **about 89% is the request increase and about 11% is that booking gap**. We are treating the booking-continuity gap as an action on our side regardless.
+>
+> **5. We ruled out budget exhaustion.**
+>
+> This was the most likely alternative explanation, so we checked it hour by hour. Budget running out would show a normal response rate in the morning and a decline through the day as budgets burn down.
+>
+> That is not what happened. On 31 July, RR was already **24.7% in the midnight hour** (against 52.5% the previous day) and still **23.4% at 11pm** — uniformly low across all 24 hours, with no decline pattern. 17 July is the same: RR was 24.1% in its very first hour. Response volume per hour also held at its normal 10,000–14,000 in every hour of both days.
+>
+> **6. What the pattern points to.**
+>
+> The request increase is spread evenly across the whole clock — between 1.7× and 3.4× in every single hour, including 3–5am when real shopper traffic is at its daily minimum. Genuine demand growth does not behave that way; it follows a daily curve.
+>
+> Both events also start and stop cleanly at day boundaries and revert on their own, with no intervention from us.
+>
+> Taken together with the brand-filter split above, that points to a change in **how brand-scoped CUSTOM ad requests were being generated** on those dates — for example a brand carousel rendering more slots per page view than are booked, or a brand-scoped surface requesting ads for brands with no active booking. It does not point to anything on the response or advertiser side.
+>
+> We also checked our own change records for both windows. Campaign activity does not explain it: across 16–19 July there were 72 campaign activations against 27 deactivations, so live supply grew rather than shrank. And the two events have *opposite* campaign signatures — 17 July had a batch of new brand bookings going live at the boundary, 31 July had bookings ending and none starting — yet both show the same doubling of requests. Whatever drives the request volume is not on the campaign side.
+>
+> **7. What we need to close this out.**
+>
+> Could TIRA's platform team confirm whether anything changed in **brand-scoped CUSTOM ad-request generation** effective **00:00 IST on 17 July** (reverted after 18 July) and again on **31 July**? Specifically: what would cause requests carrying a brand filter to run at roughly 3.4× normal volume, evenly across all 24 hours, and then revert on a clean day boundary? That is the one question we cannot answer from reporting — we can see the requests arrive and see which of them carry a brand filter, but not which slot, placement or app version emitted them.
+>
+> **8. Three recommendations.**
+>
+> - **Alert on brand-filtered request volume, not just RR.** Because RR is a ratio, any request-volume event of this kind will always present as a response-side failure. The series that actually moved here is the brand-filtered request count — it sits in a stable 243,000–305,000 band and hit 846,000 on 31 July. An alert on that would have triaged this in minutes.
+> - **Booking continuity at window boundaries.** The 05:30-to-23:24 gap on 31 July is ours. Worth checking whether the same gap recurs whenever a set of brand bookings expires.
+> - **Category tagging on CUSTOM requests.** These requests currently arrive with no category attached, which meant we could not attribute the drop to any category and had to diagnose it from the filter split and hourly patterns instead. Worth fixing for future investigations.
+>
+> **Summary:** delivery was normal on all three days and no advertiser lost responses — requests without a brand filter were served at 96.2% on the worst day. RR fell because brand-scoped CUSTOM request volume tripled while those extra requests had no matching brand campaign to fill them. The next step sits with TIRA's platform side: confirming what changed in brand-scoped CUSTOM request generation on 17–18 and 31 July.
+>
+> Happy to walk through the hourly data if that would help.
+>
+> Best regards,
+> Product Support Team
+
+**Internal actions accompanying this reply.** The brand-filter finding is **measured for
+31 July** (`FILTER_PRESENCE_RR_REPORT`, totals reconciling exactly with
+`PAGE_PERFORMANCE_PLA_REPORT`) and the booking expiry is **read from the audit log**, which
+came unblocked on 4 August. Both are solid.
+
+**The one soft spot to protect if this is forwarded to TIRA:** the brand-filter mechanism
+on **17–18 July is inferred, not measured** — `FILTER_PRESENCE_RR_REPORT` retains only 14
+days and returns zeros for that window. The reply's sections 3 and 4 are scoped to 31 July
+for exactly this reason; do not let the brand-filter numbers get restated as covering all
+three days. What *is* measured for 17–18 July is the page-type confinement, the response
+volume holding flat, and the flat-across-24-hours request surge — an identical signature,
+which is why we believe the same mechanism applies.
+
+Also: the booking-continuity gap in section 4 is an admission of a real 27,169-response
+shortfall on our side. It is small relative to the event (11% of the brand-leg fall) and
+volunteering it strengthens the rest of the message, but the account team should know it
+is in there before sending.
+
+`image.png` confirmed irrelevant by the ticket owner — no longer a caveat.
+
+Not run and available if pushed: the merchant contribution ranking
+(`MERCHANT_PERFORMANCE_REPORT`). The network/device cut is moot — `network` is absent on
+100% of tira's requests and `device` present on 100%, so neither discriminates.
+
+Separately, two observations outside this ticket: baseline RR has drifted from ~68–70%
+(1–12 Jul) to ~63–66% (27 Jul – 4 Aug) independently of these spikes, and SEARCH request
+volume fell 37.6% across the July window at constant RR. Both warrant their own look.
