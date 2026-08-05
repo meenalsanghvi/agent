@@ -122,8 +122,9 @@ no SKU drill-down.
 ## Global rules
 
 - Dates to tools are exactly `YYYY-MM-DD` — no trailing characters.
-- Comparison calls: check each response's `period` field; never assume call order = period
-  order.
+- Comparison calls: **one call per window** — passing two `dateRanges` in one call
+  silently drops the second. There is no `period` field, so label each result by which
+  call returned it, and compute every delta yourself.
 - Prefix every monetary value with the marketplace currency ("INR 1,234").
 - Interactive-checkpoint model for SOP skills: after each major step, STOP and present a
   checkpoint; don't auto-advance.

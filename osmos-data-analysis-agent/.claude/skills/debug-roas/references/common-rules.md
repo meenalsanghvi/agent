@@ -46,8 +46,17 @@ agent_instructions.py`. Load this once at the start of an investigation.
 >   conversation carries the context. See STEP 0.
 > - **"In comparison mode" means two `run_report` calls.** These reports are
 >   single-period and emit no `_prev` / `_change` / `_perc` variants; fetch
->   current and baseline separately and combine them yourself. Check each
->   response's `period` field rather than assuming call order.
+>   current and baseline separately and combine them yourself. **Passing two
+>   `dateRanges` in one call does not work — the second is silently dropped and you
+>   get the first window's rows back, with no error.** Verified: the payload for a
+>   two-range call is byte-identical to the one-range call.
+> - **There is no `period` field.** The response contains only `data` and
+>   `groupedData`; rows carry exactly the columns you requested. So a row cannot be
+>   bound to a window from its content — **label each response by which call you
+>   made**, and never issue the two calls concurrently in a way that loses which is
+>   which. Any metric ending `_change` / `_prev` / `_perc` must be computed by you
+>   (the only such columns that exist are `perf_change_perc` and
+>   `perf_budget_utilisation_perc`).
 > - **Attributed metrics keep accruing after a window closes.** `program_gmv`,
 >   `program_orders` and anything else ad-attributed are under-counted for a recent
 >   window and settled for an older one, so a recent-vs-older comparison overstates
@@ -248,8 +257,9 @@ part of this ground, note the overlap and do not repeat completed analysis.
 
 - **Dates** passed to tools MUST be exactly `YYYY-MM-DD`, no trailing characters
   (`2026-03-31`, never `2026-03-31,`). Double-check before every call.
-- **Period matching:** when you call a tool for current vs baseline, check the
-  `period` field in each response — never assume call order equals period order.
+- **Period matching:** responses carry **no** `period` field, so current vs baseline
+  can only be told apart by which call returned them. Fetch one window per call and
+  label each result as you receive it; never fold the two into one call.
 - **Currency:** always prefix monetary values with the marketplace currency from
   context ("INR 1,234", "USD 5,678"). Never show a raw number.
 - **Scope transparency:** if you can't answer with available tools, say so —

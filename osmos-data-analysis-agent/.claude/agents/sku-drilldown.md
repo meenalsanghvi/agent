@@ -30,9 +30,12 @@ the calling skill.
 
 ## Procedure
 1. **Guard:** PLA only. Wrong/absent program → return `not_applicable` (above).
-2. **Fetch per merchant, in COMPARISON mode** (current + baseline) from
+2. **Fetch per merchant, TWO calls each — one per window** (current, then baseline) from
    `SKU_PERFORMANCE_REPORT` (must pass `perf_os_client_id`) — run the merchants **in
-   parallel**. The metric decides which columns to request:
+   parallel**. **Do not pass both windows as two `dateRanges` in one call: the second is
+   silently dropped and you get the current window twice, with no error.** Verified —
+   a two-range call returns a payload byte-identical to the one-range call. The metric
+   decides which columns to request:
    - `roas` → `perf_program_gmv`, `perf_program_orders`, `perf_spend`, plus
      `perf_site_gmv` / `perf_site_orders` to separate program from organic
    - `cpc`  → `perf_spend`, `perf_clicks`, `perf_cpc`
@@ -46,8 +49,13 @@ the calling skill.
    - *direct hit* — a few high-revenue/high-spend SKUs lost GMV/clicks;
    - *dilution* — new low-margin / low-CVR SKUs added, dragging the average;
    - *broad decline* — no vital few; the whole catalogue moved together.
-5. Check each response's `period` field to bind rows to current vs baseline — never assume
-   call order equals period order.
+5. **There is no `period` field** — the response holds only `data` and `groupedData`, and
+   rows carry exactly the columns you asked for. Which window a row belongs to is known
+   only from which call returned it, so label each result as you receive it. Likewise no
+   `_change` / `_prev` / `_perc` columns exist: compute every delta yourself.
+   `attributed_cvr` and `site_cvr` do NOT exist either — derive CVR from
+   `perf_program_orders ÷ perf_program_viewproducts` and
+   `perf_site_orders ÷ perf_site_viewproducts`.
 
 ## Output contract (return THIS, nothing more)
 Return compact structured text/JSON — **the vital few only (~top 5 SKUs per merchant)**,
