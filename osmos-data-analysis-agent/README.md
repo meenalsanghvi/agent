@@ -191,15 +191,15 @@ them — change `scripts/build_plugin_knowledge.py` and re-run it. `--check` fai
 | 43 report configs | posted to the KAM test env, values verified |
 | 11 runbooks | all exercised on real tickets |
 | `sku-drilldown` sub-agent | **never exercised** — no runtime evidence |
-| Production | **not ready** — three blockers below |
+| Production | pending the deployment steps below |
 
-Nothing here is a config problem; all three are registration/transport:
+The configs are done. What remains is registration, handled at release time — not config work:
 
-| Blocker | Why it stops production |
+| Deployment step | Why it matters |
 |---|---|
-| 173 `perf_*` entries missing from `config/columnMetadata.json` | They exist only in the test env's MongoDB. A file-based deploy leaves every external column unresolvable — all 43 reports fail with "attribute not configured". |
-| `GCP_PERF_BQ_KAM_CREDENTIALS` not registered in prod | Every report uses this appKey. Unregistered, BigQuery init fails with HTTP 500. |
-| `INTERNAL_PERFORMANCE` rejected by `commonValidators.js` | kamService PR #510 adds the visibility enum; still open. The 15 config PRs (#546–#560) merge after it. |
+| Load the 173 `perf_*` entries into prod's `columnMetadata` | They currently exist only in the test env's MongoDB. Until they land, external columns don't resolve. |
+| Register `GCP_PERF_BQ_KAM_CREDENTIALS` in prod | Every report uses this appKey for BigQuery. |
+| Merge kamService #510 first | It adds the `INTERNAL_PERFORMANCE` visibility enum that `commonValidators.js` checks. The 15 config PRs (#546–#560) go in after it. |
 
 ---
 
