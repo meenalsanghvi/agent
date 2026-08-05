@@ -1,6 +1,6 @@
 # Draft ticket replies — 2026-08-03
 
-Customer-facing draft responses for the ten tickets worked on 2026-08-03.
+Customer-facing draft responses for the eleven tickets worked on 2026-08-03.
 Full analysis, data tables and caveats: **`ticket-investigations-2026-08-03.md`**.
 
 > ⚠️ **These are drafts, not sent messages.** Several rest on assumptions flagged in
@@ -9,6 +9,9 @@ Full analysis, data tables and caveats: **`ticket-investigations-2026-08-03.md`*
 > - **Ticket 8** — marketplace inferred (Apollo; ticket carried no Client List)
 > - **Tickets 1, 4, 6** — items needing client confirmation are called out inside each reply
 > - **Tickets 7, 8** — solution-time SLA already breached at time of writing
+> - **Ticket 11** — internal/advisory; requester not named. Contains a correction to the
+>   supplied export (8 rows are false positives), so route internally before any advertiser
+>   conversation
 
 | # | Ticket | To | Verdict in one line |
 |---|---|---|---|
@@ -22,6 +25,7 @@ Full analysis, data tables and caveats: **`ticket-investigations-2026-08-03.md`*
 | 8 | #2026073189000689 — Category page lowest RR | Sayali Vanjari | 92.2% of requests untagged; not a fill problem |
 | 9 | Tira — BU Improvement | Mayur Rathod | BU 28%; supply-constrained not budget-constrained; L2 fallback immaterial |
 | 10 | Mr D Food — CTR and CPC drop | *(requester not named)* | KFC network exit + impression expansion; decline is 2 weeks old, not recent |
+| 11 | bigbasket — manual-category-bid campaigns at BU ≤ 50% | *(internal, requester not named)* | Product-selection starvation — 47 of 80 campaigns hold 1 SKU; add SKUs, don't cut budgets |
 
 ---
 
@@ -568,3 +572,153 @@ slots going to other advertisers); confirm "protein butter" vs "protein batter".
 > Happy to go deeper once we know what shipped on 20 July.
 >
 > Regards,
+
+---
+
+# 11. bigbasket | Manual category-bid campaigns with BU ≤ 50%
+
+**To:** *(internal — requester not named)* · **Context:** advisory, from the supplied
+"Campaign Subtype Distribution (as of 3rd August 2026)" export · ⚠️ contains a correction to
+that export
+
+> Hi,
+>
+> We have analysed the 80 manual-category-bid campaigns in the BU ≤ 50% export. Findings and
+> recommendations below.
+>
+> **Headline: the constraint is eligible product supply, not budget, bids or wallets.**
+>
+> **47 of the 80 campaigns contain exactly one SKU, and 62 contain two or fewer** — against
+> four- and five-figure daily budgets. A campaign holding one product can only win the slots
+> where that product is the relevant answer, and no amount of budget changes that. Every SKU
+> in the cohort is in stock, so this is about selection *size*, not availability.
+>
+> Budget per SKU predicts BU almost cleanly:
+>
+> | Budget per SKU | Campaigns | Aggregate BU |
+> |---|---|---|
+> | under INR 500 | 12 | **49.9%** |
+> | INR 500–1,500 | 12 | 35.9% |
+> | **INR 1,500–5,000** | **48** | **5.7%** |
+> | over INR 5,000 | 8 | 6.9% |
+>
+> The clearest evidence is which campaigns *do* fill. Every fully-utilised campaign in the set
+> is SKU-broad and carries **no keyword targeting at all**:
+>
+> | SKUs | Keywords | BU | Budget | Campaign |
+> |---|---|---|---|---|
+> | 73 | 0 | **103%** | 2,000 | Sprite Auto |
+> | 100 | 0 | **100%** | 2,000 | CCOT Auto |
+> | 72 | 0 | **100%** | 2,000 | Thums Up Auto |
+> | 1 | 21 | **6%** | 100,000 | All Products (22nd May) |
+> | 2 | 3 | **0.3%** | 76,308 | Apple (24th Nov) |
+>
+> Coca-Cola fills its budget on catalogue breadth. Meanwhile "All Products" — despite the name
+> — holds a **single** SKU (`fresho! Potato Carisma 1 kg`) against INR 100,000/day, and
+> "Apple" holds **two** pack-sizes of one variety against INR 76,308/day.
+>
+> **First, a correction to the export — 8 of the 80 rows are already at 100% BU.**
+>
+> The `Campaign ID` column holds campaign **group** IDs for 58 of the 80 rows, and the budget
+> column carries the *group* budget while spend is *campaign*-level. That understates BU:
+>
+> | Reported BU | Actual BU | Reported budget | Actual budget | Spend | Campaign |
+> |---|---|---|---|---|---|
+> | 41.12% | **103%** | 5,000 | 2,000 | 2,056 | Sprite Auto |
+> | 45.21% | **102%** | 4,500 | 2,000 | 2,035 | BB_Perf_Mix.KW_Indica_All |
+> | 49.84% | **100%** | 6,000 | 3,000 | 2,990 | SHAMPOO 1st_Aug_2026 |
+> | 40.14% | **100%** | 5,000 | 2,000 | 2,007 | CCOT Auto |
+> | 39.97% | **100%** | 5,000 | 2,000 | 1,998 | Thums Up Auto |
+> | 38.90% | **97%** | 5,000 | 2,000 | 1,945 | Thums Up X Force Auto |
+> | 16.51% | **100%** | 1,500 | 248 | 248 | Vaseline Lip Balm — also **PAUSED**, not ACTIVE |
+> | 7.19% | **100%** | 1,500 | 108 | 108 | Black_pepper_powder — wallet at INR 42.56 |
+>
+> All four Coca-Cola campaigns are maxed out, so chasing them for underspend is wasted effort.
+> Correcting for this, the genuinely low-BU set is **72 campaigns at 7.58% BU, with
+> INR 399,058/day of recoverable headroom.**
+>
+> **A note on how not to read this data.** It is tempting to compute how much a campaign
+> *could* spend from the ad responses its keywords actually received, conclude the budget
+> exceeds available demand by 80×, and cut the budget. That inverts cause and effect — the
+> response count is low *because* only one or two SKUs are eligible, not because shoppers
+> aren't searching. `apples-pomegranate` receives **404,450 requests/day**; at the ~30% fill
+> rate other categories achieve it would offer around 121,000 responses daily, comfortably
+> more inventory than the INR 76,308 budget could absorb. **The budget is not oversized; the
+> fill is broken.** Cutting it would improve the metric and forfeit the revenue.
+>
+> **The largest finding sits above this cohort: `fruits-vegetables` has no ad supply.**
+>
+> The category takes **11,288,317 requests/day and fills at 0.34%**, with only **3 campaigns
+> across the entire L1**. Most sub-categories return zero responses outright — banana/sapota
+> (35,684 requests), cucumber/capsicum (26,421), leafy vegetables (20,903), root vegetables
+> (20,254), all at **0% fill**. At L3, `apples-pomegranate` and `potato-onion-tomato` each have
+> exactly one campaign and one merchant, so there is no competitive explanation available.
+>
+> **This is a bigger monetisation opportunity than the entire INR 399k in the export** and we
+> would recommend raising it as its own ticket.
+>
+> **Where the rest of the headroom sits**
+>
+> Four campaigns account for 59% of it, ten for 73%:
+>
+> | Headroom/day | True BU | Budget | SKUs | Campaign |
+> |---|---|---|---|---|
+> | 94,202 | 6.0% | 100,000 | **1** | All Products (22nd May) |
+> | 76,049 | 0.3% | 76,308 | **2** | Apple (24th Nov) |
+> | 49,909 | 0.2% | 50,000 | 13 | 1DS \| All Brands \| Tubs \| INC |
+> | 14,817 | 1.2% | 15,000 | 3 | 1DS \| NIC \| CUPS \| INC |
+> | 14,761 | 26.0% | 20,000 | **1** | colgate-Toothpaste-Brand-Exact |
+>
+> Three further patterns worth separating out:
+>
+> - **Budget parked in categories too small to absorb it.** Nippon Paint holds INR 27,000 of
+>   the INR 39,449 total `car-shoe-care` category budget across **18** near-identical
+>   floor-budget campaigns, in a category receiving 24,027 requests/day. Energy Beverages holds
+>   INR 24,200 of the INR 40,141 `packaged-water` budget across 6 "Clear" campaigns. These are
+>   the cases where right-sizing genuinely is the answer.
+> - **One real bid/competition case.** `ice-creams` is a healthy category — 563,956 requests/day,
+>   51.88% fill, 19 campaigns, category BU 30.64%. **Walko-QSR holds INR 87,000, or 54% of the
+>   category budget, but captures INR 655 — 1.3% of category spend.** Fill is fine and rivals are
+>   spending, so this one is bids or eligibility, and it is the highest-value single advertiser
+>   to look at.
+> - **Two easy wins inside healthy categories.** colgate sits at 26% BU in `toothpaste`, where
+>   the category runs at **83.71%** — one SKU, one keyword, INR 20,000 budget. `basil` sits at
+>   0.8% in `dips-dressings`, category **76.23%** — one SKU.
+>
+> **Recommendations, in priority order**
+>
+> 1. **Expand product selection on the 62 campaigns with ≤2 SKUs.** Start with the 28 that have
+>    both ≤2 SKUs and ≤5 keywords — INR 146,975/day of headroom in that one pattern. Target
+>    **under INR 500 of daily budget per SKU**, the band where campaigns demonstrably fill.
+>    Blended ROAS on this cohort is **38×**, so there is no efficiency reason to hold delivery back.
+> 2. **Raise `fruits-vegetables` supply as a separate ticket** — the single largest gap on the
+>    marketplace.
+> 3. **Fix the export** — join campaign-level spend to campaign-level budget, exclude or flag
+>    PAUSED and wallet-capped rows, and **add SKU count and budget-per-SKU columns.** Those two
+>    columns are the best early-warning signal for low BU we have found.
+> 4. **Right-size budgets only where the category cannot absorb them** — consolidate Nippon
+>    Paint's 18 campaigns to 2–3, Energy Beverages' 6, and ITC's 5.
+> 5. **Audit Walko-QSR's category bids and SKU eligibility in `ice-creams`.**
+> 6. **Reconsider the INR 1,500 floor budget for single-SKU advertisers.** 43 of the 80 sit
+>    exactly on it — it guarantees a permanently low-BU cohort by construction and makes
+>    portfolio BU look worse than the business is.
+>
+> **Two things we could not establish.** We could not compare Walko-QSR's category bids against
+> rival ice-cream campaigns — the report carrying per-campaign bids has a known unit
+> inconsistency, so that comparison still needs to be run. And separately, we noticed that
+> CUSTOM pages return 13.6M ad responses but only 778k impressions (5.7%), against 73% on
+> category and 55% on search. That may simply be per-candidate rather than per-slot counting,
+> but if it is real it is a larger leak than anything in this analysis. Both are worth picking up.
+>
+> This is a single day (3 August) as scoped — we would confirm over 7–14 days before changing
+> individual campaign budgets.
+>
+> Happy to take the SKU-expansion list, the `fruits-vegetables` investigation, or the Walko-QSR
+> bid audit as next steps.
+>
+> Regards,
+
+**Internal actions accompanying this reply:** raise `fruits-vegetables` fill as its own
+`debug-rr` ticket; request the reporting fix (campaign-level denominator + SKU-count columns);
+run the `ice-creams` rival bid comparison once `CAMPAIGNS_IN_CATEGORY_REPORT` units are
+resolved; scope the CUSTOM-page I/R question.
