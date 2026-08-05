@@ -9,7 +9,7 @@ ticket 2.
 |---|---|---|---|---|
 | 1 | 10088009 — PLA ads not serving for "snack"/"snacks", campaign FF_Snacks | bigbasket (444) | debug-keyword-delivery | Invalid — both terms serving; mapping correct; new-campaign cold start |
 | 2 | SPA Query, Seller ID 29899805 — CREA/ASHWA/TYRO not serving on "creatine"/"ashwagandha" | takealot (105) | debug-keyword-delivery | Invalid — both serving; dip caused by the seller's own weekly campaign re-creation; not outbid |
-| 3 | TIRA — low RR despite increased Requests (Jul 16–19, Jul 31) | tira (576) | debug-rr | Not a fill defect — a surge of **brand-filtered** CUSTOM requests (99.5% of the increase); non-brand fill was **96.2%**; window corrected to Jul 17–18 |
+| 3 | TIRA — low RR despite increased Requests (Jul 16–19, Jul 31) | tira (576) | debug-rr | **Root cause: brand `Anua`** — 633,205 unfillable CUSTOM requests on Jul 31 (919× DoD, 0 responses ever, no Anua campaign exists). Ex-Anua RR 60.70% vs 60.47%. **Still leaking ~20k/day.** Jul 17–18 unrecoverable |
 
 > **Pattern across tickets 1 and 2.** Neither was a defect. Both were **newly created
 > campaigns** judged during their ramp-up, and in both the complaint originated from
@@ -29,7 +29,20 @@ ticket 2.
 > which showed 99.5% of the surge carried a `brands` filter while unfiltered requests
 > filled at 96.2%. **A single report call separated "we are failing to serve" from "we are
 > being asked for things that do not exist."** For any Scenario A move, that split belongs
-> in triage, not at the end of the SOP — see action 8.
+> in triage, not at the end of the SOP — see action 10.
+>
+> **Landed on the third pass — the real lesson.** The split named the *category* of cause
+> but not the cause. Passes 1 and 2 then twice concluded a per-brand count was
+> "structurally impossible" after sweeping all 43 report configs — a rigorous sweep of the
+> wrong question. **"No report exposes X" is not "X is unknowable."** One `bq` query
+> grouping the source table by `f_brands` named a single brand (`Anua`) responsible for
+> 107.5% of the increase, with zero responses in 15 days and no campaign in existence.
+> When the reporting layer cannot group by the column that holds the answer, go to the
+> source table — the configs contain its literal SQL. Also: the user named "Anua" a turn
+> before this was found, and the response was an argument for why one brand was unlikely
+> rather than an attempt to test it. **A named, falsifiable hypothesis is a prediction to
+> check, not a claim to rebut** — the person raising the ticket often holds context the
+> data does not show.
 
 > **Related:** ticket 3 of `ticket-investigations-2026-08-03.md` ('Green Tea' SKUs
 > not serving) is the **same advertiser, os_client_id 10092920**, same `FF_`
@@ -138,6 +151,22 @@ New this session; the 2026-08-03 list still applies.
   CUSTOM-vs-SEARCH cut looks impossible. Passing it in `filters` instead works and returns
   correctly-scoped totals. Without this workaround the whole diagnosis would have been
   stuck at marketplace level.
+- **`bq` is installed and authenticated — use it when a report cannot group.** The decisive
+  finding on this ticket (brand `Anua`) was unreachable through every report in the estate:
+  a sweep of all 43 configs confirms **none** pairs a brand attribute with a request metric,
+  because the only brand-aware request columns are `FILTER_PRESENCE_RR`'s binary
+  present/absent counters. But `f_brands` sits in
+  `prj-onlinesales-prod-01.reporting_mumbai.os_product_ads_request_report`, the configs
+  carry the literal source SQL under `query.REPORTING`, and `bq query --use_legacy_sql=false`
+  works with the logged-in account. **Two passes of this investigation concluded the question
+  was "structurally impossible" when it was one SQL query away.** Remember to backtick the
+  hyphenated project id. Reserve "unanswerable" for genuinely absent data — e.g. retention.
+- **The request-log table retains 15 days, not 14** — verified in raw SQL with a clean
+  boundary (Jul 20 empty, Jul 21 populated, as of Aug 5). The `debug-rr` SOP's "recent 14
+  days" for `FILTER_PRESENCE_RR_REPORT` is wrong; it matches the 15-day figure the SOP
+  already documents for `CATEGORY_REQUEST_VOLUME_REPORT`, which reads the same table. This
+  is *real* deletion — the raw table has no more history than the report, so out-of-window
+  dates can never be recovered by dropping to SQL.
 - **Out-of-retention windows on `FILTER_PRESENCE_RR_REPORT` return zeros, not an error.**
   Jul 17–18 (19 days back) returned `0` for every metric. Indistinguishable from "no
   traffic" — same silent-failure class as the `perf_category_l1 != ''` trap above. Compute
@@ -875,9 +904,11 @@ surface with no campaigns mapped to it.
   surface can never be named. **Do not assert Anua for Jul 17–18.**
 - **The 31 July diagnosis is fully measured**, not inferred — direct SQL reconciling to the
   unit against `FILTER_PRESENCE_RR_REPORT`.
-- **Raw request-log reports are unavailable**, so the extra requests cannot be attributed
-  to a specific slot, placement or app version from reporting alone. Naming the source
-  requires TIRA's platform side.
+- **The request log IS reachable via direct SQL** — this superseded the earlier caveat that
+  it was unavailable. `f_brands` gave the brand (`Anua`). What the log still does **not**
+  carry is the emitting slot, placement or app version, so *which TIRA surface* generated
+  the Anua requests requires their platform side. The brand is ours to name; the surface is
+  not.
 - **`image.png` confirmed irrelevant** by the ticket owner (2026-08-05) — no scope revisit
   needed.
 - **Category-level attribution is impossible** on this marketplace (blank `category_l1`
@@ -885,43 +916,63 @@ surface with no campaigns mapped to it.
 - **Not run:** STEP 5 merchant contribution ranking (`MERCHANT_PERFORMANCE_REPORT`);
   network/device cut (moot — `network` is absent on 100% of requests and `device` present
   on 100%, so neither discriminates). Neither changes the verdict.
-- **Secondary observation, out of scope:** baseline RR has drifted from ~68–70%
-  (Jul 1–12) to ~63–66% (Jul 27 – Aug 4) independently of these spikes. Flagged, not
-  analysed.
+- **The "baseline RR drift" is partly Anua — no longer unexplained.** The drift from
+  ~68–70% (Jul 1–12) to ~63–66% (Jul 27 – Aug 4) is ~2.5–3.2pp attributable to Anua's
+  ongoing unfillable requests from 1 August (see the ex-Anua column). The remainder is a
+  structural brand-coverage trend: brand-filtered fill fell 49.61% (Jul 23) → 29.66% (Aug
+  4) while non-brand fill *rose* 87.88% → 93.39%, and brand-filtered share of requests grew
+  ~49% → ~60%. A growing share of brand-scoped requests filling progressively worse.
 - **SEARCH request volume fell 37.6%** (2,910,247 → 1,816,439) across Jul 12–15 → Jul
   16–19 at constant RR. Demand-side, unrelated to the ticket, but worth someone's
   attention.
 
 ## Actions
 
-1. Reply to Harshita: correct the window to Jul 17–18, name the **brand-filtered request**
-   mechanism, and confirm non-brand fill was 96%+ on the affected day.
-2. **Ask TIRA's platform/engineering team what changed in CUSTOM brand-scoped ad-request
-   generation at 00:00 IST on 17 July (reverted after 18 July) and again on 31 July.** Now
-   a sharper question than before: the surge is specifically requests carrying a `brands`
-   filter, 3.4× normal volume, uniform across all 24 hours. Likely candidates are a brand
-   carousel rendering more slots per pageview than are booked, or a brand-scoped surface
-   requesting ads for brands with no active booking. We cannot name it from reporting.
-3. **Fix the booking-continuity gap.** Seven brand slot bookings lapsed at 05:30 IST on
-   Jul 31 with no replacement activated until 23:24 the same night. Whether or not the
-   request surge is fixed, that gap cost 27,169 responses on its own and is ours to
-   control. Worth checking whether this recurs at other window boundaries.
-4. Do **not** route this to advertiser budgets or bids. Response output was normal;
+**P0 — the leak is still open.**
+
+1. **Stop the ongoing Anua waste.** ~19–27k unfillable CUSTOM requests/day since 1 August,
+   costing 2.5–3.2pp of CUSTOM RR daily. Two routes, not mutually exclusive: (a) TIRA stops
+   requesting ads for a brand with no campaigns, or (b) an advertiser buys Anua. Until one
+   happens, tira's CUSTOM RR is understated every day.
+2. **Ask TIRA's platform team: why does a CUSTOM surface request ads for `Anua`, a brand no
+   advertiser buys, and what happened on 31 July specifically?** A precise, answerable
+   question with a brand name and exact volumes attached (689 → 633,205 → ~20k/day). Ask
+   separately what changed on **17–18 July** — that predates Anua and its cause is
+   unrecoverable from our side.
+3. **Sell Anua.** 24 Anua SKUs are live in tira's catalogue and there is ~20k/day of
+   genuine, brand-targeted, measured demand against zero supply. Route to the commercial
+   team — this is revenue sitting in a defect ticket.
+
+**P1 — prevent recurrence.**
+
+4. **Guardrail: single brand filter with ~0% fill.** Alert when one `f_brands` value exceeds
+   a small share of requests at near-zero fill. On this incident it would have fired on
+   **28 July at 299 requests** — three days early. Far better than a generic
+   request-volume alert, which only fires once the damage is done.
+5. **Fix the booking-continuity gap.** Seven brand slot bookings lapsed at 05:30 IST on
+   Jul 31 with no replacement activated until 23:24 the same night — 27,169 responses, ours
+   to control. Note this is now a *minor secondary* factor beside Anua, not a co-cause.
+   Worth checking whether it recurs at other window boundaries.
+6. Do **not** route this to advertiser budgets or bids. Response output was normal;
    raising budgets would not have moved RR.
-5. **Raise a request-volume guardrail** alongside the RR alert — a day-over-day CUSTOM
-   request jump >50% should fire its own alert so the next occurrence is triaged as a
-   traffic-source event, not an RR regression. Better still, alert on the
-   **brands-present request count**, which is the series that actually moved.
-6. **Raise CUSTOM category tagging as a reporting gap** — with `category_l1` blank on all
-   CUSTOM requests, no category-level RR diagnosis is possible for tira. This blocked the
-   SOP's primary drill.
-7. Raise against the report configs: the `perf_marketplace_client_id` filter rejection on
+**P2 — tooling and reporting gaps this ticket exposed.**
+
+7. **Add `f_brands` as a groupable attribute on `FILTER_PRESENCE_RR_REPORT`, plus an hour
+   dimension.** The report currently answers "was a brand filter present" but not "which
+   brand" — the config's `GROUPED` query is empty, so it can only return one aggregate row.
+   This single change turns a three-pass investigation into one report call. **Highest-value
+   config change on this list.**
+8. **Raise CUSTOM category tagging as a reporting gap** — with `category_l1` blank on all
+   CUSTOM requests, no category-level RR diagnosis is possible for tira.
+9. Raise against the report configs: the `perf_marketplace_client_id` filter rejection on
    `PAGE_PERFORMANCE_PLA_REPORT` / `RR_PLA_REPORT`, relaxing the documented store-bucket
-   group-by requirement for `perf_hour` on `RR_PLA_REPORT`, and the four
+   group-by requirement for `perf_hour` on `RR_PLA_REPORT`, and the
    `FILTER_PRESENCE_RR` / `AUDIT_EVENTS` items in the environment-limitations section.
-8. **Amend `debug-rr`'s SOP.** `FILTER_PRESENCE_RR_REPORT` is currently positioned as a
-   late, last-resort drill ("use late, after other RR causes are ruled out"). On this
-   ticket it was the single most decisive call and would have named the mechanism on turn
-   one. For a Scenario A move (requests up, responses flat) it should run **early**,
-   alongside the page-type triage — a request-side surge is exactly what the
-   present-vs-absent split diagnoses.
+10. **Amend `debug-rr`'s SOP — two changes.** (a) `FILTER_PRESENCE_RR_REPORT` is positioned
+    as a late, last-resort drill ("use late, after other RR causes are ruled out"); on this
+    ticket it was the single most decisive report call and should run **early** for a
+    Scenario A move, alongside the page-type triage. (b) Add an explicit step: **when the
+    report layer cannot group by the column holding the answer, query the source table
+    directly.** `bq` is installed and authenticated; the configs carry the literal source
+    SQL. This ticket took three passes and two wrong "structurally impossible" conclusions
+    for want of that instruction.
