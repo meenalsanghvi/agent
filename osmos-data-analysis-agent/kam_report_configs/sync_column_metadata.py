@@ -23,14 +23,14 @@ from __future__ import annotations
 import glob, json, os, sys
 import requests
 
-BASE = "http://test.onlinesales.ai"; APP = "irisTestApplication"
+BASE = "http://test-data.onlinesales.ai"; APP = "irisTestApplication"
 H = {"Content-Type": "application/json"}
 # A checkout of kamService, for the production columnMetadata baseline. There is no
 # API for it, and without it the union merge silently degrades into the global clobber
 # it exists to prevent — so `prod_tags()` raises rather than defaulting.
 PROD_FILE = os.environ.get(
     "KAM_SERVICE_COLUMN_METADATA",
-    os.path.expanduser("~/Desktop/kamService/config/columnMetadata.json"),
+    os.path.expanduser("~/kamService/config/columnMetadata.json"),
 )
 S = requests.Session(); S.trust_env = False
 
