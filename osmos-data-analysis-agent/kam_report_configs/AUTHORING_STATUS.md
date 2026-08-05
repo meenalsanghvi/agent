@@ -18,7 +18,7 @@ reportTypes are de-listed. Catalogue **137 → 111 unique** (+13 ours, −39 ret
 | KEYWORD_PERFORMANCE / SEARCH_QUERY_PERFORMANCE | 5 / 1 |
 | CAMPAIGN_PERFORMANCE | 1 · GMV_ATTRIBUTION 1 (ungrouped) |
 | CAMPAIGN_KEYWORDS / CAMPAIGN_NETWORKS | 0 — predecessors also 0 for the same scope |
-| AUDIT_EVENTS | **BLOCKED** — see below |
+| AUDIT_EVENTS | ✅ working since 2026-08-04 — see below |
 
 **Coverage vs the 42 predecessors:** 35 PASS · 4 PASS\* · 3 BLOCKED · **0 FAIL**. Each
 predecessor's exact `externalColumnName` set was requested from its replacement.
@@ -124,12 +124,15 @@ Neither of the two fixable ones is a consolidation regression — `DAILY_ORDER_T
    entry**, which resolves ambiguously. Two such duplicates already exist in the test
    catalogue (`TARGETING_LEVEL_PERFORMANCE_REPORT`,
    `OSMOSX_MCC_BEAT_REPORTING_SEARCH_TERM_PERFORMANCE`) — both other teams', pre-existing.
-4. **`AUDIT_EVENTS` is blocked, and not for the reason previously recorded.** The disk
-   configs name appKey `GCP_BQ_KAM_CREDENTIALS_EXTERNAL_DATASET`, which **is not
-   registered in kamService** → `Entry Not Found` at BQ client init. The live predecessor
-   was hand-patched to `KAM_EXPORT_GCP_BQ_CREDENTIALS`, which is registered but lacks IAM
-   on `audit.audit_logs_v2`. So the family is blocked two different ways. Needs a
-   kamService change, not a config change.
+4. **`AUDIT_EVENTS` — RESOLVED 2026-08-04, no longer blocked.** It previously named
+   appKey `GCP_BQ_KAM_CREDENTIALS_EXTERNAL_DATASET` (unregistered) and its predecessor
+   used `KAM_EXPORT_GCP_BQ_CREDENTIALS` (registered but lacking IAM on
+   `audit.audit_logs_v2`). Both are fixed: all 43 configs now use
+   `GCP_PERF_BQ_KAM_CREDENTIALS`, which is registered and has the grants, and
+   `action_type_id` gained a `SAFE_CAST(... AS STRING)`.
+   **Verified working** — agency 576 returns audit rows for 2026-07-16..19 and
+   2026-07-30..31; agency 105 returns 13,630 rows unfiltered. Use it; do not
+   report the audit family as unavailable.
 5. **`store_id` was dropped from `RR_DISPLAY`.**
    `os_display_ads_filtered_level_performance_facts` has no such column; requesting it
    500s identically on the retired report. The other 9 attributes were each probed and

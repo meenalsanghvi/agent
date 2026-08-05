@@ -1,12 +1,18 @@
 # Support ticket investigations — 2026-08-05
 
-One marketplace ad-performance ticket worked through the `debug-*` SOP skills.
+Two marketplace ad-performance tickets worked through the `debug-*` SOP skills.
 All data via `run_report` against the KAM internal-performance reports
-(`osmos-performance-local` MCP). Currency INR throughout.
+(`osmos-performance-local` MCP). Currency **INR** on ticket 1, **ZAR** on ticket 2.
 
 | # | Ticket | Marketplace | Skill | Verdict |
 |---|---|---|---|---|
 | 1 | 10088009 — PLA ads not serving for "snack"/"snacks", campaign FF_Snacks | bigbasket (444) | debug-keyword-delivery | Invalid — both terms serving; mapping correct; new-campaign cold start |
+| 2 | SPA Query, Seller ID 29899805 — CREA/ASHWA/TYRO not serving on "creatine"/"ashwagandha" | takealot (105) | debug-keyword-delivery | Invalid — both serving; dip caused by the seller's own weekly campaign re-creation; not outbid |
+
+> **Pattern across both.** Neither ticket was a defect. Both were **newly created
+> campaigns** judged during their ramp-up, and in both the complaint originated from
+> inspecting a live ad response rather than from reporting. Ticket 2's seller has
+> re-created the same campaign eight times since 2 June, restarting the ramp each time.
 
 > **Related:** ticket 3 of `ticket-investigations-2026-08-03.md` ('Green Tea' SKUs
 > not serving) is the **same advertiser, os_client_id 10092920**, same `FF_`
@@ -39,6 +45,28 @@ New this session; the 2026-08-03 list still applies.
 - **`CAMPAIGN_LOOKUP_REPORT` ignores `limit` as documented** — a `LIKE '%Snack%'`
   filter still returned 4,125 lines and overflowed into the saved tool-result file.
   Filtering by name works but plan to grep the spill.
+- **`MERCHANT_LOOKUP_REPORT` does not resolve a seller ID.** It exposes only
+  `perf_merchant_id`, `perf_os_client_id`, `perf_merchant_name`; filtering it on the
+  seller ID from a ticket returns **zero rows and no error**. On takealot the seller
+  ID is carried as `perf_seller_id` on `INTERNAL_KEYWORD_PERFORMANCE_REPORT` and as
+  `perf_merchant_id` on `CAMPAIGN_PRODUCT_SELECTION_REPORT`, **with an `M` prefix**
+  (ticket's `29899805` → `M29899805`). Rival IDs in the same ticket carried `M` and
+  `R` prefixes. Resolve sellers through the keyword or product-selection reports, and
+  expect a letter prefix.
+- **`CAMPAIGN_PRODUCT_SELECTION_REPORT` returns only L1–L3.** Takealot's taxonomy runs
+  to L5 (`Health > Health Care > Vitamins & Supplements > Vitamins & Minerals > Mind &
+  Memory`); the report stops at `Vitamins & Supplements`. The deeper levels a ticket
+  quotes have to be read from `RESPONDED_SKUS_REPORT.perf_category`, which carries the
+  full path as a single string.
+- **takealot exposes more relevance caches than bigbasket.** Alongside
+  `TARGETED_KEYWORD_CACHE` and `SEARCH_TERMS_WITHOUT_BRAND_STUFFING`, ticket 2 returned
+  `INTERNAL_TARGETED_KEYWORD_CACHE`, `SIMILAR_SEARCH_TERMS_CACHE_V2`, `UA_BRAND_CACHE`
+  and `UA_MERCHANT_CACHE`. `INTERNAL_TARGETED_KEYWORD_CACHE` carried the **largest**
+  volume on both keywords. Treat any cache-type list as marketplace-specific; do not
+  assume the bigbasket set.
+- **`MARKETPLACE_DIRECTORY_REPORT` region field is unreliable** — takealot returns
+  `Belgium` with ZAR currency and Africa/Johannesburg timezone. Use currency and
+  timezone, not region.
 
 ---
 
@@ -236,3 +264,180 @@ produce this.
    single SERP check is not evidence of non-delivery.
 5. Raise the `CAMPAIGN_KEYWORDS_REPORT` `perf_is_negative` filter bug and the
    `CAMPAIGN_LOOKUP_REPORT` missing-attribute errors against the report configs.
+
+---
+
+# Ticket 2 — SPA Query | Seller ID 29899805 (takealot)
+
+**Marketplace:** takealot-marketplace, agency **105**, marketplace_client_id
+**100002**, **ZAR**, Africa/Johannesburg · **PLA**, SEARCH page
+*(the ticket's ad-request URLs carry `client_id=100002`, which confirms the
+marketplace independently)*
+**Raised:** 2026-07-27 by Tatwik / Mayur Rathod · worked 2026-08-05
+**Seller:** ticket's `29899805` = **`M29899805`** in reporting
+**Campaign:** `CREA,ASHWA,TYRO(22nd Jul | 11:04)` — marketing_campaign_id
+**1344829**, internal_campaign_id 877535, campaign_group_id 877370,
+marketing_campaign_group_id 5179797, os_client_id **10159561**,
+PERFORMANCE / **SMART_SHOPPING**, **AUTO_CPC**, **ACTIVE**,
+**created 2026-07-22**
+**Keywords under complaint:** "creatine" (bid 30.47), "ashwagandha" (bid 20.5)
+**Windows:** predecessor 2026-07-16 → 07-21 · ticket window 2026-07-22 → 07-27 ·
+current 2026-07-28 → 08-04
+
+## Verdict: no defect. Both keywords served throughout. The seller is not outbid.
+
+The dip that prompted the ticket was real but **caused by the seller archiving the
+campaign that was running and creating a new one on 22 July**. Delivery has since
+recovered past its previous level.
+
+## STEP 1.5 / STEP 2 — Campaign resolution and keyword validation
+
+`INTERNAL_KEYWORD_PERFORMANCE_REPORT`, filtered to os_client_id 10159561 (no campaign
+filter, so a hand-off between campaigns is visible).
+
+| Window | Days | Campaign | Keyword family | Impr | Clicks | Spend (ZAR) | **Impr/day** |
+|---|---|---|---|---|---|---|---|
+| 16–21 Jul | 6 | 1335705 *(predecessor, ARCHIVED)* | creatine | 857 | 35 | 431.08 | **142.8** |
+| 16–21 Jul | 6 | 1335705 | ashwagandha | 828 | 19 | 291.93 | **138.0** |
+| 22–27 Jul | 6 | **1344829** | creatine | 490 | 11 | 111.26 | **81.7** |
+| 22–27 Jul | 6 | **1344829** | ashwagandha | 552 | 8 | 87.40 | **92.0** |
+| 28 Jul–4 Aug | 8 | **1344829** | creatine | 2,353 | 32 | 416.39 | **294.1** |
+| 28 Jul–4 Aug | 8 | **1344829** | ashwagandha | 1,127 | 18 | 205.09 | **140.9** |
+
+"Keyword family" groups the match-type rows the report returns separately —
+creatine EXACT + PHRASE; ashwagandha EXACT + PHRASE + the "ashwaganda" misspelling
+PHRASE. **Every window has non-zero delivery on both keywords and on both match
+types.** The claim "not appearing in the ad response" is not supported.
+
+Per-day delivery fell **43%** (creatine) and **33%** (ashwagandha) in the ticket
+window, then rose to **2.1×** and **1.02×** the pre-ticket rate.
+
+### The cause — the seller re-creates this campaign weekly
+
+`CAMPAIGN_LOOKUP_REPORT` on os_client_id 10159561, name `LIKE '%ASHWA%'`:
+
+| Created | Campaign | Status |
+|---|---|---|
+| 2 Jun | Ashwagandha & Tyrosine (2nd Jun \| 14:46) | ARCHIVED |
+| 6 Jun | Ashwa,tyrosine (6th Jun \| 10:40) | ARCHIVED |
+| 10 Jun | ASHWA,TYRSOINE (10th Jun \| 19:57) | ARCHIVED |
+| 24 Jun | Ashwa and Tyrosine (24th Jun \| 09:33) | ARCHIVED |
+| 2 Jul | ashwa, tyrosine(2nd Jul \| 17:05) | ARCHIVED |
+| 11 Jul | ashwa tyrosine(11th Jul \| 12:12) | ARCHIVED |
+| 15 Jul | Crea, Ashwa, Tyrosine (16th Jul \| 00:05) | ARCHIVED |
+| **22 Jul** | **CREA,ASHWA,TYRO(22nd Jul \| 11:04)** | **ACTIVE** |
+
+Eight campaigns since 2 June, each superseding the last. A separate
+`creatine (11th Jul | 12:11)` (1325060) is also ARCHIVED. Smart Shopping re-enters
+its learning period on every new campaign, so the seller resets delivery roughly
+weekly by their own hand.
+
+## The bid claim — the seller is winning below their own bid
+
+Actual CPC over 28 Jul – 4 Aug, against the bids quoted in the ticket:
+
+| Keyword | Bid (ZAR) | Spend (ZAR) | Clicks | **Actual CPC** | % of bid paid |
+|---|---|---|---|---|---|
+| creatine | 30.47 | 416.39 | 32 | **13.01** | **42.7%** |
+| ashwagandha | 20.50 | 205.09 | 18 | **11.39** | **55.6%** |
+
+Paying well under the bid is the signature of an auction being won comfortably, not
+lost. The achieved CPCs also sit alongside the rival bids the ticket quotes (R10164
+at 10, M29892540 at 16.5) rather than below them. **Being outbid is ruled out.**
+
+Note the campaign is **AUTO_CPC**, so the effective bid is system-set and the manual
+per-keyword values act as a ceiling.
+
+## STEP 4/5 — Product selection and category alignment
+
+`CAMPAIGN_PRODUCT_SELECTION_REPORT` — **only 3 SKUs**, all merchant M29899805, all
+in stock, all brand PrimeState:
+
+| SKU | Product | Category (L1>L2>L3) |
+|---|---|---|
+| 234081656 | PrimeState **Ashwagandha** + L-Theanine 60 Capsules | Health > Health Care > Vitamins & Supplements |
+| 234100672 | PrimeState L-Tyrosine + L-Theanine 60 Capsules | Health > Health Care > Vitamins & Supplements |
+| 234118915 | PrimeState **Creatine** Monohydrate + Collagen 450g | Health > Health Care > Sports Nutrition |
+
+| Check | Result |
+|---|---|
+| Keyword in product name? | **Yes, both** — "Ashwagandha" and "Creatine" appear literally in the SKU titles |
+| Keyword serving? | **Yes, both**, EXACT and PHRASE, every window |
+
+SOP verdict: *serving + name match* → **alignment is not the problem**; proceed to
+competition. Deeper category levels are not in this report (L1–L3 only) and were read
+from serving data instead.
+
+## The real finding — the seller sits in the secondary category on both keywords
+
+`RESPONDED_SKUS_REPORT`, marketplace-wide, 28 Jul – 4 Aug, SKU-level impressions:
+
+| Keyword | Category | TARGETED_KW | INTERNAL_TARGETED_KW | All caches | Share |
+|---|---|---|---|---|---|
+| creatine | Sports Nutrition > **Creatine** *(rival R10164)* | 1,850 | 30,684 | **64,218** | **69.7%** |
+| creatine | Sports Nutrition > **Recovery & Supplements** *(seller)* | 18,271 | 5,545 | **24,310** | **26.4%** |
+| creatine | Sports Nutrition > Pre-Workout | 3,563 | 28 | 3,591 | 3.9% |
+| creatine | Sports Nutrition > Mass Builders | 0 | 8 | 8 | 0.0% |
+| ashwagandha | … > **Mood & Anxiety Support** *(rival M29892540)* | 16,240 | 14,341 | **33,379** | **67.4%** |
+| ashwagandha | … > **Mind & Memory** *(seller)* | 6,063 | 9,184 | **16,073** | **32.5%** |
+| ashwagandha | … > Nutraceuticals / Energy & Tonics / Sleep Aids | 1 | 19 | 71 | 0.1% |
+
+**Both of the seller's categories are correctly mapped** — each serves substantially
+through the targeted-keyword path, which only opens on a valid keyword→category
+mapping. **No mapping change is required.**
+
+**But the ticket's observation is substantively correct and its conclusion wrong.**
+The two rivals it names are not in a category the seller is excluded from; they are
+in the **higher-volume category for each term**. `Creatine` carries **2.6×** the
+supply of `Recovery & Supplements`; `Mood & Anxiety Support` carries **2.1×** that of
+`Mind & Memory`. This is why a rival at a *lower* bid appeared in a sampled response,
+and it is a **catalogue placement** matter — a Takealot merchandising decision, not an
+ad-platform setting.
+
+## Answers to the questions asked
+
+| Question | Answer |
+|---|---|
+| Why is the seller not included in the ad response despite higher bids? | **They are included.** Both keywords served in every window; creatine is now at 294 impressions/day, more than double the pre-ticket rate. A single ad response samples a handful of slots and does not evidence non-delivery. |
+| Are they being outbid? | **No.** They pay ZAR 13.01 and 11.39 against bids of 30.47 and 20.50 — 43% and 56% of bid. |
+| Were the products serving previously and no longer? | Delivery **did** dip 43% / 33% per day in 22–27 Jul. The cause is that the seller archived the campaign running until 21 Jul and created a new one on 22 Jul, restarting Smart Shopping's learning period. It has since recovered past the old level. |
+| Is the category mapping wrong? | **No.** Both seller categories serve on both keywords through the targeted-keyword path. |
+| Any other factor? | Yes, two: the seller is in the **secondary category** for both terms (2.1–2.6× less supply than the rivals' categories), and the campaign holds only **3 SKUs**. |
+
+## Caveats
+
+- **Keyword→category mapping cannot be read directly** (`get_keyword_categories` has
+  no KAM equivalent). Proven to *work* empirically via cache_type; not enumerable.
+- **Unit mismatch not reconciled:** category figures are SKU-level impressions across
+  all advertisers; campaign figures are campaign impressions. **No share-of-voice was
+  computed from the two** — different denominators. Same caution as ticket 1.
+- **Test-method questions to put back to the requester, not asserted as findings:**
+  the ad-request URLs use `cli_ubid=test` (a synthetic user, which may not exercise
+  normal relevance/personalisation), and the path is `/sda` while the ticket is headed
+  "SPA Query". Confirm the sample matched the ad product before treating one response
+  as evidence.
+- **Not run:** STEP 6 competition views (rival campaign IDs, creation dates, whether
+  R10164 or M29892540 is a new entrant around 22 Jul). The outbidding claim is
+  answered from our own CPC-versus-bid, which is sufficient but is inference from one
+  side of the auction. `AUDIT_EVENTS_REPORT` remains blocked, so the archive timestamp
+  of campaign 1335705 could not be confirmed directly — it is inferred from the
+  delivery hand-off and the successor's 22 Jul creation date.
+- **Return on ad spend is weak but not zero**, and improving: ROAS 0.82 (16–21 Jul),
+  0.00 (22–27 Jul), **1.60** (28 Jul – 4 Aug: ZAR 1,310 attributed sales on ZAR 819
+  spend). Out of scope for this ticket; flagged rather than analysed.
+
+## Actions
+
+1. Reply: both keywords are serving; the dip traces to the seller's own campaign
+   re-creation; they are not outbid.
+2. **Ask the seller to stop re-creating the campaign weekly.** Eight campaigns since
+   2 June is the single largest controllable factor in their delivery.
+3. Recommend, via catalogue: list the creatine SKU under `Sports Nutrition > Creatine`
+   and the ashwagandha SKU under `Mood & Anxiety Support` — 2.6× and 2.1× more
+   available supply on the terms they care about.
+4. Recommend expanding beyond **3 SKUs**. Same product-selection ceiling documented on
+   bigbasket (ticket 11, 2026-08-03).
+5. Put the `cli_ubid=test` / `/sda` sampling questions back to Tatwik before treating
+   any future single-response check as evidence.
+6. Raise the `MERCHANT_LOOKUP_REPORT` seller-ID gap and the
+   `CAMPAIGN_PRODUCT_SELECTION_REPORT` L1–L3 truncation against the report configs.
