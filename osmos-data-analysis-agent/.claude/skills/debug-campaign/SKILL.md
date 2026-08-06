@@ -149,7 +149,7 @@ rivals win the auctions. Check BOTH surfaces:
   for RIVALS pre/post. Then you MUST do BOTH before concluding ("N new entrants"
   alone is NOT a conclusion):
   (i) **Category RR** — `RR_PLA_REPORT` (must pass `perf_category_l1` != '' + `perf_page_type` NOT IN ('', 'NA')): RR healthy/stable but spend/impr fell →
-  auction-loss/outbid; RR low/dropped → eligibility/supply (relevance/catalog/
+  auction-loss/outbid; RR low/dropped → eligibility/demand (relevance/catalog/
   serving), NOT a bid problem → pivot to 3b.
   (ii) **Bid comparison — PRE vs POST, OURS vs OTHERS, on cpc/cpm — NOT spend.**
   Banned non-conclusions: "we're not a top spender", "category saturated / 50+
@@ -164,7 +164,7 @@ rivals win the auctions. Check BOTH surfaces:
   RECOMMEND the backend/engineering retrieve the actual auto bid to confirm. (Manual
   campaigns: configured bid is known — compare directly, don't ask the backend.)
 Verdict: RR healthy AND rivals (esp. `new_in_post`) bidding higher → competitive
-auction loss → recommend raising the bid. RR low → eligibility/supply, not
+auction loss → recommend raising the bid. RR low → eligibility/demand, not
 competition.
 
 ### 3f. A specific targeted keyword not spending
@@ -176,7 +176,7 @@ Run STEP 2.5 basics first (a campaign-level block explains a zero keyword too). 
 1. `PAGE_PERFORMANCE_PLA_REPORT` (PLA, group by `perf_date`) / `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` (Display) for the WHOLE marketplace over the LAST 7 DAYS (`program_type=
    "pla"`, no page filter) → marketplace RR (fixed trailing-7-day window, NOT the
    baseline).
-2. **RR ≈ 100%** (we respond to ~every request): supply healthy, we're not winning
+2. **RR ≈ 100%** (we respond to ~every request): demand healthy, we're not winning
    the auction → COMPETITION CHECK (3g) on the keyword; ours below rivals on the bid
    metric, or a `new_in_post` rival → recommend raising the bid.
 3. **RR low** (we're not responding): eligibility/relevance —

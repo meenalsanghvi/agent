@@ -150,7 +150,7 @@ these Search-type campaigns?" — if yes, `CAMPAIGN_KEYWORDS_REPORT` (must pass 
 then `SEARCH_QUERY_REQUESTS_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display) for their RR.
 `AUDIT_EVENTS_REPORT` (must pass `perf_action_type_id` = 16) (pass `all_campaign_ids`) + `get_product_selection_
 changes` (pass `all_client_ids`, SKU removals?). All active + no changes →
-`TRUE_BU_CAMPAIGN_REPORT`: budget up but RR down = supply gap; budget stable =
+`TRUE_BU_CAMPAIGN_REPORT`: budget up but RR down = demand gap; budget stable =
 backend/eligibility issue. → then **offer** STEP 5.
 
 ### STEP 3-B — Budget dropped
@@ -190,7 +190,7 @@ higher bids/budgets) → outcompeted; few competitors → not competition.
 "EXTERNAL"` = merchant-initiated — a mid-day pause on a high-volume day is the most
 common Display RR cause; report and stop. No pauses → `RR_DISPLAY_REPORT` (group by `perf_ad_unit` for ad-unit, `perf_hour` for hourly)
 (prerequisite met) → `adjusted_rr_active_hours`, `has_hourly_pattern`,
-`ad_units_without_campaigns` → systemic eligibility/supply. → then **offer** STEP 5.
+`ad_units_without_campaigns` → systemic eligibility/demand. → then **offer** STEP 5.
 
 ### STEP 5 — Merchants *(offer it; do not assume they want it)*
 
@@ -225,7 +225,7 @@ record the finding in your summary (metric_type `rr`; entities `"type"` ∈ keyw
   `negative_keywords` for accidental exclusions. **Ask "Is this a Search campaign?"
   before calling.**
 - `CAMPAIGN_NETWORKS_REPORT` (filter `perf_internal_campaign_id`, not `perf_campaign_id`): low RR on a network NOT in this list → campaign
-  unaffected; a targeted network missing from the request stream → no demand
+  unaffected; a targeted network missing from the request stream → no supply
   reaching it. Use BEFORE any network drill.
 - `TRUE_BU_CAMPAIGN_REPORT`: `campaigns_paused_count`, `budget_drop_net_lost`,
   `sellers_with_zero_spend_count`. `WALLET_BALANCE_REPORT`: cross-ref
@@ -241,7 +241,7 @@ record the finding in your summary (metric_type `rr`; entities `"type"` ∈ keyw
   use `category_l1/l2/l3_filter` individually, not full paths; for RR prefer
   `RR_PLA_REPORT` (must pass `perf_category_l1` != '' + `perf_page_type` NOT IN ('', 'NA')) (no limit).
 - `DISPLAY_QUADRANT_REPORT`: low `uniq_campaigns_count` on a
-  high-request slot → supply gap; low BU% → delivery/budget issue; compare periods
+  high-request slot → demand gap (plenty of requests, too few campaigns); low BU% → delivery/budget issue; compare periods
   to spot slots that lost campaigns; for RR prefer `RR_PLA_REPORT` (PLA) / `RR_DISPLAY_REPORT` (Display) (no limit).
 - `CAMPAIGNS_IN_CATEGORY_REPORT` (single period): check `paused_campaigns` and
   `low_bu_campaigns`.

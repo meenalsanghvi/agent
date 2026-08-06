@@ -81,7 +81,8 @@ attributed-CVR trend vs organic site-CVR trend) and `user_intent_diagnostic`.
 - **market_wide_user_decline** — program AND organic conversion fell together →
   marketplace-wide buyer-demand decline, NOT our ad serving. Say so plainly;
   ad-side levers are limited. Optionally show top contributors for context, then
-  recommend demand/marketplace actions. **Stop here.**
+  recommend buyer-demand / marketplace actions (shopper demand, not ad demand).
+  **Stop here.**
 - **ad_system_issue** — program conversion fell faster than organic → it's ours.
   Proceed to STEP 3.
 - **program_cvr_stable** — conversion held. If ROAS still fell it's spend/reach

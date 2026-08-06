@@ -3,10 +3,10 @@ name: debug-keyword-low-rr
 description: >-
   Debug LOW Response Rate (RR) on specific keyword(s) for an OnlineSales
   marketplace. Use when the user asks why a keyword (or list of keywords) has low
-  RR, isn't getting responses, or has poor fill — marketplace/supply-side, not tied
+  RR, isn't getting responses, or has poor fill — marketplace/demand-side, not tied
   to one advertiser's campaign delivery. PLA only; diagnoses the current period (no
   baseline needed). Checks request-volume eligibility, category mapping, active
-  supply in the category, relevancy, and filter over-narrowing. Not for a keyword
+  advertiser demand in the category, relevancy, and filter over-narrowing. Not for a keyword
   not serving inside a specific campaign / being outbid (use debug-keyword-delivery)
   or metric-level RR across pages (use debug-rr).
 ---
@@ -15,7 +15,7 @@ description: >-
 
 > **Every data call below is `run_report(reportType=…, attributes=[…], metrics=[…], dateRanges=[…], filters=[…])`** against the report named at each step. Report groups are discoverable via the `get_<group>s_reports` tools. Resolve exact column names via `knowledge/tool-map.md` — never from memory.
 
-You are diagnosing **why specific keyword(s) have low RR** (supply-side). **Read
+You are diagnosing **why specific keyword(s) have low RR** (demand-side). **Read
 `references/common-rules.md`** for STEP 0 context setup, the checkpoint model, and
 output rules. Also pull `marketplace_client_id`, `timezone`, and `agency_id`.
 
@@ -34,7 +34,7 @@ outbidding us still lets us respond — we just lose the impression, which is a
 **win-rate / delivery** problem, not an RR problem. **There is no competition check
 in this SOP.** If the user's real concern is lost impressions/delivery despite us
 responding, that's win-rate → STEP 9 (delegate to the keyword-delivery skill). The
-`CAMPAIGNS_IN_CATEGORY_REPORT` call in STEP 5 is used ONLY to confirm supply exists
+`CAMPAIGNS_IN_CATEGORY_REPORT` call in STEP 5 is used ONLY to confirm demand exists
 (active campaigns in the mapped category), never for bid competition.
 
 ## SOP
@@ -71,7 +71,7 @@ keyword gets > 100 requests in the trailing 7 days.
 
 `RESPONDED_SKUS_REPORT` filtered on the keyword → the categories of SKUs that DID serve.
 Call this set **O** (observed).
-- **O is non-empty** → the keyword does reach inventory; low RR is a fill/supply or
+- **O is non-empty** → the keyword does reach inventory; low RR is a fill/demand or
   budget problem, not a mapping gap → **offer** STEP 4.
 - **O is empty** (nothing served at all) → no observed coverage. Note that this is
   consistent with either a missing category mapping OR no eligible inventory, and that
@@ -90,14 +90,14 @@ campaign → product `category_l1/l2/l3` and `product_name`. Call this set **P**
   campaign has no plausibly relevant inventory. Recommend adding relevant products or
   dropping the keyword. **STOP.**
 
-### STEP 5 — Active campaigns in those categories (supply check)
+### STEP 5 — Active campaigns in those categories (demand check)
 Use **O** if non-empty, otherwise **P**, as the category set to probe.
 `CAMPAIGNS_IN_CATEGORY_REPORT` → active campaigns with spend, daily budget, status.
 - `paused_campaigns` — flag any paused that should be running.
 - `low_bu_campaigns` (spend < 50% of budget) — **POTENTIAL ROOT CAUSE**: budget
   exhaustion / under-pacing of performing campaigns; highlight.
 - No active campaign in those categories → "No advertiser is running a campaign in the
-  categories this keyword reaches. The keyword has no supply-side coverage." **STOP.**
+  categories this keyword reaches. The keyword has no demand-side coverage." **STOP.**
 
 ### STEP 6 — Products relevancy spot-check
 For the top 2–3 campaigns from STEP 5, `CAMPAIGN_PRODUCT_SELECTION_REPORT` and inspect
@@ -114,7 +114,7 @@ inspection."
 **CRITICAL date rule:** this MUST use a 7-day trailing window (relative to the
 period end_date), NOT the full range. Interpret: requests concentrating on one
 `f_kw` but low RR across many network/store/category combos → filters too
-restrictive on the supply side; find combos where RR = 0 / very low despite high
+restrictive on the demand side; find combos where RR = 0 / very low despite high
 requests. "On the last 7 days of '[kw]' traffic, [network=X, store_id=Y] shows [N]
 requests but RR [Z]% — too many filters narrow the pool; consider relaxing
 store_id / network / page_type restrictions."

@@ -44,6 +44,31 @@ agent_instructions.py`. Load this once at the start of an investigation.
 >   `get_all_findings`, `get_discoveries`, `get_today`, `update_context`,
 >   `update_analysis`, `get_keyword_categories`). There is no state store — the
 >   conversation carries the context. See STEP 0.
+> - **Supply and demand mean specific things here — do not swap them.**
+>   **SUPPLY = ad REQUESTS.** The opportunities the marketplace generates when a shopper
+>   loads a search or category page. More traffic = more supply.
+>   **DEMAND = the CAMPAIGN side.** Advertisers eligible, targeted and funded to answer
+>   those requests. More active, in-budget, relevant campaigns = more demand.
+>   RR = responses / requests, so **RR is demand meeting supply**.
+>   ("Buyer demand" / "shopper demand" is a third, separate sense — purchase intent, not
+>   ad demand. Say which one you mean.)
+> - **Reading the quadrant reports** (`CATEGORY_QUADRANT_REPORT`, `DISPLAY_QUADRANT_REPORT`).
+>   Two axes: RR (is demand meeting supply?) and BU% (are those campaigns spending their
+>   budget?). The pair gives the action — one alone does not:
+>
+>   | RR | BU% | What it means | Action |
+>   |---|---|---|---|
+>   | high | **low** | Campaigns answer nearly every request **and still have budget left**. Requests are the bottleneck. | **Need more supply** — more traffic/placements. Or increase pricing to earn more from the same requests. |
+>   | low | high | Campaigns are budget-capped and cannot answer everything. | **Need more demand budget** — more advertisers, or raise budgets. |
+>   | low | low | Campaigns neither answer nor spend. Not a money or traffic problem. | Eligibility: relevance, catalog, targeting. |
+>   | high | high | Saturated and healthy. | To grow, both sides at once. |
+>
+>   Worked example: `home & kitchen` — 6.7 M requests, **RR 100%**, **BU 61.26%**, 3,701
+>   campaigns, 1,240 advertisers. Every request is filled and 39% of the budget is unspent,
+>   so the constraint is the number of requests. That row is flagged
+>   **"Need More Supply / Increase Pricing"**. Do NOT read low BU% here as an advertiser
+>   problem — the advertisers are ready and waiting.
+>   **Never recommend recruiting advertisers off a low BU% when RR is already high.**
 > - **"In comparison mode" means two `run_report` calls.** These reports are
 >   single-period and emit no `_prev` / `_change` / `_perc` variants; fetch
 >   current and baseline separately and combine them yourself. **Passing two
@@ -140,7 +165,7 @@ Correct:
 > Where do you want to go?
 > 1. **A — category request surge** (recommended: the jump is concentrated in 3 L1s)
 > 2. **B — budget drop** — rule it out first; cheap to check
-> 3. **C — supply-side response drop**
+> 3. **C — demand-side response drop**
 
 Wrong: *"Scenario A applies, so moving to STEP 3-A…"* then running it.
 
