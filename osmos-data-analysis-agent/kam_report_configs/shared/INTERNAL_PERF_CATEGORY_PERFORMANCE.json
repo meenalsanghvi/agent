@@ -91,12 +91,7 @@
       "key": "program_revenue",
       "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_sales ELSE 0 END), 0)",
       "type": "FLOAT",
-      "description": "Internal alias of program_gmv, kept for the retired reports that used this name. Identical selector; not exposed externally -- external callers use perf_program_gmv.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:cost_per_click",
-        "report_group:roas"
-      ]
+      "description": "Internal alias of program_gmv, kept for the retired reports that used this name. Identical selector; not exposed externally -- external callers use perf_program_gmv."
     },
     "program_gmv": {
       "key": "program_gmv",

@@ -19,8 +19,7 @@
     "marketplace_client_id": {
       "key": "marketplace_client_id",
       "selector": "tr.marketplace_client_id",
-      "type": "STRING",
-      "filterTags": []
+      "type": "STRING"
     },
     "metric": {
       "key": "metric",
