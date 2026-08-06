@@ -145,7 +145,7 @@ Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see K
 |---|---|---|---|---|
 | `CATEGORY_REQUEST_VOLUME_REPORT` | — | 3 | 1 | ✅ |
 | `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` | — | 3 | 10 | ✅ |
-| `FILTER_PRESENCE_RR_REPORT` *(ungrouped)* | — | 4 | 34 | ✅ |
+| `FILTER_PRESENCE_RR_REPORT` | — | 4 | 34 | ✅ |
 | `MERCHANT_PERFORMANCE_REPORT` | — | 4 | 15 | ✅ |
 | `PAGE_PERFORMANCE_PLA_REPORT` | — | 2 | 6 | ✅ |
 | `RR_DISPLAY_REPORT` | — | 9 | 3 | ✅ |
