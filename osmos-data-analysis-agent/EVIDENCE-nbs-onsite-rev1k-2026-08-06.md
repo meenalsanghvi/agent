@@ -466,7 +466,7 @@ the supposed "healthy baseline."
 
 So we extended the window back to February. And that changed everything.
 
-### Wrong turn number two — June was a fluke
+### Wrong turn number two — June wasn't a fluke, it was a sale
 
 | Month | Live campaigns/day | Impressions/day | **Campaigns per million impressions** | Price per 1,000 | Price per click |
 |---|---|---|---|---|---|
@@ -481,24 +481,49 @@ Ajio's ad business is **about six months old and growing explosively** — from 
 million impressions a day, a **7× increase** since March. As all that new advertising space appeared,
 the price naturally fell: INR 155.76 → 60.05.
 
-And look at June. **It has the highest campaign count of any month in Ajio's history.** It was a
-one-off peak.
+And look at June. **It has the highest campaign count of any month in Ajio's history.** At first we
+called it a fluke. Then the business told us what it actually was:
+
+> **Ajio runs its flagship mid-year event, the Ajio Big Bold Sale, from roughly 30 May to 13 June.**
+
+That single fact explains everything. **Thirteen of June's thirty days — 43% of the baseline month —
+fall inside Ajio's biggest sale of the first half of the year.**
+
+| Window | Days | CPM | Price/click | Impr/day | Campaigns/day | **Spend/day** |
+|---|---|---|---|---|---|---|
+| Before the sale (1–29 May) | 29 | 67.35 | INR 4.80 | 36.1M | 988 | **INR 2,429,983** |
+| **THE SALE (30 May – 13 Jun)** | 15 | **98.62** | **INR 8.01** | **48.9M** | **1,274** | **INR 4,818,070** |
+| After the sale (14–30 Jun) | 17 | 70.53 | INR 6.85 | 34.5M | 1,199 | **INR 2,432,880** |
+| July (no sale) | 31 | 63.96 | INR 5.94 | 37.9M | 852 | **INR 2,423,614** |
+
+During the sale, spend per day nearly **doubled** (+98%) and price per click rose **67%**. Advertisers
+piled in, bid each other up, and the auction got expensive — exactly as it should during a flagship
+sale.
+
+And the break lands on precisely the day the fact predicts:
 
 ```
-June → July price per click:  INR 7.56 → 5.94   −21.5%   ← what we were asked to explain
-May  → July price per click:  INR 5.10 → 5.94   +16.4%   ← measured from a normal month
+13 Jun   CPM INR 90.39   ← last day of the sale
+14 Jun   CPM INR 78.20   ← −13.5%, the very next day
 ```
 
-**Ajio's price per click did not fall. It rose 16.4%.** Choosing June as the baseline manufactured
-the decline.
+**Look at the spend-per-day column again.** INR 2,429,983 before the sale. INR 2,432,880 after it.
+INR 2,423,614 in July. **Ajio's normal daily spend has not moved at all.** The only thing that ever
+changed was a 15-day sale sitting inside the baseline month.
 
-The pattern is beautifully simple. We measured "advertiser demand per unit of advertising space" —
-campaigns divided by impressions — and compared it to price. **The two track each other with a
-correlation of +0.881.** When there are more advertisers per slot, prices rise. When space grows
-faster than advertisers, prices fall. June had a demand spike; July didn't.
+On a clean, sale-free comparison:
 
-The slide is also **flattening out**. Month-on-month price change: −33%, −31%, +17%, −24%, and now
-just **−6%**. The brutal repricing was the March-to-May growth spurt, not July.
+| Ajio, non-sale basis | 1–29 May | July | Change |
+|---|---|---|---|
+| Spend per day | INR 2,429,983 | INR 2,423,614 | **−0.3% — flat** |
+| Price per click | INR 4.80 | INR 5.94 | **+23.8%** |
+
+**Ajio's revenue is flat and its price per click is up 24%. There is no Ajio decline.** The entire
+"−24% revenue, −21% price" story was an artefact of comparing a sale month against a normal one.
+
+*(This also retires our own earlier theory. We had explained the June peak as "high advertiser demand
+per unit of space" — campaigns per impression, correlating with price at +0.881. That relationship is
+real, but it was describing a symptom. The cause was the sale.)*
 
 ### What is genuinely wrong at Ajio
 
@@ -524,6 +549,37 @@ budget **halved** (INR 3,392 → 2,000) and the **total money in the auction fel
 
 **More bidders, each with emptier pockets.** Ajio is signing up advertisers who deposit less and
 less. The sales motion is working; the funding motion is not.
+
+*(One caution on this table: it spans the sale, so June's budget figures are themselves partly
+sale-inflated. The direction — falling budget per campaign while campaign count rises — holds across
+May, June and July alike, so it is not a sale artefact. But treat the exact percentages as
+approximate.)*
+
+### What the sale does to the company-wide number
+
+Ajio was 61% of the reported Product Ads decline. So if Ajio's June was sale-inflated, the whole
+company's baseline is too. We measured the portfolio against every available baseline:
+
+| Window | Days | Rev/1k |
+|---|---|---|
+| May 1–29 (no sale) | 29 | **$1.4877** |
+| **THE SALE, 30 May – 13 Jun** | 15 | **$1.6588** |
+| Jun 14–30 (no sale) | 17 | **$1.4716** |
+| July (no sale) | 31 | $1.3913 |
+
+| July measured against… | Change |
+|---|---|
+| The tracker's June — *contains the sale* | **−10.2%** ← what gets reported |
+| May 1–29, no sale | **−6.5%** |
+| Jun 14–30, no sale | **−5.5%** |
+
+The two sale-free windows agree closely ($1.4877 and $1.4716), which gives us confidence in them.
+Against a clean baseline the real decline is about **−6%**, not −10.2%.
+
+**So roughly 42% of the reported Product Ads decline is a sale-timing artefact.**
+
+The remaining ~58% is real — and that part is BigBasket's dilution, which has nothing to do with
+sales seasonality.
 
 ---
 
@@ -689,23 +745,44 @@ $6.08M baseline — +65% in a single quarter** — a figure written nowhere on t
 **3. The September target is out of reach.** It needs **+76%** in one month ($1.16 → $2.05) and
 **+63%** more revenue. This should be reset, not defended.
 
-**4. Two retailers explain 87%, for two opposite reasons.** **BigBasket (26%)** grew too fast for
-itself — it served **the same 595 million ads** in July as in June while requests rose 18%, so all
-301 million extra requests came back empty. **Ajio (61%)** has an under-funded auction — the **total
-money in it fell 28.7%** even though campaign numbers *grew* 19%. Fixing BigBasket's fill and Ajio's
-pricing together recovers **91%** of the decline.
+**4. Two retailers appear to explain 87% — but only one of them is a real problem.** On the raw
+numbers, **Ajio was 61%** and **BigBasket 26%**. Conclusion 6 shows Ajio's share is largely a sale
+artefact. What survives is **BigBasket**: it served **the same 595 million ads** in July as in June
+while requests rose 18%, so all 301 million extra requests came back empty. That is the genuine
+operational failure.
 
 **5. It is not a money problem or a pricing problem.** BigBasket has **961 funded advertisers and
 $48.2M sitting unspent** while 70% of requests return nothing — the demand is there, it just cannot
 reach the inventory. Ajio's advertisers **never changed their bids** (a fixed system default of INR
 6.00 every month). And **price per click barely moved** overall ($0.2450 → $0.2446). The problem is
-*fill* and *funding*, not price.
+*fill*, not price.
 
-**6. Part of the reported decline isn't real — it's a baseline choice.** June was **Ajio's
-highest-demand month ever**, and Ajio is 61% of the move. Measured against May instead, Ajio's price
-per click is **+16.4%**, not −21%. Likewise the alarming August figure of 862.4M requests is **five
-days of data** against a full-month target. *(The August Rev/1k of $1.16 is real, though — comparing
-the same five days each month gives $2.171 → $1.639 → $1.363.)*
+**6. Roughly 42% of the reported decline is not real — it is the timing of a sale.** **Ajio runs its
+Big Bold Sale from about 30 May to 13 June**, so **13 of the baseline month's 30 days sit inside
+Ajio's biggest sale of the half-year.** During it, Ajio's spend per day nearly **doubled** and its
+price per click rose **67%**. The day after the sale ended, CPM fell **13.5%** overnight.
+
+Measured properly, Ajio never declined at all:
+
+| Ajio, sale-free comparison | 1–29 May | July | |
+|---|---|---|---|
+| Spend per day | INR 2,429,983 | INR 2,423,614 | **−0.3%, flat** |
+| Price per click | INR 4.80 | INR 5.94 | **+23.8%** |
+
+And for the company as a whole:
+
+| July measured against… | Change |
+|---|---|
+| The tracker's June (contains the sale) | **−10.2%** |
+| May 1–29, no sale | −6.5% |
+| Jun 14–30, no sale | −5.5% |
+
+**The genuine decline is about −6%, not −10.2%.** The remaining ~58% is real, and it is BigBasket's
+dilution.
+
+*(Separately, the alarming August figure of 862.4M requests is **five days of data** against a
+full-month target. The August Rev/1k of $1.16 is real though — comparing the same five days each
+month gives $2.171 → $1.639 → $1.363.)*
 
 **7. A large slice of the denominator can never be filled.** One BigBasket ad slot carries **578
 million requests (30% of its volume) at 6 cents per thousand**. Autocomplete keystrokes add **62.3
@@ -726,7 +803,7 @@ the basis of every Display figure here, and it agrees with the tracker to within
 | Priority | Action | Why |
 |---|---|---|
 | 1 | **Decide which OKR is primary** | They currently cancel each other out. This is a decision, not a fix. |
-| 2 | **Re-baseline off May, not June** | June is a demand peak, and the peak retailer is 61% of the move. |
+| 2 | **Re-baseline off a sale-free window, and build a sales calendar into the tracker** | June contains 13 days of Ajio's Big Bold Sale (30 May – 13 Jun). Against a clean baseline the decline is **−6%, not −10.2%**. Any tracker that compares month to month without knowing the sales calendar will keep producing false alarms — and false triumphs when a sale lands in the current month instead. |
 | 3 | **Filter out the "Monetize Sandbox" test platform, and stop it writing to production tables** | Confirmed as a testing platform. Left in, it made Display look like a 65% collapse instead of 12%. Also delete its 75 future-dated rows. The deeper question: why can a sandbox tenant write to production reporting at all — and are there others? |
 | 3b | **Fix the `filtered_level` cost duplication, or retire the table for money figures** | BigBasket's cost is repeated 11.8×; Tira and Apollo under-report. Requests are fine. Until fixed, use `ad_unit_facts` for all Display revenue. |
 | 4 | **Audit the 16,342 impossible bids and switch on the dormant campaigns** | Cheapest, most mechanical fix available — starting with the 12 draft campaigns holding $81 bids and $90.8M of balance. |
@@ -787,9 +864,15 @@ Recorded because each one changed a conclusion, and anyone re-running this will 
 2. **We described the 85.2% factor as "net of commission."** That was a guess, and it's wrong —
    commission is zero and switched off everywhere.
 3. **We thought Ajio's price drop was a platform pricing change on 1 July.** Extending the window to
-   February showed a continuous slide from March with June as a demand spike. Against May, Ajio's
-   price is **up** 16.4%.
-4. **We reported a 31% drop in Ajio's campaign count.** Wrong table — live campaigns actually *grew*.
+   February showed a continuous slide from March with June as a spike. We then explained the spike as
+   "advertiser demand per unit of space" — a real correlation (+0.881) but only a symptom.
+4. **The actual cause was a fact the data alone could not supply: the Ajio Big Bold Sale
+   (≈30 May – 13 Jun).** Thirteen of the baseline month's thirty days sat inside Ajio's flagship sale.
+   Once known, the daily data confirmed it exactly — CPM fell 13.5% the day after the sale ended, and
+   Ajio's non-sale spend per day is flat to within 0.3% across May, June and July. **This is the
+   clearest lesson of the whole investigation: no amount of querying would have found it. We had to be
+   told.** Always ask for the promotional calendar before trusting a month-over-month comparison.
+5. **We reported a 31% drop in Ajio's campaign count.** Wrong table — live campaigns actually *grew*.
    The real contraction was in budget per campaign.
-5. **We first blamed BigBasket's fill drop on traffic moving to bad slots.** After merging a
+6. **We first blamed BigBasket's fill drop on traffic moving to bad slots.** After merging a
    renamed slot, 95% of it turned out to be *every* slot filling worse.
