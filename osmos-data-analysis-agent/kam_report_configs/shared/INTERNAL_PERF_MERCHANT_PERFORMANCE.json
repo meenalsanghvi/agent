@@ -25,61 +25,25 @@
       "key": "os_client_id",
       "selector": "base.os_client_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "OnlineSales client id of the merchant (working id for internal analysis).",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_os_client_id"
     },
     "merchant_name": {
       "key": "merchant_name",
       "selector": "base.merchant_name",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_name",
-      "description": "Human-readable merchant (seller) name.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_merchant_name"
     },
     "merchant_id": {
       "key": "merchant_id",
       "selector": "base.merchant_id",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_id",
-      "description": "Merchant (seller) id (working id for internal analysis).",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_merchant_id"
     },
     "channel": {
       "key": "channel",
       "selector": "base.channel",
       "type": "STRING",
-      "externalColumnName": "perf_channel",
-      "description": "Ad program channel: os_product_ads (PLA), guaranteed_display_ads / auction_display_ads (Display). Use as a filter to scope the PROGRAM funnel to a program type; SITE (organic) metrics are the merchant's full organic funnel regardless of channel.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_channel"
     }
   },
   "metrics": {
@@ -88,225 +52,97 @@
       "selector": "COALESCE(SUM(base.spend), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "PROGRAM ad spend for this merchant, converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "description": "PROGRAM ad spend for this merchant, converted to the marketplace currency."
     },
     "clicks": {
       "key": "clicks",
       "selector": "COALESCE(SUM(base.clicks), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_clicks",
-      "description": "PROGRAM ad clicks for this merchant.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "description": "PROGRAM ad clicks for this merchant."
     },
     "impressions": {
       "key": "impressions",
       "selector": "COALESCE(SUM(base.impressions), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_impressions",
-      "description": "PROGRAM ad impressions for this merchant.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "description": "PROGRAM ad impressions for this merchant."
     },
     "ctr": {
       "key": "ctr",
       "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(base.clicks) * 100.0, NULLIF(SUM(base.impressions), 0)), 2), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_ctr",
-      "description": "Clicks as a percentage of impressions for this merchant.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_ctr"
     },
     "cpc": {
       "key": "cpc",
       "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(base.spend), NULLIF(SUM(base.clicks), 0)), 4), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_cpc",
-      "description": "Cost per click = spend / clicks for this merchant, in the marketplace currency.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_cpc"
     },
     "cpm": {
       "key": "cpm",
       "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(base.spend) * 1000, NULLIF(SUM(base.impressions), 0)), 4), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_cpm",
-      "description": "Cost per thousand impressions, in the marketplace currency.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_cpm"
     },
     "program_viewproducts": {
       "key": "program_viewproducts",
       "selector": "COALESCE(SUM(base.program_viewproducts), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_viewproducts",
-      "description": "PROGRAM (ad-attributed, per-click-timestamp) product views for this merchant.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_program_viewproducts"
     },
     "program_add2carts": {
       "key": "program_add2carts",
       "selector": "COALESCE(SUM(base.program_add2carts), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_add2carts",
-      "description": "PROGRAM (ad-attributed, per-click-timestamp) add-to-carts for this merchant.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_program_add2carts"
     },
     "program_orders": {
       "key": "program_orders",
       "selector": "COALESCE(SUM(base.program_orders), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_orders",
-      "description": "PROGRAM (ad-attributed, per-click-timestamp) conversions / orders for this merchant.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_program_orders"
     },
     "program_gmv": {
       "key": "program_gmv",
       "selector": "COALESCE(SUM(base.program_gmv), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_program_gmv",
-      "description": "PROGRAM (ad-attributed, per-click-timestamp) GMV / sales for this merchant, converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "description": "PROGRAM (ad-attributed, per-click-timestamp) GMV / sales for this merchant, converted to the marketplace currency."
     },
     "roas": {
       "key": "roas",
       "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(base.program_gmv), NULLIF(SUM(base.spend), 0)), 4), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_roas",
-      "description": "ROI / ROAS = program_gmv / spend for this merchant (return on ad spend).",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_roas"
     },
     "site_viewproducts": {
       "key": "site_viewproducts",
       "selector": "COALESCE(SUM(org.site_viewproducts), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_site_viewproducts",
-      "description": "SITE (organic, total store) product views for this merchant.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "description": "SITE (organic, total store) product views for this merchant."
     },
     "site_add2carts": {
       "key": "site_add2carts",
       "selector": "COALESCE(SUM(org.site_add2carts), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_site_add2carts",
-      "description": "SITE (organic, total store) add-to-carts for this merchant.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_site_add2carts"
     },
     "site_orders": {
       "key": "site_orders",
       "selector": "COALESCE(SUM(org.site_orders), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_site_orders",
-      "description": "SITE (organic, total store) sale-completes / orders for this merchant.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "description": "SITE (organic, total store) sale-completes / orders for this merchant."
     },
     "site_revenue": {
       "key": "site_revenue",
       "selector": "COALESCE(SUM(org.site_gmv), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_site_revenue",
-      "description": "SITE (organic, total store) revenue / GMV for this merchant, converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through",
-        "report_group:budget_utilisation",
-        "report_group:response_rate"
-      ]
+      "description": "SITE (organic, total store) revenue / GMV for this merchant, converted to the marketplace currency."
     }
   },
   "dateRanges": {

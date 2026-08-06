@@ -22,13 +22,7 @@
       "key": "keyword",
       "selector": "LOWER(TRIM(r.search_query, '[],\",'))",
       "type": "STRING",
-      "externalColumnName": "perf_keyword",
-      "description": "The normalized search query (keyword) users typed, lower-cased and stripped of bracket/quote characters.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_keyword"
     }
   },
   "metrics": {
@@ -36,49 +30,25 @@
       "key": "requests",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.request ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_requests",
-      "description": "Total ad requests received for this keyword on search pages over the period.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_requests"
     },
     "responses": {
       "key": "responses",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.response ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_responses",
-      "description": "Total ad responses (non-empty fills) served for this keyword on search pages over the period.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_responses"
     },
     "response_rate": {
       "key": "response_rate",
       "selector": "SAFE_DIVIDE(COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.response ELSE 0 END), 0) * 100, NULLIF(COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.request ELSE 0 END), 0), 0))",
       "type": "FLOAT",
-      "externalColumnName": "perf_response_rate",
-      "description": "Response rate for this keyword (responses * 100 / requests) on search pages over the period.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_response_rate"
     },
     "days_with_requests": {
       "key": "days_with_requests",
       "selector": "COUNT(DISTINCT CASE WHEN DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN DATE(TIMESTAMP(r.date, 'UTC'), '__SP_TIMEZONE__') END)",
       "type": "FLOAT",
-      "externalColumnName": "perf_days_with_requests",
-      "description": "Number of distinct days (in the marketplace timezone) on which this keyword received at least one request.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_days_with_requests"
     }
   },
   "dateRanges": {

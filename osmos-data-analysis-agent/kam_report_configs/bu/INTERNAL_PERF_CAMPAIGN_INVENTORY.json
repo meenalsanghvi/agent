@@ -20,41 +20,25 @@
       "key": "inventory_name",
       "selector": "bad.au_display_name",
       "type": "STRING",
-      "externalColumnName": "perf_inventory_name",
-      "description": "Display inventory / ad-unit slot display name the campaign served on.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_inventory_name"
     },
     "campaign_group_name": {
       "key": "campaign_group_name",
       "selector": "mcgd.marketing_campaign_group_alias",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_group_name",
-      "description": "Human-readable Display campaign group (campaign) name.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_campaign_group_name"
     },
     "campaign_group_id": {
       "key": "campaign_group_id",
       "selector": "mcgd.marketing_campaign_group_id",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_group_id",
-      "description": "Marketing campaign group id of the Display campaign. Use as a filter to scope to specific campaign group(s).",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_campaign_group_id"
     },
     "os_client_id": {
       "key": "os_client_id",
       "selector": "baf.client_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "OnlineSales client id of the advertiser running the campaign (working id for internal analysis). Use as a filter to scope to specific client(s).",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_os_client_id"
     }
   },
   "metrics": {
@@ -63,70 +47,45 @@
       "selector": "COALESCE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.cost ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Ad spend on this inventory slot for this campaign (fact-table native currency, unconverted per source).",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "description": "Ad spend on this inventory slot for this campaign (fact-table native currency, unconverted per source)."
     },
     "impressions": {
       "key": "impressions",
       "selector": "COALESCE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.onsite_impressions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_impressions",
-      "description": "Onsite ad impressions on this inventory slot for this campaign.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_impressions"
     },
     "clicks": {
       "key": "clicks",
       "selector": "COALESCE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.clicks ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_clicks",
-      "description": "Ad clicks on this inventory slot for this campaign.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_clicks"
     },
     "ctr": {
       "key": "ctr",
       "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.clicks ELSE 0 END) * 100.0, NULLIF(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.onsite_impressions ELSE 0 END), 0)), 2), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_ctr",
-      "description": "Click-through rate (%) = clicks / impressions * 100 for this inventory slot x campaign.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_ctr"
     },
     "cpm": {
       "key": "cpm",
       "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.cost ELSE 0 END) * 1000, NULLIF(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.onsite_impressions ELSE 0 END), 0)), 4), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_cpm",
-      "description": "Cost per mille = spend / impressions * 1000 for this inventory slot x campaign (fact-table native currency).",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "description": "Cost per mille = spend / impressions * 1000 for this inventory slot x campaign (fact-table native currency)."
     },
     "program_gmv": {
       "key": "program_gmv",
       "selector": "COALESCE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.program_per_click_timestamp_sales ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_program_gmv",
-      "description": "PROGRAM (ad-attributed, per-click-timestamp) GMV / sales on this inventory slot for this campaign (fact-table native currency).",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "description": "PROGRAM (ad-attributed, per-click-timestamp) GMV / sales on this inventory slot for this campaign (fact-table native currency)."
     },
     "roas": {
       "key": "roas",
       "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.program_per_click_timestamp_sales ELSE 0 END), NULLIF(SUM(CASE WHEN baf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN baf.cost ELSE 0 END), 0)), 4), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_roas",
-      "description": "ROI / ROAS = program_gmv / spend for this inventory slot x campaign.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_roas"
     }
   },
   "dateRanges": {

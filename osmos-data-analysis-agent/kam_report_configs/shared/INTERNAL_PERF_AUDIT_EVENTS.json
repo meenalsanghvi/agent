@@ -23,189 +23,104 @@
       "selector": "SAFE_CAST(al.action_type_id AS STRING)",
       "type": "INTEGER",
       "applyCaseInsensitiveFilter": true,
-      "description": "Audit action type. 17 = daily-budget change, 16 = campaign status change, 50 = product added, 51 = product removed. Required filter -- it selects the event kind.",
       "key": "action_type_id",
-      "externalColumnName": "perf_action_type_id",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_action_type_id"
     },
     "os_client_id": {
       "key": "os_client_id",
       "selector": "al.entity_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "Advertiser client id (entity_id). Optional filter.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_os_client_id"
     },
     "campaign_id": {
       "key": "campaign_id",
       "selector": "al.scope_id",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_id",
-      "description": "Marketing campaign id (scope_id). Optional filter.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_campaign_id"
     },
     "campaign_name": {
       "key": "campaign_name",
       "selector": "JSON_EXTRACT_SCALAR(al.scope_metadata, '$.campaignName')",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_name",
-      "description": "Campaign name.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_campaign_name"
     },
     "campaign_type": {
       "key": "campaign_type",
       "selector": "JSON_EXTRACT_SCALAR(al.scope_metadata, '$.campaignType')",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_type",
-      "description": "Campaign type.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_campaign_type"
     },
     "campaign_subtype": {
       "key": "campaign_subtype",
       "selector": "JSON_EXTRACT_SCALAR(al.scope_metadata, '$.campaignSubType')",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_subtype",
-      "description": "Campaign subtype.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_campaign_subtype"
     },
     "change_timestamp": {
       "key": "change_timestamp",
       "selector": "DATETIME(al.timestamp, '__SP_TIMEZONE__')",
       "type": "STRING",
-      "externalColumnName": "perf_change_timestamp",
-      "description": "Local time of the change.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_change_timestamp"
     },
     "change_time": {
       "key": "change_time",
       "selector": "DATETIME(al.timestamp, '__SP_TIMEZONE__')",
       "type": "STRING",
-      "externalColumnName": "perf_change_time",
-      "description": "Local time of the change.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_change_time"
     },
     "old_status": {
       "key": "old_status",
       "selector": "JSON_EXTRACT_SCALAR(al.old_state, '$.status')",
       "type": "STRING",
-      "externalColumnName": "perf_old_status",
-      "description": "Status before the change.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_old_status"
     },
     "new_status": {
       "key": "new_status",
       "selector": "JSON_EXTRACT_SCALAR(al.new_state, '$.status')",
       "type": "STRING",
-      "externalColumnName": "perf_new_status",
-      "description": "Status after the change.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_new_status"
     },
     "old_budget": {
       "key": "old_budget",
       "selector": "JSON_EXTRACT_SCALAR(al.old_state, '$.dailyBudget')",
       "type": "STRING",
-      "externalColumnName": "perf_old_budget",
-      "description": "Daily budget before the change.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_old_budget"
     },
     "new_budget": {
       "key": "new_budget",
       "selector": "JSON_EXTRACT_SCALAR(al.new_state, '$.dailyBudget')",
       "type": "STRING",
-      "externalColumnName": "perf_new_budget",
-      "description": "Daily budget after the change.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_new_budget"
     },
     "currency": {
       "key": "currency",
       "selector": "JSON_EXTRACT_SCALAR(al.old_state, '$.currency')",
       "type": "STRING",
-      "externalColumnName": "perf_currency",
-      "description": "Currency of the budget values.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_currency"
     },
     "sku_id": {
       "key": "sku_id",
       "selector": "JSON_EXTRACT_SCALAR(al.new_state, '$.skuId')",
       "type": "STRING",
-      "externalColumnName": "perf_sku_id",
-      "description": "SKU added/removed.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_sku_id"
     },
     "action": {
       "key": "action",
       "selector": "CASE WHEN al.action_type_id = 50 THEN 'added' WHEN al.action_type_id = 51 THEN 'removed' ELSE NULL END",
       "type": "STRING",
-      "externalColumnName": "perf_action",
-      "description": "For product-selection events (action_type_id 50/51): whether the SKU was added to or removed from the campaign. Null for other event types.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_action"
     },
     "changed_by": {
       "key": "changed_by",
       "selector": "JSON_EXTRACT_SCALAR(al.user, '$.name')",
       "type": "STRING",
-      "externalColumnName": "perf_changed_by",
-      "description": "Actor name.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_changed_by"
     },
     "changed_by_type": {
       "key": "changed_by_type",
       "selector": "JSON_EXTRACT_SCALAR(al.user, '$.userType')",
       "type": "STRING",
-      "externalColumnName": "perf_changed_by_type",
-      "description": "Actor type.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_changed_by_type"
     }
   },
   "metrics": {
@@ -213,12 +128,7 @@
       "key": "placeholder_metric",
       "selector": "0",
       "type": "FLOAT",
-      "externalColumnName": "perf_placeholder_metric",
-      "description": "Row-level passthrough placeholder.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_placeholder_metric"
     }
   },
   "dateRanges": {

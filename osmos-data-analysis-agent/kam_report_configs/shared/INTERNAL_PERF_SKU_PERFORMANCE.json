@@ -25,105 +25,49 @@
       "key": "sku_id",
       "selector": "prog.product_id",
       "type": "STRING",
-      "externalColumnName": "perf_sku_id",
-      "description": "The SKU (product) id.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_sku_id"
     },
     "os_client_id": {
       "key": "os_client_id",
       "selector": "prog.client_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "OnlineSales client id of the merchant (working id for internal analysis). Filter by this to scope to specific merchants.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_os_client_id"
     },
     "merchant_id": {
       "key": "merchant_id",
       "selector": "prog.seller_id",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_id",
-      "description": "Merchant (seller) id (working id for internal analysis).",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_merchant_id"
     },
     "merchant_name": {
       "key": "merchant_name",
       "selector": "prog.seller_name",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_name",
-      "description": "Human-readable merchant (seller) name.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_merchant_name"
     },
     "product_name": {
       "key": "product_name",
       "selector": "prog.product",
       "type": "STRING",
-      "externalColumnName": "perf_product_name",
-      "description": "Human-readable product name of the SKU.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_product_name"
     },
     "brand": {
       "key": "brand",
       "selector": "prog.brand",
       "type": "STRING",
-      "externalColumnName": "perf_brand",
-      "description": "Brand of the SKU.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_brand"
     },
     "category": {
       "key": "category",
       "selector": "prog.category",
       "type": "STRING",
-      "externalColumnName": "perf_category",
-      "description": "Product-type / category of the SKU.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_category"
     },
     "campaign_names": {
       "key": "campaign_names",
       "selector": "prog.campaign_names",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_names",
-      "description": "Comma-separated distinct campaign aliases the SKU was advertised under.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_campaign_names"
     }
   },
   "metrics": {
@@ -132,169 +76,83 @@
       "selector": "COALESCE(SUM(prog.spend), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "PLA ad spend for this SKU (raw cost, not currency-converted).",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "description": "PLA ad spend for this SKU (raw cost, not currency-converted)."
     },
     "impressions": {
       "key": "impressions",
       "selector": "COALESCE(SUM(prog.impressions), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_impressions",
-      "description": "PLA ad impressions for this SKU.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_impressions"
     },
     "clicks": {
       "key": "clicks",
       "selector": "COALESCE(SUM(prog.clicks), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_clicks",
-      "description": "PLA ad clicks for this SKU.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_clicks"
     },
     "ctr": {
       "key": "ctr",
       "selector": "COALESCE(ROUND(SAFE_DIVIDE(COALESCE(SUM(prog.clicks), 0) * 100.0, NULLIF(COALESCE(SUM(prog.impressions), 0), 0)), 2), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_ctr",
-      "description": "Click-through rate (%) = clicks / impressions * 100 for this SKU. 0 when impressions = 0.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_ctr"
     },
     "cpc": {
       "key": "cpc",
       "selector": "SAFE_DIVIDE(COALESCE(SUM(prog.spend), 0), COALESCE(SUM(prog.clicks), 0))",
       "type": "FLOAT",
       "externalColumnName": "perf_cpc",
-      "description": "Cost per click for this SKU = spend / clicks (raw cost, not currency-converted). Null when clicks = 0.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "description": "Cost per click for this SKU = spend / clicks (raw cost, not currency-converted). Null when clicks = 0."
     },
     "program_viewproducts": {
       "key": "program_viewproducts",
       "selector": "COALESCE(SUM(prog.program_viewproducts), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_viewproducts",
-      "description": "Ad-attributed product views (per-click-timestamp) for this SKU.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_program_viewproducts"
     },
     "program_add2carts": {
       "key": "program_add2carts",
       "selector": "COALESCE(SUM(prog.program_add2carts), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_add2carts",
-      "description": "Ad-attributed add-to-carts (per-click-timestamp) for this SKU.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_program_add2carts"
     },
     "program_orders": {
       "key": "program_orders",
       "selector": "COALESCE(SUM(prog.program_orders), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_orders",
-      "description": "Ad-attributed orders / conversions (per-click-timestamp) for this SKU.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_program_orders"
     },
     "program_gmv": {
       "key": "program_gmv",
       "selector": "COALESCE(SUM(prog.program_gmv), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_program_gmv",
-      "description": "Ad-attributed sales / GMV (per-click-timestamp) for this SKU (raw, not currency-converted).",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "description": "Ad-attributed sales / GMV (per-click-timestamp) for this SKU (raw, not currency-converted)."
     },
     "site_viewproducts": {
       "key": "site_viewproducts",
       "selector": "COALESCE(SUM(org.site_viewproducts), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_site_viewproducts",
-      "description": "Organic (site) product views for this SKU from the marketplace's merchandise facts.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "description": "Organic (site) product views for this SKU from the marketplace's merchandise facts."
     },
     "site_add2carts": {
       "key": "site_add2carts",
       "selector": "COALESCE(SUM(org.site_add2carts), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_site_add2carts",
-      "description": "Organic (site) add-to-carts for this SKU from the marketplace's merchandise facts.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_site_add2carts"
     },
     "site_orders": {
       "key": "site_orders",
       "selector": "COALESCE(SUM(org.site_orders), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_site_orders",
-      "description": "Organic (site) completed orders for this SKU from the marketplace's merchandise facts.",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "description": "Organic (site) completed orders for this SKU from the marketplace's merchandise facts."
     },
     "site_gmv": {
       "key": "site_gmv",
       "selector": "COALESCE(SUM(org.site_gmv), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_site_gmv",
-      "description": "Organic (site) sales / GMV (USD) for this SKU from the marketplace's merchandise facts (raw, not currency-converted).",
-      "filterTags": [
-        "report_group:skus",
-        "report_group:roas",
-        "report_group:cost_per_click",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_site_gmv"
     }
   },
   "dateRanges": {

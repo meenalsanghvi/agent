@@ -21,111 +21,61 @@
       "key": "marketing_campaign_id",
       "selector": "ctd.marketing_campaign_id",
       "type": "STRING",
-      "externalColumnName": "perf_marketing_campaign_id",
-      "description": "Marketing campaign id - the id most downstream campaign reports expect. Filter on this when the user already supplied a marketing_campaign_id.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_marketing_campaign_id"
     },
     "campaign_id": {
       "key": "campaign_id",
       "selector": "ctd.campaign_id",
       "type": "STRING",
-      "externalColumnName": "perf_internal_campaign_id",
-      "description": "Internal (serving-side) campaign id. Filter on this when the user supplied a campaign_id.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_internal_campaign_id"
     },
     "campaign_group_id": {
       "key": "campaign_group_id",
       "selector": "ctd.campaign_group_id",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_group_id",
-      "description": "Internal (serving-side) campaign group id. Filter on this when the user supplied a campaign_group_id.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_campaign_group_id"
     },
     "marketing_campaign_group_id": {
       "key": "marketing_campaign_group_id",
       "selector": "ctd.marketing_campaign_group_id",
       "type": "STRING",
-      "externalColumnName": "perf_marketing_campaign_group_id",
-      "description": "Marketing campaign group id. Filter on this when the user supplied a marketing_campaign_group_id; one group can expand to several marketing_campaign_ids.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_marketing_campaign_group_id"
     },
     "os_client_id": {
       "key": "os_client_id",
       "selector": "ctd.client_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "Advertiser client id that owns the campaign - the scope id for merchant/SKU drill-downs on this campaign.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_os_client_id"
     },
     "campaign_name": {
       "key": "campaign_name",
       "selector": "mcd.alias",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_name",
-      "description": "Human-readable campaign name (the marketing campaign alias).",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_campaign_name"
     },
     "campaign_type": {
       "key": "campaign_type",
       "selector": "mcd.campaign_type",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_type",
-      "description": "Campaign type (PERFORMANCE, INVENTORY, OFFSITE, ...).",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_campaign_type"
     },
     "campaign_subtype": {
       "key": "campaign_subtype",
       "selector": "mcd.campaign_subtype",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_subtype",
-      "description": "Campaign subtype (os_ads_search, smart_shopping, auction_display_ads, ...) - distinguishes PLA from Display for column selection downstream.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_campaign_subtype"
     },
     "bidding_strategy": {
       "key": "bidding_strategy",
       "selector": "mcd.bidding_strategy",
       "type": "STRING",
-      "externalColumnName": "perf_bidding_strategy",
-      "description": "Bid strategy of the campaign (CPC, AUTO_CPC, CPM, AUTO_CPM, ...). CPC/AUTO_CPC means the campaign is priced per click and CPC is the meaningful efficiency metric; CPM/AUTO_CPM means it is priced per mille and CPM is.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_bidding_strategy"
     },
     "campaign_status": {
       "key": "campaign_status",
       "selector": "mcd.effective_status",
       "type": "STRING",
-      "externalColumnName": "perf_effective_status",
-      "description": "Effective status of the campaign (ACTIVE, PAUSED, ...) at read time - a paused campaign explains a delivery drop on its own.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_effective_status"
     }
   },
   "metrics": {
@@ -133,12 +83,7 @@
       "key": "placeholder_metric",
       "selector": "0",
       "type": "FLOAT",
-      "externalColumnName": "perf_placeholder_metric",
-      "description": "Constant 0 - a required placeholder metric so the fetch layer accepts this pure-attribute lookup report; not a real measure.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_placeholder_metric"
     }
   },
   "dateRanges": {

@@ -21,144 +21,79 @@
       "key": "network",
       "selector": "r.network",
       "type": "STRING",
-      "externalColumnName": "perf_network",
-      "description": "The supply network / channel the ad request came from.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_network"
     },
     "store_id": {
       "key": "store_id",
       "selector": "r.store_id",
       "type": "STRING",
-      "externalColumnName": "perf_store_id",
-      "description": "The store the ad request was attributed to.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_store_id"
     },
     "page_type": {
       "key": "page_type",
       "selector": "r.page_type",
       "type": "STRING",
-      "externalColumnName": "perf_page_type",
-      "description": "The surface the ad served on (SEARCH, CATEGORY, PRODUCT, HOME, ...).",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_page_type"
     },
     "page_name": {
       "key": "page_name",
       "selector": "r.page_name",
       "type": "STRING",
-      "externalColumnName": "perf_page_name",
-      "description": "The specific page name the ad request was attributed to.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_page_name"
     },
     "device": {
       "key": "device",
       "selector": "r.device",
       "type": "STRING",
-      "externalColumnName": "perf_device",
-      "description": "The device type the ad request came from (mobile, desktop, app, ...).",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_device"
     },
     "category_l1": {
       "key": "category_l1",
       "selector": "r.category_l1",
       "type": "STRING",
-      "externalColumnName": "perf_category_l1",
-      "description": "Top-level (L1) product category the requests/responses were attributed to.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_category_l1"
     },
     "category_l2": {
       "key": "category_l2",
       "selector": "r.category_l2",
       "type": "STRING",
-      "externalColumnName": "perf_category_l2",
-      "description": "Second-level (L2) product category.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_category_l2"
     },
     "category_l3": {
       "key": "category_l3",
       "selector": "r.category_l3",
       "type": "STRING",
-      "externalColumnName": "perf_category_l3",
-      "description": "Third-level (L3) product category.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_category_l3"
     },
     "category_l4": {
       "key": "category_l4",
       "selector": "r.category_l4",
       "type": "STRING",
-      "externalColumnName": "perf_category_l4",
-      "description": "Fourth-level (L4) product category.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_category_l4"
     },
     "category_l5": {
       "key": "category_l5",
       "selector": "r.category_l5",
       "type": "STRING",
-      "externalColumnName": "perf_category_l5",
-      "description": "Fifth-level (L5) product category.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_category_l5"
     },
     "category": {
       "key": "category",
       "selector": "CONCAT(COALESCE(r.category_l1, 'na'), ' > ', COALESCE(r.category_l2, 'na'), ' > ', COALESCE(r.category_l3, 'na'))",
       "type": "STRING",
-      "externalColumnName": "perf_category",
-      "description": "Category hierarchy path (L1 > L2 > L3) the requests/responses were attributed to; 'na' where a level is missing.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_category"
     },
     "day": {
       "key": "day",
       "selector": "EXTRACT(DAY FROM r.date_hour)",
       "type": "FLOAT",
-      "externalColumnName": "perf_day",
-      "description": "Day-of-month (1-31) derived via EXTRACT(DAY FROM r.date_hour); used with hour to form the store-hour bucketing grain.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_day"
     },
     "hour": {
       "key": "hour",
       "selector": "EXTRACT(HOUR FROM r.date_hour)",
       "type": "FLOAT",
-      "externalColumnName": "perf_hour",
-      "description": "Hour-of-day (0-23) derived via EXTRACT(HOUR FROM r.date_hour); used with day to form the store-hour bucketing grain.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_hour"
     }
   },
   "metrics": {
@@ -166,34 +101,19 @@
       "key": "requests",
       "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_requests",
-      "description": "Ad requests received for this dimension grouping.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_requests"
     },
     "responses": {
       "key": "responses",
       "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.non_zero_responses ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_responses",
-      "description": "Requests that returned at least one ad (non-zero responses) for this dimension grouping.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_responses"
     },
     "response_rate": {
       "key": "response_rate",
       "selector": "SAFE_DIVIDE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.non_zero_responses ELSE 0 END) * 100, NULLIF(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0))",
       "type": "FLOAT",
-      "externalColumnName": "perf_response_rate",
-      "description": "Response rate (%) = non-zero responses / requests * 100 for this dimension grouping.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_response_rate"
     }
   },
   "dateRanges": {

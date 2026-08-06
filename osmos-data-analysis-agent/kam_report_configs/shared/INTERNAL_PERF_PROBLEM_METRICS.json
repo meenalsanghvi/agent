@@ -26,61 +26,37 @@
       "key": "metric",
       "selector": "tr.metric",
       "type": "STRING",
-      "externalColumnName": "perf_metric",
-      "description": "The trend metric that was flagged (e.g. roas, cpc, ctr, budget_utilisation, response_rate).",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_metric"
     },
     "old_value": {
       "key": "old_value",
       "selector": "tr.old_value",
       "type": "STRING",
-      "externalColumnName": "perf_old_value",
-      "description": "The metric's value in the prior/baseline week.",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_old_value"
     },
     "new_value": {
       "key": "new_value",
       "selector": "tr.new_value",
       "type": "STRING",
-      "externalColumnName": "perf_new_value",
-      "description": "The metric's value in the reported week.",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_new_value"
     },
     "change_perc": {
       "key": "change_perc",
       "selector": "tr.change_perc",
       "type": "STRING",
-      "externalColumnName": "perf_change_perc",
-      "description": "Percent change of the metric from old_value to new_value (raw source column from the trend-analysis report).",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_change_perc"
     },
     "severity": {
       "key": "severity",
       "selector": "tr.severity",
       "type": "STRING",
-      "externalColumnName": "perf_severity",
-      "description": "Flag severity for this metric (e.g. normal / warning / critical); Python flags rows where severity != 'normal'.",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_severity"
     },
     "primary_reason": {
       "key": "primary_reason",
       "selector": "tr.primary_reason",
       "type": "STRING",
-      "externalColumnName": "perf_primary_reason",
-      "description": "Primary reason attributed to the metric change.",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_primary_reason"
     }
   },
   "metrics": {
@@ -88,10 +64,7 @@
       "key": "placeholder_metric",
       "selector": "0",
       "type": "FLOAT",
-      "externalColumnName": "perf_placeholder_metric",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_placeholder_metric"
     }
   },
   "dateRanges": {

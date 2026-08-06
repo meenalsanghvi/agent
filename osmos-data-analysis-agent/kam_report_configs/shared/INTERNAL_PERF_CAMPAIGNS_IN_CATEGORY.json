@@ -21,133 +21,73 @@
       "key": "merchant_name",
       "selector": "mmd.merchant_name",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_name",
-      "description": "Display name of the merchant that owns the campaign.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_merchant_name"
     },
     "merchant_id": {
       "key": "merchant_id",
       "selector": "mmd.merchant_id",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_id",
-      "description": "Merchant id that owns the campaign.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_merchant_id"
     },
     "os_client_id": {
       "key": "os_client_id",
       "selector": "cte.client_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "OnlineSales client id (advertiser account) the campaign belongs to.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_os_client_id"
     },
     "campaign_id": {
       "key": "campaign_id",
       "selector": "cte.marketing_campaign_id",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_id",
-      "description": "Marketing campaign id competing in the category.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_campaign_id"
     },
     "category_l1": {
       "key": "category_l1",
       "selector": "cte.category_l1",
       "type": "STRING",
-      "externalColumnName": "perf_category_l1",
-      "description": "Top-level (L1) product category the campaign's spend/products were attributed to. Per-call filter to scope to one category.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_category_l1"
     },
     "category_l2": {
       "key": "category_l2",
       "selector": "cte.category_l2",
       "type": "STRING",
-      "externalColumnName": "perf_category_l2",
-      "description": "Second-level (L2) product category. Per-call filter to scope to one category.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_category_l2"
     },
     "category_l3": {
       "key": "category_l3",
       "selector": "cte.category_l3",
       "type": "STRING",
-      "externalColumnName": "perf_category_l3",
-      "description": "Third-level (L3) product category. Per-call filter to scope to one category.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_category_l3"
     },
     "campaign_group_name": {
       "key": "campaign_group_name",
       "selector": "mcgd.marketing_campaign_group_alias",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_group_name",
-      "description": "Human-readable alias of the campaign group the campaign belongs to.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_campaign_group_name"
     },
     "campaign_group_status": {
       "key": "campaign_group_status",
       "selector": "REPLACE(mcgd.effective_status, '_', ' ')",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_group_status",
-      "description": "Effective status of the campaign group (e.g. 'ACTIVE', 'PAUSED'), underscores replaced with spaces.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_campaign_group_status"
     },
     "campaign_group_daily_budget": {
       "key": "campaign_group_daily_budget",
       "selector": "mcgd.daily_budget",
       "type": "FLOAT",
-      "externalColumnName": "perf_campaign_group_daily_budget",
-      "description": "Daily budget configured on the campaign group (raw, as stored on the dimension; not category-scoped).",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_campaign_group_daily_budget"
     },
     "campaign_subtype": {
       "key": "campaign_subtype",
       "selector": "LOWER(mcgd.campaign_subtype)",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_subtype",
-      "description": "Campaign subtype (lower-cased), e.g. 'auction', 'block_buy', 'pre_auction'.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_campaign_subtype"
     },
     "bidding_strategy_type": {
       "key": "bidding_strategy_type",
       "selector": "CASE WHEN (mcd.campaign_type = 'PERFORMANCE' AND mcd.objective_name IN ('Visitors', 'Visibility') AND mcd.bidding_strategy = 'AUTO_CPC') THEN 'Max Performance CPC' WHEN (mcd.campaign_type = 'PERFORMANCE' AND mcd.objective_name IN ('Visitors', 'Visibility') AND mcd.bidding_strategy = 'AUTO_CPM') THEN 'Max Performance CPM' WHEN (mcd.campaign_type = 'PERFORMANCE' AND mcd.objective_name IN ('Visitors', 'Visibility') AND mcd.bidding_strategy IN ('CPM', 'CPC')) THEN mcd.bidding_strategy WHEN mcd.campaign_type IN ('INVENTORY', 'AWARENESS') AND mcd.campaign_subtype = 'PRE_AUCTION' THEN 'NA' WHEN mcd.objective_name IN ('Absolute Revenue') THEN 'ROI' WHEN mcd.objective_name IN ('Visibility', 'Reach') AND mcd.campaign_subtype = 'AUCTION' THEN UPPER(JSON_EXTRACT_SCALAR(REPLACE(mcd.campaign_setting_metadata, '\"\"', '\"'), '$.bidding_strategy_type')) WHEN mcd.objective_name IN ('Visibility', 'Reach') AND mcd.campaign_subtype = 'BLOCK_BUY' AND JSON_EXTRACT_SCALAR(REPLACE(mcd.campaign_setting_metadata, '\"\"', '\"'), '$.bidding_strategy_type') = 'CPM' THEN 'Fixed CPM' WHEN mcd.objective_name IN ('Visibility', 'Reach') AND mcd.campaign_subtype = 'BLOCK_BUY' AND JSON_EXTRACT_SCALAR(REPLACE(mcd.campaign_setting_metadata, '\"\"', '\"'), '$.bidding_strategy_type') = 'CPD' THEN 'CPD' ELSE 'UNKNOWN' END",
       "type": "STRING",
-      "externalColumnName": "perf_bidding_strategy_type",
-      "description": "Derived bid model for the campaign group (CPC / CPM / Max Performance CPC / Max Performance CPM / ROI / Fixed CPM / CPD / NA / UNKNOWN), computed from campaign_type + objective_name + bidding_strategy + campaign_subtype + the bidding_strategy_type JSON inside campaign_setting_metadata.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_bidding_strategy_type"
     }
   },
   "metrics": {
@@ -156,33 +96,19 @@
       "selector": "ROUND(SUM(cte.cost), 2)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Category-level ad spend for the campaign over the period, converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "description": "Category-level ad spend for the campaign over the period, converted to the marketplace currency."
     },
     "cpc": {
       "key": "cpc",
       "selector": "ROUND(CASE WHEN SUM(cte.clicks) > 0 THEN SUM(cte.cost) / SUM(cte.clicks) ELSE 0 END, 2)",
       "type": "FLOAT",
-      "externalColumnName": "perf_cpc",
-      "description": "Category-level cost-per-click for the campaign (converted spend / clicks) over the period.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_cpc"
     },
     "cpm": {
       "key": "cpm",
       "selector": "ROUND(CASE WHEN SUM(cte.impressions) > 0 THEN (SUM(cte.cost) * 1000) / SUM(cte.impressions) ELSE 0 END, 2)",
       "type": "FLOAT",
-      "externalColumnName": "perf_cpm",
-      "description": "Category-level cost-per-mille for the campaign (converted spend * 1000 / impressions) over the period.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_cpm"
     }
   },
   "dateRanges": {

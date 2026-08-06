@@ -21,56 +21,31 @@
       "key": "os_client_id",
       "selector": "clients.client_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "OnlineSales client id of the merchant.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:merchant_breakdowns"
-      ]
+      "externalColumnName": "perf_os_client_id"
     },
     "merchant_id": {
       "key": "merchant_id",
       "selector": "clients.seller_id",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_id",
-      "description": "Marketplace seller id of the merchant.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:merchant_breakdowns"
-      ]
+      "externalColumnName": "perf_merchant_id"
     },
     "merchant_name": {
       "key": "merchant_name",
       "selector": "clients.alias",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_name",
-      "description": "Human-readable merchant name (client alias).",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:merchant_breakdowns"
-      ]
+      "externalColumnName": "perf_merchant_name"
     },
     "remaining_budget_amount_usd": {
       "key": "remaining_budget_amount_usd",
       "selector": "clients.remaining_budget_amount_usd",
       "type": "FLOAT",
-      "externalColumnName": "perf_remaining_budget_amount_usd",
-      "description": "Raw remaining wallet budget in USD (before currency conversion). The Python layer multiplies this by conversion_factor with a >=0.01 floor to get the balance in marketplace currency.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:merchant_breakdowns"
-      ]
+      "externalColumnName": "perf_remaining_budget_amount_usd"
     },
     "conversion_factor": {
       "key": "conversion_factor",
       "selector": "scc.conversion_factor",
       "type": "FLOAT",
-      "externalColumnName": "perf_conversion_factor",
-      "description": "USD -> marketplace-currency conversion factor from static_currency_conversion. Multiply remaining_budget_amount_usd by this to get the wallet balance in marketplace currency.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:merchant_breakdowns"
-      ]
+      "externalColumnName": "perf_conversion_factor"
     }
   },
   "metrics": {
@@ -79,11 +54,7 @@
       "selector": "0",
       "type": "FLOAT",
       "externalColumnName": "perf_placeholder_metric",
-      "description": "Constant 0. Row-level passthrough report with no aggregated metric; KAM requires at least one metric to fetch.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:merchant_breakdowns"
-      ]
+      "description": "Constant 0. Row-level passthrough report with no aggregated metric; KAM requires at least one metric to fetch."
     }
   },
   "dateRanges": {

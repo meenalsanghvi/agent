@@ -22,49 +22,25 @@
       "key": "search_query",
       "selector": "p.search_query",
       "type": "STRING",
-      "externalColumnName": "perf_search_query",
-      "description": "The search term the shopper typed that these ads served against.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_search_query"
     },
     "os_client_id": {
       "key": "os_client_id",
       "selector": "p.client_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "OnlineSales client id of the advertiser (working id for internal analysis).",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_os_client_id"
     },
     "seller_id": {
       "key": "seller_id",
       "selector": "p.merchant_id",
       "type": "STRING",
-      "externalColumnName": "perf_seller_id",
-      "description": "Seller (merchant) id (working id for internal analysis).",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_seller_id"
     },
     "merchant_name": {
       "key": "merchant_name",
       "selector": "cl.alias",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_name",
-      "description": "Human-readable seller (merchant) name.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_merchant_name"
     }
   },
   "metrics": {
@@ -72,97 +48,50 @@
       "key": "impressions",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.impressions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_impressions",
-      "description": "Ad impressions for this search query.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_impressions"
     },
     "clicks": {
       "key": "clicks",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.clicks ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_clicks",
-      "description": "Ad clicks for this search query.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_clicks"
     },
     "spend": {
       "key": "spend",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.cost ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Ad spend for this search query, in the currency stored on the search-query report (p.cost).",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "description": "Ad spend for this search query, in the currency stored on the search-query report (p.cost)."
     },
     "ctr": {
       "key": "ctr",
       "selector": "COALESCE(SAFE_DIVIDE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.clicks ELSE 0 END) * 100.0, NULLIF(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.impressions ELSE 0 END), 0)), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_ctr",
-      "description": "Click-through rate (%) = clicks / impressions * 100 for this search query.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_ctr"
     },
     "auto_impressions": {
       "key": "auto_impressions",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type = 'AUTO' THEN p.impressions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_auto_impressions",
-      "description": "Impressions served via AUTO (auto-targeted) match type for this search query.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_auto_impressions"
     },
     "auto_clicks": {
       "key": "auto_clicks",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type = 'AUTO' THEN p.clicks ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_auto_clicks",
-      "description": "Clicks on ads served via AUTO (auto-targeted) match type for this search query.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_auto_clicks"
     },
     "manual_impressions": {
       "key": "manual_impressions",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type != 'AUTO' THEN p.impressions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_manual_impressions",
-      "description": "Impressions served via non-AUTO (manual / broad / phrase / exact) match types for this search query.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_manual_impressions"
     },
     "manual_clicks": {
       "key": "manual_clicks",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND p.keyword_match_type != 'AUTO' THEN p.clicks ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_manual_clicks",
-      "description": "Clicks on ads served via non-AUTO (manual / broad / phrase / exact) match types for this search query.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through",
-        "report_group:keywords"
-      ]
+      "externalColumnName": "perf_manual_clicks"
     }
   },
   "dateRanges": {

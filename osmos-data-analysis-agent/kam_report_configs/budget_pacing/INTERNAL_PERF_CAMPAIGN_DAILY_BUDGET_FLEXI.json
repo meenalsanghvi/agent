@@ -23,10 +23,7 @@
       "selector": "SAFE_CAST(cb.marketing_campaign_id AS STRING)",
       "type": "STRING",
       "externalColumnName": "perf_campaign_id",
-      "description": "The PLA campaign id (marketing_campaign_id). Mandatory per-call filter: pass the campaign id whose flexi daily budget you want on the given date.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "description": "The PLA campaign id (marketing_campaign_id). Mandatory per-call filter: pass the campaign id whose flexi daily budget you want on the given date."
     }
   },
   "metrics": {
@@ -35,10 +32,7 @@
       "selector": "COALESCE(ROUND(SUM(CASE WHEN cbs.remaining_budget_usd IS NOT NULL AND cb.daily_spend IS NOT NULL AND cb.daily_spend > (cbs.remaining_budget_usd * scc_usd.conversion_factor) THEN cb.daily_spend WHEN cbs.remaining_budget_usd IS NOT NULL AND (cbs.remaining_budget_usd * scc_usd.conversion_factor) <= cb.daily_budget THEN (cbs.remaining_budget_usd * scc_usd.conversion_factor) ELSE cb.daily_budget END), 2), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_daily_budget",
-      "description": "Flexi daily budget for the campaign on the date, in the marketplace currency: the configured daily budget capped by the merchant's converted remaining wallet balance (spend used when it already exceeds the wallet).",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "description": "Flexi daily budget for the campaign on the date, in the marketplace currency: the configured daily budget capped by the merchant's converted remaining wallet balance (spend used when it already exceeds the wallet)."
     }
   },
   "dateRanges": {

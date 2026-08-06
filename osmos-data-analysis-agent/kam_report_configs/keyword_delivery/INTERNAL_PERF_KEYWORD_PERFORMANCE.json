@@ -23,132 +23,67 @@
       "selector": "LOWER(k.matched_keyword)",
       "type": "STRING",
       "externalColumnName": "perf_keyword",
-      "description": "The matched targeted keyword (lowercased). Mandatory filter: the keyword whose marketplace-wide campaign competition to report.",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "description": "The matched targeted keyword (lowercased). Mandatory filter: the keyword whose marketplace-wide campaign competition to report."
     },
     "keyword_match_type": {
       "key": "keyword_match_type",
       "selector": "k.keyword_match_type",
       "type": "STRING",
-      "externalColumnName": "perf_keyword_match_type",
-      "description": "Match type of the targeted keyword (EXACT / PHRASE / BROAD / ...).",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_keyword_match_type"
     },
     "campaign_id": {
       "key": "campaign_id",
       "selector": "LOWER(mcd.marketing_campaign_id)",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_id",
-      "description": "Marketing campaign_id (lowercased) of a campaign competing on the keyword.",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_campaign_id"
     },
     "campaign_name": {
       "key": "campaign_name",
       "selector": "mcd.alias",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_name",
-      "description": "Display name (alias) of the competing marketing campaign.",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_campaign_name"
     },
     "campaign_group_id": {
       "key": "campaign_group_id",
       "selector": "ctd.marketing_campaign_group_id",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_group_id",
-      "description": "Marketing campaign group_id the campaign belongs to.",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_campaign_group_id"
     },
     "effective_status": {
       "key": "effective_status",
       "selector": "mcd.effective_status",
       "type": "STRING",
-      "externalColumnName": "perf_effective_status",
-      "description": "Effective status of the competing campaign (ACTIVE / PAUSED / ...).",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_effective_status"
     },
     "campaign_creation_date": {
       "key": "campaign_creation_date",
       "selector": "DATE(mcd.campaign_creation_date)",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_creation_date",
-      "description": "Creation date of the competing campaign; used downstream to flag new entrants within the reporting window.",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_campaign_creation_date"
     },
     "campaign_type": {
       "selector": "LOWER(mcgd.campaign_type)",
       "type": "STRING",
-      "description": "Campaign-group type, lowercased. Filter campaign_type = 'performance' to restrict to PLA performance campaigns.",
       "key": "campaign_type",
-      "externalColumnName": "perf_campaign_type",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_campaign_type"
     },
     "campaign_subtype": {
       "selector": "LOWER(mcgd.campaign_subtype)",
       "type": "STRING",
-      "description": "Campaign-group subtype, lowercased. Filter campaign_subtype IN ('os_ads_search', 'smart_shopping') for PLA performance campaigns.",
       "key": "campaign_subtype",
-      "externalColumnName": "perf_campaign_subtype",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_campaign_subtype"
     },
     "os_client_id": {
       "key": "os_client_id",
       "selector": "k.client_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "Advertiser client_id owning the competing campaign.",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_os_client_id"
     },
     "seller_id": {
       "key": "seller_id",
       "selector": "cl.seller_id",
       "type": "STRING",
-      "externalColumnName": "perf_seller_id",
-      "description": "Seller_id of the advertiser (from clients).",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_seller_id"
     }
   },
   "metrics": {
@@ -157,48 +92,25 @@
       "selector": "COALESCE(SUM(CASE WHEN k.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN k.cost * scc.conversion_factor ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Campaign ad spend on the keyword over the period, converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "description": "Campaign ad spend on the keyword over the period, converted to the marketplace currency."
     },
     "impressions": {
       "key": "impressions",
       "selector": "COALESCE(SUM(CASE WHEN k.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN k.impressions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_impressions",
-      "description": "Ad impressions the campaign served for this keyword.",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_impressions"
     },
     "clicks": {
       "key": "clicks",
       "selector": "COALESCE(SUM(CASE WHEN k.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN k.clicks ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_clicks",
-      "description": "Ad clicks (visits) the campaign received for this keyword.",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_clicks"
     },
     "attributed_sales": {
       "key": "attributed_sales",
       "selector": "COALESCE(SUM(CASE WHEN k.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN k.program_per_click_timestamp_sales * scc.conversion_factor ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_attributed_sales",
-      "description": "Per-click-timestamp attributed sales for this keyword+campaign, converted to the marketplace currency. ROI is derived downstream as attributed_sales / spend.",
-      "filterTags": [
-        "report_group:keywords",
-        "report_group:merchant_breakdowns",
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_attributed_sales"
     }
   },
   "dateRanges": {

@@ -20,21 +20,13 @@
       "key": "page_type",
       "selector": "q.page_type",
       "type": "STRING",
-      "externalColumnName": "perf_page_type",
-      "description": "The surface the display ad served on (SEARCH, CATEGORY, PRODUCT, HOME, ...). Optional per-call filter to scope to one page type.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_page_type"
     },
     "ad_unit": {
       "key": "ad_unit",
       "selector": "q.ad_unit_name",
       "type": "STRING",
-      "externalColumnName": "perf_ad_unit",
-      "description": "The display ad unit / inventory slot name within the page type.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_ad_unit"
     }
   },
   "metrics": {
@@ -42,71 +34,45 @@
       "key": "requests",
       "selector": "ROUND(SAFE_DIVIDE(SUM(q.request_count / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2)",
       "type": "FLOAT",
-      "externalColumnName": "perf_requests",
-      "description": "Average daily ad requests received for this inventory over the period.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_requests"
     },
     "response_rate": {
       "key": "response_rate",
       "selector": "CASE WHEN ROUND(SAFE_DIVIDE(SUM(q.response_percentage / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) > 100 THEN 100 ELSE ROUND(SAFE_DIVIDE(SUM(q.response_percentage / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) END",
       "type": "FLOAT",
       "externalColumnName": "perf_response_rate",
-      "description": "Response rate (%) = non-zero responses / requests * 100 for this inventory, capped at 100.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "description": "Response rate (%) = non-zero responses / requests * 100 for this inventory, capped at 100."
     },
     "impression_responses_ratio": {
       "key": "impression_responses_ratio",
       "selector": "CASE WHEN ROUND(SAFE_DIVIDE(SUM(q.impression_responses_ratio / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) > 100 THEN 100 ELSE ROUND(SAFE_DIVIDE(SUM(q.impression_responses_ratio / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) END",
       "type": "FLOAT",
-      "externalColumnName": "perf_impression_responses_ratio",
-      "description": "Impression/response ratio (%) = impressions / non-zero responses for this inventory, capped at 100 (share of responses that rendered as impressions).",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_impression_responses_ratio"
     },
     "spend": {
       "key": "spend",
       "selector": "ROUND(SAFE_DIVIDE(SUM(q.cost / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Ad spend for this inventory over the period, converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "description": "Ad spend for this inventory over the period, converted to the marketplace currency."
     },
     "budget_utilisation_perc": {
       "key": "budget_utilisation_perc",
       "selector": "CASE WHEN SAFE_DIVIDE(SUM(q.daily_budget / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))) < SAFE_DIVIDE(SUM(q.cost / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))) OR ROUND(SAFE_DIVIDE(SUM(q.budget_utilisation_perc / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) > 100 THEN 100 ELSE ROUND(SAFE_DIVIDE(SUM(q.budget_utilisation_perc / COALESCE(s.n_rows, 1)), COUNT(DISTINCT FORMAT('%T|%T', COALESCE(q.page_type, ''), COALESCE(q.ad_unit_name, '')))), 2) END",
       "type": "FLOAT",
-      "externalColumnName": "perf_budget_utilisation_perc",
-      "description": "Budget utilisation (%) = spend / budget * 100 for this inventory, capped at 100.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_budget_utilisation_perc"
     },
     "uniq_campaigns_count": {
       "key": "uniq_campaigns_count",
       "selector": "COUNT(DISTINCT CASE WHEN s.spend > 0 THEN s.campaign_id END)",
       "type": "FLOAT",
-      "externalColumnName": "perf_uniq_campaigns_count",
-      "description": "Distinct active display campaigns that had spend on this inventory over the period.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_uniq_campaigns_count"
     },
     "uniq_merchant_count": {
       "key": "uniq_merchant_count",
       "selector": "COUNT(DISTINCT CASE WHEN s.spend > 0 THEN s.merchant_id END)",
       "type": "FLOAT",
-      "externalColumnName": "perf_uniq_merchant_count",
-      "description": "Distinct merchants that had spend on this inventory over the period.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_uniq_merchant_count"
     }
   },
   "dateRanges": {

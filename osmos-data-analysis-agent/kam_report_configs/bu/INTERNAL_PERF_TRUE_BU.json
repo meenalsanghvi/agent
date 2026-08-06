@@ -20,81 +20,51 @@
       "key": "os_client_id",
       "selector": "clients.client_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "OnlineSales client id of the merchant that owns the campaign (working id for internal analysis). Filter by this to scope to specific merchants.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_os_client_id"
     },
     "seller_id": {
       "key": "seller_id",
       "selector": "clients.seller_id",
       "type": "STRING",
-      "externalColumnName": "perf_seller_id",
-      "description": "Seller (merchant) id of the campaign owner (working id for internal analysis).",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_seller_id"
     },
     "merchant_name": {
       "key": "merchant_name",
       "selector": "clients.alias",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_name",
-      "description": "Human-readable name / alias of the merchant that owns the campaign.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_merchant_name"
     },
     "marketing_campaign_id": {
       "key": "marketing_campaign_id",
       "selector": "camp_bud.marketing_campaign_id",
       "type": "STRING",
-      "externalColumnName": "perf_marketing_campaign_id",
-      "description": "OnlineSales marketing campaign id (the campaign key). Filter by this to scope to a specific campaign.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_marketing_campaign_id"
     },
     "marketing_campaign_name": {
       "key": "marketing_campaign_name",
       "selector": "camp_bud.marketing_campaign_name",
       "type": "STRING",
-      "externalColumnName": "perf_marketing_campaign_name",
-      "description": "Human-readable name / alias of the marketing campaign.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_marketing_campaign_name"
     },
     "effective_status": {
       "key": "effective_status",
       "selector": "camp_bud.effective_status",
       "type": "STRING",
-      "externalColumnName": "perf_effective_status",
-      "description": "Effective delivery status of the campaign (e.g. ACTIVE, PAUSED). Filter by this to isolate active vs inactive campaigns.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_effective_status"
     },
     "campaign_type": {
       "key": "campaign_type",
       "selector": "camp_bud.campaign_type",
       "type": "STRING",
       "externalColumnName": "perf_campaign_type",
-      "description": "Campaign type: PERFORMANCE (PLA) or INVENTORY (Display). Use as a per-call FILTER to scope to a program type.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "description": "Campaign type: PERFORMANCE (PLA) or INVENTORY (Display). Use as a per-call FILTER to scope to a program type."
     },
     "campaign_subtype": {
       "key": "campaign_subtype",
       "selector": "camp_bud.campaign_subtype",
       "type": "STRING",
       "externalColumnName": "perf_campaign_subtype",
-      "description": "Campaign subtype: PLA = SMART_SHOPPING / OS_ADS_SEARCH / VIDEO_MIDROLL / CAMPAIGN_V2; Display = AUCTION. Use as a per-call FILTER to scope to a program type.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "description": "Campaign subtype: PLA = SMART_SHOPPING / OS_ADS_SEARCH / VIDEO_MIDROLL / CAMPAIGN_V2; Display = AUCTION. Use as a per-call FILTER to scope to a program type."
     }
   },
   "metrics": {
@@ -103,50 +73,32 @@
       "selector": "COALESCE(ROUND(MAX_BY(CASE WHEN cbs.remaining_budget_usd IS NOT NULL AND camp_bud.daily_spend IS NOT NULL AND camp_bud.daily_spend > (cbs.remaining_budget_usd * scc2.conversion_factor) THEN camp_bud.daily_spend WHEN cbs.remaining_budget_usd IS NOT NULL AND (cbs.remaining_budget_usd * scc2.conversion_factor) <= camp_bud.daily_budget THEN (cbs.remaining_budget_usd * scc2.conversion_factor) ELSE camp_bud.daily_budget END, camp_bud.date), 2), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_daily_budget",
-      "description": "Most-recent-day wallet-capped budget for the campaign, in the campaign's native currency (MAX_BY over date). Capped by the client's converted remaining wallet balance.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "description": "Most-recent-day wallet-capped budget for the campaign, in the campaign's native currency (MAX_BY over date). Capped by the client's converted remaining wallet balance."
     },
     "total_budget": {
       "key": "total_budget",
       "selector": "COALESCE(ROUND(SUM(CASE WHEN cbs.remaining_budget_usd IS NOT NULL AND camp_bud.daily_spend IS NOT NULL AND camp_bud.daily_spend > (cbs.remaining_budget_usd * scc2.conversion_factor) THEN camp_bud.daily_spend WHEN cbs.remaining_budget_usd IS NOT NULL AND (cbs.remaining_budget_usd * scc2.conversion_factor) <= camp_bud.daily_budget THEN (cbs.remaining_budget_usd * scc2.conversion_factor) ELSE camp_bud.daily_budget END), 2), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_total_budget",
-      "description": "Period sum of the daily wallet-capped budget for the campaign, in the campaign's native currency.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_total_budget"
     },
     "spend": {
       "key": "spend",
       "selector": "COALESCE(ROUND(SUM(camp_bud.daily_spend), 2), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Total ad spend for the campaign over the period, in the campaign's native currency.",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "description": "Total ad spend for the campaign over the period, in the campaign's native currency."
     },
     "wallet_balance": {
       "key": "wallet_balance",
       "selector": "COALESCE(ROUND(MAX_BY(cbs.remaining_budget_usd * scc2.conversion_factor, cbs.date), 2), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_wallet_balance",
-      "description": "Most-recent-day remaining wallet balance of the client, converted from USD to the campaign's native currency (MAX_BY over date).",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_wallet_balance"
     },
     "budget_utilization": {
       "key": "budget_utilization",
       "selector": "COALESCE(ROUND(SAFE_DIVIDE(SUM(camp_bud.daily_spend), SUM(CASE WHEN cbs.remaining_budget_usd IS NOT NULL AND camp_bud.daily_spend IS NOT NULL AND camp_bud.daily_spend > (cbs.remaining_budget_usd * scc2.conversion_factor) THEN camp_bud.daily_spend WHEN cbs.remaining_budget_usd IS NOT NULL AND (cbs.remaining_budget_usd * scc2.conversion_factor) <= camp_bud.daily_budget THEN (cbs.remaining_budget_usd * scc2.conversion_factor) ELSE camp_bud.daily_budget END)), 2), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_budget_utilization",
-      "description": "True budget utilisation for the campaign = period spend / period wallet-capped budget (BU fraction, e.g. 0.85 = 85%).",
-      "filterTags": [
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_budget_utilization"
     }
   },
   "dateRanges": {

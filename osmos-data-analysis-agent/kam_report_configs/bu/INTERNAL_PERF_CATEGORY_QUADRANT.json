@@ -21,45 +21,25 @@
       "key": "category_level",
       "selector": "q.category_level",
       "type": "STRING",
-      "externalColumnName": "perf_category_level",
-      "description": "Granularity of the quadrant rows: 'category_l1', 'category_l2' or 'category_l3'. Per-call filter \u2014 set it to match the category level you group by (l1 -> group category_l1; l2 -> category_l1+category_l2; l3 -> all three).",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_category_level"
     },
     "category_l1": {
       "key": "category_l1",
       "selector": "q.category_l1",
       "type": "STRING",
-      "externalColumnName": "perf_category_l1",
-      "description": "Top-level (L1) product category the quadrant requests/spend were attributed to.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_category_l1"
     },
     "category_l2": {
       "key": "category_l2",
       "selector": "q.category_l2",
       "type": "STRING",
-      "externalColumnName": "perf_category_l2",
-      "description": "Second-level (L2) product category ('na' at category_l1 granularity).",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_category_l2"
     },
     "category_l3": {
       "key": "category_l3",
       "selector": "q.category_l3",
       "type": "STRING",
-      "externalColumnName": "perf_category_l3",
-      "description": "Third-level (L3) product category ('na' at category_l1 / category_l2 granularity).",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_category_l3"
     }
   },
   "metrics": {
@@ -67,78 +47,46 @@
       "key": "requests",
       "selector": "ROUND(AVG(q.request_count), 2)",
       "type": "FLOAT",
-      "externalColumnName": "perf_requests",
-      "description": "Ad requests received for this category over the period.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_requests"
     },
     "response_rate": {
       "key": "response_rate",
       "selector": "CASE WHEN ROUND(AVG(q.response_percentage), 2) > 100 THEN 100 ELSE ROUND(AVG(q.response_percentage), 2) END",
       "type": "FLOAT",
       "externalColumnName": "perf_response_rate",
-      "description": "Response rate (%) = non-zero responses / requests * 100 for this category, capped at 100.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:categories"
-      ]
+      "description": "Response rate (%) = non-zero responses / requests * 100 for this category, capped at 100."
     },
     "spend": {
       "key": "spend",
       "selector": "ROUND(AVG(q.cost), 2)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Ad spend for this category over the period, converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:categories"
-      ]
+      "description": "Ad spend for this category over the period, converted to the marketplace currency."
     },
     "campaign_group_daily_budget": {
       "key": "campaign_group_daily_budget",
       "selector": "CASE WHEN AVG(q.daily_budget) > AVG(q.cost) THEN ROUND(AVG(q.daily_budget), 2) ELSE ROUND(AVG(q.cost), 2) END",
       "type": "FLOAT",
       "externalColumnName": "perf_campaign_group_daily_budget",
-      "description": "Daily budget attributed to this category (converted to marketplace currency), floored to spend when budget < spend.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:categories"
-      ]
+      "description": "Daily budget attributed to this category (converted to marketplace currency), floored to spend when budget < spend."
     },
     "budget_utilisation_perc": {
       "key": "budget_utilisation_perc",
       "selector": "CASE WHEN AVG(q.daily_budget) < AVG(q.cost) OR ROUND(AVG(q.budget_utilisation_perc), 2) > 100 THEN 100 ELSE ROUND(AVG(q.budget_utilisation_perc), 2) END",
       "type": "FLOAT",
-      "externalColumnName": "perf_budget_utilisation_perc",
-      "description": "Budget utilisation (%) = spend / budget * 100 for this category, capped at 100.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_budget_utilisation_perc"
     },
     "uniq_campaigns_count": {
       "key": "uniq_campaigns_count",
       "selector": "COUNT(DISTINCT s.campaign_id)",
       "type": "FLOAT",
-      "externalColumnName": "perf_uniq_campaigns_count",
-      "description": "Distinct PLA campaigns that had product/spend activity in this category over the period.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_uniq_campaigns_count"
     },
     "uniq_merchant_count": {
       "key": "uniq_merchant_count",
       "selector": "COUNT(DISTINCT s.merchant_id)",
       "type": "FLOAT",
-      "externalColumnName": "perf_uniq_merchant_count",
-      "description": "Distinct merchants that had product/spend activity in this category over the period.",
-      "filterTags": [
-        "report_group:budget_utilisation",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_uniq_merchant_count"
     }
   },
   "dateRanges": {

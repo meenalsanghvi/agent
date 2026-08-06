@@ -23,50 +23,31 @@
       "selector": "ctd.marketing_campaign_id",
       "type": "STRING",
       "externalColumnName": "perf_campaign_id",
-      "description": "The marketing campaign id (campaign_tagging_data.marketing_campaign_id) resolved from the internal click campaign_id. MANDATORY per-call filter used to scope the report to specific campaign(s).",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "description": "The marketing campaign id (campaign_tagging_data.marketing_campaign_id) resolved from the internal click campaign_id. MANDATORY per-call filter used to scope the report to specific campaign(s)."
     },
     "page_type": {
       "key": "page_type",
       "selector": "c.page_type",
       "type": "STRING",
-      "externalColumnName": "perf_page_type",
-      "description": "The surface the click occurred on (raw page_type, e.g. SEARCH / CATEGORY / PRODUCT / HOME). The Python layer collapses this into SEARCH vs NON-SEARCH.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_page_type"
     },
     "minute_timestamp": {
       "key": "minute_timestamp",
       "selector": "SAFE_CAST(DATETIME_TRUNC(CAST(DATETIME(TIMESTAMP(c.response_timestamp_utc), '__SP_TIMEZONE__') AS DATETIME), MINUTE) AS STRING)",
       "type": "STRING",
-      "externalColumnName": "perf_minute_timestamp",
-      "description": "Local (marketplace timezone) timestamp truncated to the minute for this click bucket, derived from response_timestamp_utc via __SP_TIMEZONE__.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_minute_timestamp"
     },
     "hour": {
       "key": "hour",
       "selector": "SAFE_CAST(EXTRACT(HOUR FROM CAST(DATETIME(TIMESTAMP(c.response_timestamp_utc), '__SP_TIMEZONE__') AS DATETIME)) AS STRING)",
       "type": "STRING",
-      "externalColumnName": "perf_hour",
-      "description": "Local hour of day (0-23, marketplace timezone) the clicks/spend fell in, from response_timestamp_utc via __SP_TIMEZONE__.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_hour"
     },
     "minute": {
       "key": "minute",
       "selector": "SAFE_CAST(EXTRACT(MINUTE FROM CAST(DATETIME(TIMESTAMP(c.response_timestamp_utc), '__SP_TIMEZONE__') AS DATETIME)) AS STRING)",
       "type": "STRING",
-      "externalColumnName": "perf_minute",
-      "description": "Local minute within the hour (0-59, marketplace timezone) the clicks/spend fell in, from response_timestamp_utc via __SP_TIMEZONE__.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_minute"
     }
   },
   "metrics": {
@@ -74,21 +55,14 @@
       "key": "clicks",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(c.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN c.unique_click ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_clicks",
-      "description": "Valid unique clicks in this local minute for this campaign + page_type.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_clicks"
     },
     "spend": {
       "key": "spend",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(c.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN COALESCE(c.bid, 0) * scc.conversion_factor ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Click spend in this local minute (click bid) converted from USD to the marketplace currency.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "description": "Click spend in this local minute (click bid) converted from USD to the marketplace currency."
     }
   },
   "dateRanges": {

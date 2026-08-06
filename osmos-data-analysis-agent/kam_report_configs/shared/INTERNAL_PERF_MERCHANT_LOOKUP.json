@@ -21,34 +21,19 @@
       "key": "merchant_id",
       "selector": "mmd.merchant_id",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_id",
-      "description": "Seller id of the merchant - the id used by the category and merchant fact tables. Filter on this when the user supplied a merchant_id / seller_id.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_merchant_id"
     },
     "os_client_id": {
       "key": "os_client_id",
       "selector": "mmd.client_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "Advertiser client id of the merchant - the id used by campaign, SKU and keyword reports. Filter on this when the user supplied an os_client_id.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_os_client_id"
     },
     "merchant_name": {
       "key": "merchant_name",
       "selector": "mmd.merchant_name",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_name",
-      "description": "Human-readable merchant / seller name, for confirming the resolved merchant back to the user.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_merchant_name"
     }
   },
   "metrics": {
@@ -56,12 +41,7 @@
       "key": "placeholder_metric",
       "selector": "0",
       "type": "FLOAT",
-      "externalColumnName": "perf_placeholder_metric",
-      "description": "Constant 0 - a required placeholder metric so the fetch layer accepts this pure-attribute lookup report; not a real measure.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_placeholder_metric"
     }
   },
   "dateRanges": {

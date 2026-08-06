@@ -23,56 +23,31 @@
       "key": "category",
       "selector": "CASE WHEN mmpd.e_product_type IS NULL OR mmpd.e_product_type = '' OR LOWER(mmpd.e_product_type) = 'na' THEN 'Unknown' ELSE mmpd.e_product_type END",
       "type": "STRING",
-      "externalColumnName": "perf_category",
-      "description": "Product-type / category of the advertised SKUs (e_product_type); NULL/empty/'na' collapse to 'Unknown'.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_category"
     },
     "campaign_name": {
       "key": "campaign_name",
       "selector": "mcd.alias",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_name",
-      "description": "Human-readable campaign alias.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_campaign_name"
     },
     "marketing_campaign_id": {
       "key": "marketing_campaign_id",
       "selector": "ctd.marketing_campaign_id",
       "type": "STRING",
-      "externalColumnName": "perf_marketing_campaign_id",
-      "description": "Marketing campaign id (working id for internal analysis).",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_marketing_campaign_id"
     },
     "marketing_campaign_group_id": {
       "key": "marketing_campaign_group_id",
       "selector": "ctd.marketing_campaign_group_id",
       "type": "STRING",
-      "externalColumnName": "perf_marketing_campaign_group_id",
-      "description": "Marketing campaign group id (working id for internal analysis).",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_marketing_campaign_group_id"
     },
     "os_client_id": {
       "key": "os_client_id",
       "selector": "f.client_id",
       "type": "STRING",
-      "externalColumnName": "perf_os_client_id",
-      "description": "OnlineSales client id of the merchant (working id for internal analysis). Filter by this to scope to specific merchants (required).",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_os_client_id"
     }
   },
   "metrics": {
@@ -81,55 +56,32 @@
       "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.cost ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "PLA ad spend for this category x campaign (raw cost, not currency-converted).",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:categories"
-      ]
+      "description": "PLA ad spend for this category x campaign (raw cost, not currency-converted)."
     },
     "impressions": {
       "key": "impressions",
       "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.impressions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_impressions",
-      "description": "PLA ad impressions for this category x campaign.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_impressions"
     },
     "clicks": {
       "key": "clicks",
       "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.clicks ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_clicks",
-      "description": "PLA ad clicks for this category x campaign.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_clicks"
     },
     "orders": {
       "key": "orders",
       "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_conversions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_orders",
-      "description": "Ad-attributed orders / conversions (per-click-timestamp) for this category x campaign.",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:categories"
-      ]
+      "externalColumnName": "perf_orders"
     },
     "revenue": {
       "key": "revenue",
       "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_sales ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_revenue",
-      "description": "Ad-attributed sales / GMV (per-click-timestamp) for this category x campaign (raw, not currency-converted).",
-      "filterTags": [
-        "report_group:merchant_breakdowns",
-        "report_group:categories"
-      ]
+      "description": "Ad-attributed sales / GMV (per-click-timestamp) for this category x campaign (raw, not currency-converted)."
     }
   },
   "dateRanges": {

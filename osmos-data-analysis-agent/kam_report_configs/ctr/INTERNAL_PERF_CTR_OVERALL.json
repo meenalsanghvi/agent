@@ -21,41 +21,26 @@
       "key": "clicks",
       "selector": "COALESCE(SUM(CASE WHEN mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN mmf.clicks ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_clicks",
-      "description": "Total ad clicks for the marketplace over the period.",
-      "filterTags": [
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_clicks"
     },
     "impressions": {
       "key": "impressions",
       "selector": "COALESCE(SUM(CASE WHEN mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN mmf.impressions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_impressions",
-      "description": "Total ad impressions for the marketplace over the period.",
-      "filterTags": [
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_impressions"
     },
     "ctr": {
       "key": "ctr",
       "selector": "COALESCE(SAFE_DIVIDE(SUM(CASE WHEN mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN mmf.clicks ELSE 0 END) * 100, SUM(CASE WHEN mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN mmf.impressions ELSE 0 END)), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_ctr",
-      "description": "Click-through rate = clicks * 100 / impressions for the marketplace over the period (0 when impressions = 0).",
-      "filterTags": [
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_ctr"
     },
     "spend": {
       "key": "spend",
       "selector": "COALESCE(SUM(CASE WHEN mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN mmf.cost ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Total ad spend for the marketplace over the period, in the marketplace currency.",
-      "filterTags": [
-        "report_group:click_through"
-      ]
+      "description": "Total ad spend for the marketplace over the period, in the marketplace currency."
     }
   },
   "dateRanges": {

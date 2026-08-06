@@ -21,34 +21,19 @@
       "key": "category_l1",
       "selector": "r.f_cat1",
       "type": "STRING",
-      "externalColumnName": "perf_category_l1",
-      "description": "Top-level (L1) category.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_category_l1"
     },
     "category_l2": {
       "key": "category_l2",
       "selector": "r.f_cat2",
       "type": "STRING",
-      "externalColumnName": "perf_category_l2",
-      "description": "Second-level (L2) category.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_category_l2"
     },
     "category_l3": {
       "key": "category_l3",
       "selector": "r.f_cat3",
       "type": "STRING",
-      "externalColumnName": "perf_category_l3",
-      "description": "Third-level (L3) category.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_category_l3"
     }
   },
   "metrics": {
@@ -56,12 +41,7 @@
       "key": "request_volume",
       "selector": "COALESCE(COUNT(CASE WHEN DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.rid END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_request_volume",
-      "description": "Raw request-log row count (rid) for this category.",
-      "filterTags": [
-        "report_group:categories",
-        "report_group:response_rate"
-      ]
+      "externalColumnName": "perf_request_volume"
     }
   },
   "dateRanges": {

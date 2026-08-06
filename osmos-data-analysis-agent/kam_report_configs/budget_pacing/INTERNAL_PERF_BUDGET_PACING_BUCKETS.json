@@ -20,21 +20,13 @@
       "key": "date",
       "selector": "bpc.date",
       "type": "STRING",
-      "externalColumnName": "perf_date",
-      "description": "The date the budget-pacing configuration applies to. Scope with start_date = end_date to fetch a single day's config.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_date"
     },
     "budget_pacing_json": {
       "key": "budget_pacing_json",
       "selector": "bpc.budget_pacing_json",
       "type": "STRING",
-      "externalColumnName": "perf_budget_pacing_json",
-      "description": "Raw budget-pacing JSON blob: cumulative spend-% targets keyed by time-of-day. Passed through verbatim; the Python layer json.loads it and derives per-bucket pct, start/end times, and bucket count.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_budget_pacing_json"
     }
   },
   "metrics": {
@@ -43,10 +35,7 @@
       "selector": "0",
       "type": "FLOAT",
       "externalColumnName": "perf_placeholder_metric",
-      "description": "Constant 0. Row-level passthrough report with no aggregated metric; KAM requires at least one metric to fetch.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "description": "Constant 0. Row-level passthrough report with no aggregated metric; KAM requires at least one metric to fetch."
     }
   },
   "dateRanges": {

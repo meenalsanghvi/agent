@@ -20,11 +20,7 @@
       "key": "target_roi",
       "selector": "a.target_roi",
       "type": "FLOAT",
-      "externalColumnName": "perf_target_roi",
-      "description": "The marketplace target ROI (target ROAS) benchmark configured for this agency.",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "externalColumnName": "perf_target_roi"
     }
   },
   "metrics": {
@@ -32,11 +28,7 @@
       "key": "placeholder_metric",
       "selector": "0",
       "type": "FLOAT",
-      "externalColumnName": "perf_placeholder_metric",
-      "description": "Constant 0 placeholder so the attribute-only report satisfies the fetch requirement of at least one metric; carries no meaning.",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "externalColumnName": "perf_placeholder_metric"
     }
   },
   "dateRanges": {

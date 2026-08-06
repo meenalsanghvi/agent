@@ -23,90 +23,50 @@
       "key": "keyword",
       "selector": "LOWER(TRIM(impr.search_query, '[\\\"],'))",
       "type": "STRING",
-      "externalColumnName": "perf_keyword",
-      "description": "The normalised search query the shopper typed (lower-cased, stripped of bracket/quote/comma chars).",
-      "filterTags": [
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "externalColumnName": "perf_keyword"
     },
     "cache_type": {
       "key": "cache_type",
       "selector": "impr.cache_type",
       "type": "STRING",
-      "externalColumnName": "perf_cache_type",
-      "description": "The OnlineSales relevancy algorithm / cache that served this SKU for the keyword (e.g. exact, broad, auto match).",
-      "filterTags": [
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "externalColumnName": "perf_cache_type"
     },
     "sku_id": {
       "key": "sku_id",
       "selector": "impr.sku_id",
       "type": "STRING",
-      "externalColumnName": "perf_sku_id",
-      "description": "Identifier of the SKU that was responded/served for the search query.",
-      "filterTags": [
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "externalColumnName": "perf_sku_id"
     },
     "product_name": {
       "key": "product_name",
       "selector": "mpd.e_name",
       "type": "STRING",
-      "externalColumnName": "perf_product_name",
-      "description": "Product name of the served SKU (from the marketplace product-dimensions table).",
-      "filterTags": [
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "externalColumnName": "perf_product_name"
     },
     "brand": {
       "key": "brand",
       "selector": "mpd.e_brand",
       "type": "STRING",
-      "externalColumnName": "perf_brand",
-      "description": "Brand of the served SKU.",
-      "filterTags": [
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "externalColumnName": "perf_brand"
     },
     "category": {
       "key": "category",
       "selector": "mpd.e_product_type",
       "type": "STRING",
-      "externalColumnName": "perf_category",
-      "description": "Product category (e_product_type) of the served SKU.",
-      "filterTags": [
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "externalColumnName": "perf_category"
     },
     "internal_campaign_id": {
       "key": "internal_campaign_id",
       "selector": "impr.campaign_id",
       "type": "STRING",
       "externalColumnName": "perf_internal_campaign_id",
-      "description": "Internal campaign id of the campaign that served the SKU. NOTE: this is the internal id, not the marketing campaign id shown in the UI - the two are not 1:1 (3.3% of internal ids map to several marketing ids), so they cannot be translated here. Optional per-call filter.",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "description": "Internal campaign id of the campaign that served the SKU. NOTE: this is the internal id, not the marketing campaign id shown in the UI - the two are not 1:1 (3.3% of internal ids map to several marketing ids), so they cannot be translated here. Optional per-call filter."
     },
     "page_type": {
       "key": "page_type",
       "selector": "impr.page_type",
       "type": "STRING",
-      "externalColumnName": "perf_page_type",
-      "description": "Page type the ad request came from (SEARCH, PRODUCT, CATEGORY, ...). Previously pinned to SEARCH inside the query.",
-      "filterTags": [
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "externalColumnName": "perf_page_type"
     }
   },
   "metrics": {
@@ -114,34 +74,20 @@
       "key": "impressions",
       "selector": "COALESCE(SUM(impr.impressions), 0)",
       "type": "INTEGER",
-      "externalColumnName": "perf_impressions",
-      "description": "Impressions served for the keyword x cache_type x SKU.",
-      "filterTags": [
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "externalColumnName": "perf_impressions"
     },
     "clicks": {
       "key": "clicks",
       "selector": "COALESCE(SUM(clk.clicks), 0)",
       "type": "INTEGER",
-      "externalColumnName": "perf_clicks",
-      "description": "Valid clicks on the SKU for this keyword.",
-      "filterTags": [
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "externalColumnName": "perf_clicks"
     },
     "spend": {
       "key": "spend",
       "selector": "COALESCE(ROUND(SUM(clk.spend), 2), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Spend in marketplace currency, from bid on valid clicks.",
-      "filterTags": [
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "description": "Spend in marketplace currency, from bid on valid clicks."
     }
   },
   "dateRanges": {

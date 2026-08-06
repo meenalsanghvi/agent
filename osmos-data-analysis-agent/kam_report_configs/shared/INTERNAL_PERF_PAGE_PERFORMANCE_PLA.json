@@ -22,25 +22,13 @@
       "key": "page_type",
       "selector": "pf.page_type",
       "type": "STRING",
-      "externalColumnName": "perf_page_type",
-      "description": "The surface the ad served on (SEARCH, CATEGORY, PRODUCT, HOME, ...).",
-      "filterTags": [
-        "report_group:page_performances",
-        "report_group:response_rate",
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_page_type"
     },
     "date": {
       "selector": "pf.date",
       "type": "DATE",
-      "description": "Calendar date of the PLA page-level facts row. Group by this for the daily request / response trend.",
       "key": "date",
-      "externalColumnName": "perf_date",
-      "filterTags": [
-        "report_group:page_performances",
-        "report_group:response_rate",
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_date"
     }
   },
   "metrics": {
@@ -48,73 +36,38 @@
       "key": "requests",
       "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.requests ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_requests",
-      "description": "Ad requests received on this page type.",
-      "filterTags": [
-        "report_group:page_performances",
-        "report_group:response_rate",
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_requests"
     },
     "responses": {
       "key": "responses",
       "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.non_zero_responses ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_responses",
-      "description": "Requests that returned at least one ad (non-zero responses).",
-      "filterTags": [
-        "report_group:page_performances",
-        "report_group:response_rate",
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_responses"
     },
     "response_rate": {
       "selector": "ROUND(SAFE_DIVIDE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.non_zero_responses ELSE 0 END) * 100, NULLIF(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.requests ELSE 0 END), 0)), 2)",
       "type": "FLOAT",
-      "description": "Non-zero responses as a percentage of requests for this grouping.",
       "key": "response_rate",
-      "externalColumnName": "perf_response_rate",
-      "filterTags": [
-        "report_group:page_performances",
-        "report_group:response_rate",
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_response_rate"
     },
     "impressions": {
       "key": "impressions",
       "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.impressions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_impressions",
-      "description": "Ad impressions served on this page type.",
-      "filterTags": [
-        "report_group:page_performances",
-        "report_group:response_rate",
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_impressions"
     },
     "clicks": {
       "key": "clicks",
       "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.clicks ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_clicks",
-      "description": "Ad clicks on this page type.",
-      "filterTags": [
-        "report_group:page_performances",
-        "report_group:response_rate",
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_clicks"
     },
     "spend": {
       "key": "spend",
       "selector": "COALESCE(SUM(CASE WHEN pf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN pf.cost_usd * scc.conversion_factor ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Ad spend on this page type, converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:page_performances",
-        "report_group:response_rate",
-        "report_group:budget_utilisation"
-      ]
+      "description": "Ad spend on this page type, converted to the marketplace currency."
     }
   },
   "dateRanges": {

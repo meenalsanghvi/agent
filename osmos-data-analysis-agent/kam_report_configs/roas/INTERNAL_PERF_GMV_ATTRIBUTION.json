@@ -23,121 +23,73 @@
       "selector": "COALESCE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.cost * scc.conversion_factor ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Total program (advertising) spend over the period, converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:roas",
-        "report_group:budget_utilisation"
-      ]
+      "description": "Total program (advertising) spend over the period, converted to the marketplace currency."
     },
     "impressions": {
       "key": "impressions",
       "selector": "COALESCE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.impressions ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_impressions",
-      "description": "Program ad impressions over the period.",
-      "filterTags": [
-        "report_group:roas",
-        "report_group:budget_utilisation"
-      ]
+      "description": "Program ad impressions over the period."
     },
     "clicks": {
       "key": "clicks",
       "selector": "COALESCE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.clicks ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_clicks",
-      "description": "Program ad clicks over the period.",
-      "filterTags": [
-        "report_group:roas",
-        "report_group:budget_utilisation"
-      ]
+      "description": "Program ad clicks over the period."
     },
     "program_gmv": {
       "key": "program_gmv",
       "selector": "COALESCE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.program_per_click_timestamp_sales ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_program_gmv",
-      "description": "Ad-attributed GMV (program sales), per-click-timestamp attribution, in source units.",
-      "filterTags": [
-        "report_group:roas",
-        "report_group:budget_utilisation"
-      ]
+      "description": "Ad-attributed GMV (program sales), per-click-timestamp attribution, in source units."
     },
     "program_orders": {
       "key": "program_orders",
       "selector": "COALESCE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.program_per_click_timestamp_conversions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_orders",
-      "description": "Ad-attributed orders (program conversions), per-click-timestamp attribution.",
-      "filterTags": [
-        "report_group:roas",
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_program_orders"
     },
     "program_viewproducts": {
       "key": "program_viewproducts",
       "selector": "COALESCE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.program_per_click_timestamp_viewproduct ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_viewproducts",
-      "description": "Ad-attributed product views (program view-product events), per-click-timestamp attribution.",
-      "filterTags": [
-        "report_group:roas",
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_program_viewproducts"
     },
     "program_add2carts": {
       "key": "program_add2carts",
       "selector": "COALESCE(SUM(CASE WHEN cvcpf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN cvcpf.program_per_click_timestamp_add_to_cart ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_add2carts",
-      "description": "Ad-attributed add-to-cart events (program), per-click-timestamp attribution.",
-      "filterTags": [
-        "report_group:roas",
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_program_add2carts"
     },
     "site_revenue": {
       "key": "site_revenue",
       "selector": "COALESCE(ROUND(MAX(site.site_revenue), 2), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_site_revenue",
-      "description": "Total organic site GMV (total SOK sales) over the period, converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:roas",
-        "report_group:budget_utilisation"
-      ]
+      "description": "Total organic site GMV (total SOK sales) over the period, converted to the marketplace currency."
     },
     "site_orders": {
       "key": "site_orders",
       "selector": "COALESCE(MAX(site.site_orders), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_site_orders",
-      "description": "Total organic site orders (total SOK sale-completes) over the period.",
-      "filterTags": [
-        "report_group:roas",
-        "report_group:budget_utilisation"
-      ]
+      "description": "Total organic site orders (total SOK sale-completes) over the period."
     },
     "site_viewproducts": {
       "key": "site_viewproducts",
       "selector": "COALESCE(MAX(site.site_viewproducts), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_site_viewproducts",
-      "description": "Total organic site product views (total SOK view-products) over the period.",
-      "filterTags": [
-        "report_group:roas",
-        "report_group:budget_utilisation"
-      ]
+      "description": "Total organic site product views (total SOK view-products) over the period."
     },
     "site_add2carts": {
       "key": "site_add2carts",
       "selector": "COALESCE(MAX(site.site_add2carts), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_site_add2carts",
-      "description": "Total organic site add-to-cart events (total SOK add2carts) over the period.",
-      "filterTags": [
-        "report_group:roas",
-        "report_group:budget_utilisation"
-      ]
+      "externalColumnName": "perf_site_add2carts"
     }
   },
   "dateRanges": {

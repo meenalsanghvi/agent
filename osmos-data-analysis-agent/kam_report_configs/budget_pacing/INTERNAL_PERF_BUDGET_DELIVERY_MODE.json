@@ -22,21 +22,13 @@
       "key": "campaign_id",
       "selector": "mcd.marketing_campaign_id",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_id",
-      "description": "The PLA campaign id (marketing_campaign_id). Per-call filter: pass one or more ids to look up their budget delivery mode.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_campaign_id"
     },
     "budget_delivery_mode": {
       "key": "budget_delivery_mode",
       "selector": "mcd.budget_delivery_mode",
       "type": "STRING",
-      "externalColumnName": "perf_budget_delivery_mode",
-      "description": "The budget delivery (pacing) mode configured on the campaign: ACCELERATED (spend as fast as possible) vs STANDARD (spread evenly across the day).",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_budget_delivery_mode"
     }
   },
   "metrics": {
@@ -44,11 +36,7 @@
       "key": "placeholder_metric",
       "selector": "0",
       "type": "FLOAT",
-      "externalColumnName": "perf_placeholder_metric",
-      "description": "Constant 0 placeholder so the attribute-only dimension report satisfies the fetch requirement of at least one metric; carries no meaning.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_placeholder_metric"
     }
   },
   "dateRanges": {

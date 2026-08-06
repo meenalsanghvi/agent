@@ -20,31 +20,19 @@
       "key": "marketing_campaign_group_id",
       "selector": "SAFE_CAST(t.marketing_campaign_group_id AS STRING)",
       "type": "STRING",
-      "externalColumnName": "perf_marketing_campaign_group_id",
-      "description": "The marketing campaign group the impressions/spend are attributed to (from campaign_tagging_data). Filter this to the CPM-strategy campaign groups you want to inspect. SAFE_CAST to STRING for stable id matching.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_marketing_campaign_group_id"
     },
     "hour": {
       "key": "hour",
       "selector": "EXTRACT(HOUR FROM CAST(DATETIME(TIMESTAMP(i.response_timestamp_utc), '__SP_TIMEZONE__') AS DATETIME))",
       "type": "FLOAT",
-      "externalColumnName": "perf_hour",
-      "description": "Hour-of-day (0-23) in the marketplace's local timezone that the impression/spend occurred, derived from response_timestamp_utc.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_hour"
     },
     "minute": {
       "key": "minute",
       "selector": "EXTRACT(MINUTE FROM CAST(DATETIME(TIMESTAMP(i.response_timestamp_utc), '__SP_TIMEZONE__') AS DATETIME))",
       "type": "FLOAT",
-      "externalColumnName": "perf_minute",
-      "description": "Minute-of-hour (0-59) in the marketplace's local timezone; combine with hour for per-minute granularity.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_minute"
     }
   },
   "metrics": {
@@ -52,21 +40,14 @@
       "key": "impressions",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(i.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN i.unique_impressions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_impressions",
-      "description": "Unique impressions served in this minute for this campaign group.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_impressions"
     },
     "spend": {
       "key": "spend",
       "selector": "COALESCE(SUM(CASE WHEN DATE(TIMESTAMP(i.response_timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN COALESCE(i.bid, 0) * scc.conversion_factor ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Spend in this minute (bid), converted from USD to the marketplace currency via static_currency_conversion.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "description": "Spend in this minute (bid), converted from USD to the marketplace currency via static_currency_conversion."
     }
   },
   "dateRanges": {

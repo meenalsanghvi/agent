@@ -22,21 +22,13 @@
       "key": "campaign_id",
       "selector": "SAFE_CAST(p.marketing_campaign_id AS STRING)",
       "type": "STRING",
-      "externalColumnName": "perf_campaign_id",
-      "description": "The PLA marketing campaign id whose derived daily budget is being looked up. Required per-call filter.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_campaign_id"
     },
     "derived_daily_budget": {
       "key": "derived_daily_budget",
       "selector": "p.derived_daily_budget",
       "type": "FLOAT",
-      "externalColumnName": "perf_derived_daily_budget",
-      "description": "Projected/derived daily budget for the campaign on the requested date, in marketplace currency. Non-additive level (a budget, not a summable measure); exposed as an attribute passthrough.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "externalColumnName": "perf_derived_daily_budget"
     }
   },
   "metrics": {
@@ -45,10 +37,7 @@
       "selector": "0",
       "type": "FLOAT",
       "externalColumnName": "perf_placeholder_metric",
-      "description": "Constant 0. Row-level passthrough report with no aggregated metric; KAM requires at least one metric to fetch.",
-      "filterTags": [
-        "report_group:budget_pacings"
-      ]
+      "description": "Constant 0. Row-level passthrough report with no aggregated metric; KAM requires at least one metric to fetch."
     }
   },
   "dateRanges": {

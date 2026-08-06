@@ -24,56 +24,33 @@
       "key": "search_query",
       "selector": "LOWER(r.search_query)",
       "type": "STRING",
-      "externalColumnName": "perf_search_query",
-      "description": "The search term the user typed (lowercased). Optional filter to scope to specific queries.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_search_query"
     },
     "matched_keyword": {
       "key": "matched_keyword",
       "selector": "r.matched_keyword",
       "type": "STRING",
-      "externalColumnName": "perf_matched_keyword",
-      "description": "The targeted keyword that matched the search query.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_matched_keyword"
     },
     "keyword_match_type": {
       "key": "keyword_match_type",
       "selector": "r.keyword_match_type",
       "type": "STRING",
-      "externalColumnName": "perf_keyword_match_type",
-      "description": "Match type by which the keyword matched the search query (EXACT / PHRASE / BROAD / ...).",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_keyword_match_type"
     },
     "os_client_id": {
       "key": "os_client_id",
       "selector": "r.client_id",
       "type": "STRING",
       "externalColumnName": "perf_os_client_id",
-      "description": "Advertiser client_id. Mandatory filter: one or more advertiser client_ids to scope the report to.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through"
-      ]
+      "description": "Advertiser client_id. Mandatory filter: one or more advertiser client_ids to scope the report to."
     },
     "campaign_id": {
       "key": "campaign_id",
       "selector": "LOWER(mcd.marketing_campaign_id)",
       "type": "STRING",
       "externalColumnName": "perf_campaign_id",
-      "description": "Marketing campaign_id (lowercased). Mandatory filter: one or more marketing campaign_ids to scope the report to.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through"
-      ]
+      "description": "Marketing campaign_id (lowercased). Mandatory filter: one or more marketing campaign_ids to scope the report to."
     }
   },
   "metrics": {
@@ -82,44 +59,25 @@
       "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.cost ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Ad spend for this search_query x keyword x match_type over the period (raw cost from the report; the legacy source does not currency-convert this metric).",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through"
-      ]
+      "description": "Ad spend for this search_query x keyword x match_type over the period (raw cost from the report; the legacy source does not currency-convert this metric)."
     },
     "impressions": {
       "key": "impressions",
       "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.impressions ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_impressions",
-      "description": "Ad impressions served for this search_query x keyword x match_type.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_impressions"
     },
     "clicks": {
       "key": "clicks",
       "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.clicks ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_clicks",
-      "description": "Ad clicks (visits) for this search_query x keyword x match_type.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_clicks"
     },
     "top_of_search_impressions": {
       "key": "top_of_search_impressions",
       "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN (CASE WHEN a.is_impression_ad_position_enabled = TRUE THEN r.top_position_search_impressions ELSE r.top_search_keyword_impressions END) ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_top_of_search_impressions",
-      "description": "Impressions served in the top-of-search position. Uses top_position_search_impressions when the agency has is_impression_ad_position_enabled, else top_search_keyword_impressions. Top-of-search share (= top_of_search_impressions / impressions) is derived downstream.",
-      "filterTags": [
-        "report_group:search_queries",
-        "report_group:click_through"
-      ]
+      "externalColumnName": "perf_top_of_search_impressions"
     }
   },
   "dateRanges": {

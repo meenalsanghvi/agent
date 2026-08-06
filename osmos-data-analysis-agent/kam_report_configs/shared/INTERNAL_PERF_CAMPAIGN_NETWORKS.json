@@ -21,42 +21,25 @@
       "selector": "ctd.marketing_campaign_id",
       "type": "STRING",
       "externalColumnName": "perf_campaign_id",
-      "description": "The resolving marketing_campaign_id the caller holds (a non-campaign_id key). Mandatory filter: pass the marketing_campaign_id here; campaign_tagging_data resolves it to the internal campaign_id(s) whose network targeting is returned.",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "description": "The resolving marketing_campaign_id the caller holds (a non-campaign_id key). Mandatory filter: pass the marketing_campaign_id here; campaign_tagging_data resolves it to the internal campaign_id(s) whose network targeting is returned."
     },
     "internal_campaign_id": {
       "selector": "SAFE_CAST(ctm.campaign_id AS STRING)",
       "type": "STRING",
-      "description": "Internal numeric campaign_id on the targeting table, as a string. Filter this when you do not hold a marketing_campaign_id.",
       "key": "internal_campaign_id",
-      "externalColumnName": "perf_internal_campaign_id",
-      "filterTags": [
-        "report_group:campaigns",
-        "report_group:relevance",
-        "report_group:skus"
-      ]
+      "externalColumnName": "perf_internal_campaign_id"
     },
     "resolved_campaign_id": {
       "key": "resolved_campaign_id",
       "selector": "SAFE_CAST(ctm.campaign_id AS STRING)",
       "type": "STRING",
-      "externalColumnName": "perf_resolved_campaign_id",
-      "description": "Internal numeric campaign_id that the supplied marketing_campaign_id resolved to (via campaign_tagging_data), and to which this network targeting mapping belongs.",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_resolved_campaign_id"
     },
     "target_details": {
       "key": "target_details",
       "selector": "TO_JSON_STRING(ctm.target_details)",
       "type": "STRING",
-      "externalColumnName": "perf_target_details",
-      "description": "The targeted NETWORK definition for this campaign, serialized as a JSON string (TO_JSON_STRING of the target_details struct).",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_target_details"
     }
   },
   "metrics": {
@@ -65,10 +48,7 @@
       "selector": "0",
       "type": "FLOAT",
       "externalColumnName": "perf_placeholder_metric",
-      "description": "Constant 0. Row-level dimension passthrough (network targeting lookup) with no aggregated measure; KAM requires at least one metric to fetch.",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "description": "Constant 0. Row-level dimension passthrough (network targeting lookup) with no aggregated measure; KAM requires at least one metric to fetch."
     }
   },
   "dateRanges": {

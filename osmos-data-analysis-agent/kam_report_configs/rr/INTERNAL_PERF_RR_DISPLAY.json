@@ -21,100 +21,55 @@
       "key": "network",
       "selector": "r.network",
       "type": "STRING",
-      "externalColumnName": "perf_network",
-      "description": "The supply network / channel the ad request came from.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_network"
     },
     "page_type": {
       "key": "page_type",
       "selector": "r.page_type",
       "type": "STRING",
-      "externalColumnName": "perf_page_type",
-      "description": "Page type the Display ad request was served on. Filter page_type NOT IN ('', 'NA') to drop unattributed rows.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_page_type"
     },
     "device": {
       "key": "device",
       "selector": "r.device",
       "type": "STRING",
-      "externalColumnName": "perf_device",
-      "description": "The device type the ad request came from (mobile, desktop, app, ...).",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_device"
     },
     "ad_unit": {
       "key": "ad_unit",
       "selector": "r.ad_unit",
       "type": "STRING",
-      "externalColumnName": "perf_ad_unit",
-      "description": "The display ad unit / placement slot the request was attributed to.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_ad_unit"
     },
     "category_l1": {
       "key": "category_l1",
       "selector": "r.category_l1",
       "type": "STRING",
-      "externalColumnName": "perf_category_l1",
-      "description": "Top-level (L1) product category the requests/responses were attributed to.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_category_l1"
     },
     "category_l2": {
       "key": "category_l2",
       "selector": "r.category_l2",
       "type": "STRING",
-      "externalColumnName": "perf_category_l2",
-      "description": "Second-level (L2) product category.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_category_l2"
     },
     "category_l3": {
       "key": "category_l3",
       "selector": "r.category_l3",
       "type": "STRING",
-      "externalColumnName": "perf_category_l3",
-      "description": "Third-level (L3) product category.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_category_l3"
     },
     "hour": {
       "selector": "EXTRACT(HOUR FROM r.date_hour)",
       "type": "INTEGER",
-      "description": "Hour of day (0-23) the Display ad request was made, from date_hour. Group by this to find low-activity hours dragging RR down.",
       "key": "hour",
-      "externalColumnName": "perf_hour",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_hour"
     },
     "keyword": {
       "selector": "LOWER(TRIM(r.filter_keywords))",
       "type": "STRING",
-      "description": "Keyword the Display ad request carried (filter_keywords), lowercased and trimmed. Filter keyword NOT IN ('') to drop requests with no keyword.",
       "key": "keyword",
-      "externalColumnName": "perf_keyword",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_keyword"
     }
   },
   "metrics": {
@@ -122,34 +77,19 @@
       "key": "requests",
       "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_requests",
-      "description": "Ad requests received for this dimension grouping.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_requests"
     },
     "responses": {
       "key": "responses",
       "selector": "COALESCE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.responses ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_responses",
-      "description": "Requests that returned at least one ad (responses) for this dimension grouping.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_responses"
     },
     "response_rate": {
       "key": "response_rate",
       "selector": "SAFE_DIVIDE(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.responses ELSE 0 END) * 100, NULLIF(SUM(CASE WHEN r.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN r.requests ELSE 0 END), 0))",
       "type": "FLOAT",
-      "externalColumnName": "perf_response_rate",
-      "description": "Response rate (%) = responses / requests * 100 for this dimension grouping.",
-      "filterTags": [
-        "report_group:response_rate",
-        "report_group:search_queries"
-      ]
+      "externalColumnName": "perf_response_rate"
     }
   },
   "dateRanges": {

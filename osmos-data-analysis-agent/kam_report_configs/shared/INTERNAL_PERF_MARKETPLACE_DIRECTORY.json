@@ -20,61 +20,37 @@
       "key": "marketplace_name",
       "selector": "a.name",
       "type": "STRING",
-      "externalColumnName": "perf_marketplace_name",
-      "description": "Human-readable marketplace/agency name (fuzzy-matched against the user's input).",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_marketplace_name"
     },
     "agency_id": {
       "key": "agency_id",
       "selector": "a.agency_id",
       "type": "STRING",
-      "externalColumnName": "perf_agency_id",
-      "description": "Agency id for this marketplace \u2014 the tenant scope used by all downstream reports (exposed here because this is the intake directory that bootstraps a session).",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_agency_id"
     },
     "marketplace_client_id": {
       "key": "marketplace_client_id",
       "selector": "a.marketplace_client_id",
       "type": "STRING",
-      "externalColumnName": "perf_marketplace_client_id",
-      "description": "Marketplace client id for this marketplace, used as the working id for problem-metric and breakdown lookups.",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_marketplace_client_id"
     },
     "region": {
       "key": "region",
       "selector": "a.region",
       "type": "STRING",
-      "externalColumnName": "perf_region",
-      "description": "Region of the marketplace (drives the region-specific reporting dataset).",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_region"
     },
     "currency": {
       "key": "currency",
       "selector": "a.currency",
       "type": "STRING",
-      "externalColumnName": "perf_currency",
-      "description": "Reporting currency for the marketplace (prefix monetary values with this).",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_currency"
     },
     "timezone": {
       "key": "timezone",
       "selector": "mc.timezone",
       "type": "STRING",
-      "externalColumnName": "perf_timezone",
-      "description": "IANA timezone of the marketplace (drives timezone-aware date casts).",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_timezone"
     }
   },
   "metrics": {
@@ -82,11 +58,7 @@
       "key": "placeholder_metric",
       "selector": "0",
       "type": "FLOAT",
-      "externalColumnName": "perf_placeholder_metric",
-      "description": "Constant 0 \u2014 a required placeholder metric so the fetch layer accepts this pure-attribute directory report; not a real measure.",
-      "filterTags": [
-        "report_group:intake"
-      ]
+      "externalColumnName": "perf_placeholder_metric"
     }
   },
   "dateRanges": {

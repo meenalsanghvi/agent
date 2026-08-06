@@ -23,90 +23,57 @@
       "selector": "SAFE_CAST(ctd.marketing_campaign_id AS STRING)",
       "type": "STRING",
       "externalColumnName": "perf_campaign_id",
-      "description": "The marketing_campaign_id the caller holds. Mandatory filter: pass the campaign's marketing_campaign_id here; campaign_tagging_data resolves it to the internal campaign whose active product selection is returned.",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "description": "The marketing_campaign_id the caller holds. Mandatory filter: pass the campaign's marketing_campaign_id here; campaign_tagging_data resolves it to the internal campaign whose active product selection is returned."
     },
     "merchant_id": {
       "key": "merchant_id",
       "selector": "SAFE_CAST(opaps.merchant_id AS STRING)",
       "type": "STRING",
-      "externalColumnName": "perf_merchant_id",
-      "description": "Merchant (seller) that owns the selected product.",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_merchant_id"
     },
     "product_id": {
       "key": "product_id",
       "selector": "SAFE_CAST(opaps.product_id AS STRING)",
       "type": "STRING",
-      "externalColumnName": "perf_product_id",
-      "description": "Product / SKU id selected in the campaign (joins to the product-dimension sku_id).",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_product_id"
     },
     "product_name": {
       "key": "product_name",
       "selector": "ompd.e_name",
       "type": "STRING",
-      "externalColumnName": "perf_product_name",
-      "description": "Display name of the product (product-dimension e_name).",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_product_name"
     },
     "availability": {
       "key": "availability",
       "selector": "ompd.e_availability",
       "type": "STRING",
-      "externalColumnName": "perf_availability",
-      "description": "Stock availability of the product (e.g. 'in stock', 'out of stock'). Filter availability = 'in stock' to restrict to in-stock products.",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_availability"
     },
     "brand": {
       "key": "brand",
       "selector": "ompd.e_brand",
       "type": "STRING",
-      "externalColumnName": "perf_brand",
-      "description": "Brand of the product (product-dimension e_brand).",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_brand"
     },
     "category_l1": {
       "key": "category_l1",
       "selector": "ompd.category_l1",
       "type": "STRING",
-      "externalColumnName": "perf_category_l1",
-      "description": "Level-1 (top) product category.",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "externalColumnName": "perf_category_l1"
     },
     "category_l2": {
       "key": "category_l2",
       "selector": "ompd.category_l2",
       "type": "STRING",
       "externalColumnName": "perf_category_l2",
-      "description": "Level-2 product category (may be null when only L1 is present).",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "description": "Level-2 product category (may be null when only L1 is present)."
     },
     "category_l3": {
       "key": "category_l3",
       "selector": "ompd.category_l3",
       "type": "STRING",
       "externalColumnName": "perf_category_l3",
-      "description": "Level-3 (leaf) product category (may be null when only L1/L2 are present).",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "description": "Level-3 (leaf) product category (may be null when only L1/L2 are present)."
     }
   },
   "metrics": {
@@ -115,10 +82,7 @@
       "selector": "0",
       "type": "FLOAT",
       "externalColumnName": "perf_placeholder_metric",
-      "description": "Constant 0. Row-level product-selection passthrough with no aggregated measure; KAM requires at least one metric to fetch.",
-      "filterTags": [
-        "report_group:campaigns"
-      ]
+      "description": "Constant 0. Row-level product-selection passthrough with no aggregated measure; KAM requires at least one metric to fetch."
     }
   },
   "dateRanges": {

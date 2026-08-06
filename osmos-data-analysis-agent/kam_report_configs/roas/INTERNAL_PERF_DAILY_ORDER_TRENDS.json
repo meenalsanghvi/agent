@@ -21,10 +21,7 @@
       "selector": "COALESCE(s.date, p.date)",
       "type": "STRING",
       "externalColumnName": "perf_date",
-      "description": "Calendar date of the daily program-vs-site funnel row (from either the program or site aggregate).",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "description": "Calendar date of the daily program-vs-site funnel row (from either the program or site aggregate)."
     }
   },
   "metrics": {
@@ -33,110 +30,72 @@
       "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.spend ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_spend",
-      "description": "Program (advertising) spend on this date, converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "description": "Program (advertising) spend on this date, converted to the marketplace currency."
     },
     "clicks": {
       "key": "clicks",
       "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.clicks ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_clicks",
-      "description": "Program ad clicks on this date.",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "description": "Program ad clicks on this date."
     },
     "program_orders": {
       "key": "program_orders",
       "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.program_orders ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_orders",
-      "description": "Ad-attributed orders on this date (per-click-timestamp CONVERTED conversions).",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "externalColumnName": "perf_program_orders"
     },
     "program_gmv": {
       "key": "program_gmv",
       "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.program_gmv ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_program_gmv",
-      "description": "Ad-attributed GMV / sales on this date (per-click-timestamp CONVERTED sales), converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "description": "Ad-attributed GMV / sales on this date (per-click-timestamp CONVERTED sales), converted to the marketplace currency."
     },
     "program_viewproducts": {
       "key": "program_viewproducts",
       "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.program_viewproducts ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_viewproducts",
-      "description": "Ad-attributed product-page views on this date (per-click-timestamp CONVERTED viewproduct).",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "externalColumnName": "perf_program_viewproducts"
     },
     "program_add2carts": {
       "key": "program_add2carts",
       "selector": "COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.program_add2carts ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_add2carts",
-      "description": "Ad-attributed add-to-cart events on this date (per-click-timestamp CONVERTED add_to_cart).",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "externalColumnName": "perf_program_add2carts"
     },
     "site_orders": {
       "key": "site_orders",
       "selector": "COALESCE(SUM(CASE WHEN s.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN s.site_orders ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_site_orders",
-      "description": "Total site (organic) completed orders on this date (total_sok_salecompletes).",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "description": "Total site (organic) completed orders on this date (total_sok_salecompletes)."
     },
     "site_revenue": {
       "key": "site_revenue",
       "selector": "COALESCE(SUM(CASE WHEN s.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN s.site_revenue ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_site_revenue",
-      "description": "Total site (organic) revenue on this date (total_sok_sales_usd), converted to the marketplace currency.",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "description": "Total site (organic) revenue on this date (total_sok_sales_usd), converted to the marketplace currency."
     },
     "site_viewproducts": {
       "key": "site_viewproducts",
       "selector": "COALESCE(SUM(CASE WHEN s.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN s.site_viewproducts ELSE 0 END), 0)",
       "type": "FLOAT",
       "externalColumnName": "perf_site_viewproducts",
-      "description": "Total site (organic) product-page views on this date (total_sok_viewproducts).",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "description": "Total site (organic) product-page views on this date (total_sok_viewproducts)."
     },
     "site_add2carts": {
       "key": "site_add2carts",
       "selector": "COALESCE(SUM(CASE WHEN s.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN s.site_add2carts ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_site_add2carts",
-      "description": "Total site (organic) add-to-cart events on this date (total_sok_add2carts).",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "externalColumnName": "perf_site_add2carts"
     },
     "organic_orders": {
       "key": "organic_orders",
       "selector": "COALESCE(SUM(CASE WHEN s.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN s.site_orders ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN p.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN p.program_orders ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_organic_orders",
-      "description": "Organic (non-ad-attributed) orders on this date = site_orders - program_orders.",
-      "filterTags": [
-        "report_group:roas"
-      ]
+      "externalColumnName": "perf_organic_orders"
     }
   },
   "dateRanges": {
