@@ -376,18 +376,6 @@ All Products (26th May | 16:19)     All Products (12th Jun | 12:18)
 
 Something creates a draft campaign most days at around 12:20, and nobody ever activates it.
 
-We also found there is **no spelling forgiveness at all.** Every variant fills at 0.0%:
-
-| Search | Requests | Responses |
-|---|---|---|
-| onion | 973,399 | 0 |
-| onions | 44,599 | 0 |
-| onin | 5,664 | 0 |
-| onian | 2,365 | 0 |
-| onnion | 259 | 0 |
-
-Roughly **1.03 million requests**, and "onions" (plural!) is treated as a completely different,
-unmatched search.
 
 ### But the deepest reason isn't a bug at all
 
@@ -427,26 +415,40 @@ Ajio was the bigger suspect — 61% of the fall — and unlike BigBasket its **r
 | Clicks | 13,256,744 | 12,851,139 | −3.1% |
 | **Price per click** | **INR 7.5616** | **INR 5.9505** | **−21.3%** |
 
-Nearly the same clicks, for INR 23.8 million less money. And the price fell on **every single page
-type**, by 11% to 28%:
+Nearly the same clicks, for INR 23.8 million less money.
 
-| Page | Price base | Price now | Change | Share of the fall |
+> **What "price per click" means here.** It is what an advertiser pays us each time a shopper clicks
+> their ad — the industry term is **CPC (cost per click)**. All Ajio figures are in **INR**, since it
+> is an Indian marketplace. Throughout this chapter, **"June"** is the baseline month and **"July"**
+> is the current month. Price per click is simply `total spend ÷ total clicks`.
+
+And the price fell on **every single page type**, by 11% to 28%:
+
+| Page type | Price/click, June | Price/click, July | Change | Share of the fall |
 |---|---|---|---|---|
 | CUSTOM | INR 8.4334 | INR 6.0608 | −28.1% | 42.0% |
 | SEARCH | INR 7.6475 | INR 6.7980 | −11.1% | 26.4% |
 | PRODUCT | INR 6.5325 | INR 5.0945 | −22.0% | 19.4% |
 | CATEGORY | INR 7.7254 | INR 5.5975 | −27.5% | 12.3% |
 
-Then we found something odd. We sorted Ajio's 209 real advertisers into five groups by how expensive
-they *were* in June:
+Then we found something odd. An average can hide a pattern, so we split the advertisers into bands.
 
-| Group (by June price) | Price base | Price now | Change | Spend change |
-|---|---|---|---|---|
-| Cheapest fifth | 4.87 | 5.22 | **+7.1%** | **+48.2%** |
-| Second | 5.67 | 6.02 | +6.2% | +14.0% |
-| Middle | 6.45 | 5.87 | −9.0% | −21.8% |
-| Fourth | 8.06 | 5.97 | −25.9% | −43.3% |
-| **Priciest fifth** | 10.74 | 6.87 | **−36.0%** | −47.1% |
+> **How to read the next table.** We took Ajio's **209 advertisers** that were active in both months,
+> lined them up in order of what they paid per click **in June** (cheapest first), and cut the line
+> into five equal groups — "fifths", about 41 advertisers each. Then we looked at what each group went
+> on to pay in July. "Cheapest fifth" is simply the 20% of advertisers whose clicks cost the least in
+> June; "Priciest fifth" is the 20% whose clicks cost the most.
+
+| Group (ranked by June price) | Advertisers | Price/click, June | Price/click, July | Change | Spend change |
+|---|---|---|---|---|---|
+| Cheapest fifth | 41 | INR 4.87 | INR 5.22 | **+7.1%** | **+48.2%** |
+| Second fifth | 41 | INR 5.67 | INR 6.02 | +6.2% | +14.0% |
+| Middle fifth | 41 | INR 6.45 | INR 5.87 | −9.0% | −21.8% |
+| Fourth fifth | 41 | INR 8.06 | INR 5.97 | −25.9% | −43.3% |
+| **Priciest fifth** | 45 | INR 10.74 | INR 6.87 | **−36.0%** | −47.1% |
+
+Notice that **every group moved toward the middle**: the cheap ones got dearer, the expensive ones got
+much cheaper.
 
 Perfectly stepped. **The expensive advertisers got much cheaper; the cheap ones got slightly dearer.**
 Everything squeezed toward the middle — the spread narrowed from 2.2× down to 1.3×.
