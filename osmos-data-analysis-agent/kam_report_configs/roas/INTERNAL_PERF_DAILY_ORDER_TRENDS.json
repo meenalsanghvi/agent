@@ -20,8 +20,7 @@
       "key": "date",
       "selector": "COALESCE(s.date, p.date)",
       "type": "STRING",
-      "externalColumnName": "perf_date",
-      "description": "Calendar date of the daily program-vs-site funnel row (from either the program or site aggregate)."
+      "externalColumnName": "perf_date"
     }
   },
   "metrics": {
