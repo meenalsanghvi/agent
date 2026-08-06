@@ -45,7 +45,7 @@
     "maxDataFetchDaysDuration": 3650
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.agencies` AS a WHERE a.agency_id = '__AGENCY_ID__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM reporting.agencies AS a WHERE a.agency_id = '__AGENCY_ID__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

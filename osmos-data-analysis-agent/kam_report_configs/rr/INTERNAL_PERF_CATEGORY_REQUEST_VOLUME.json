@@ -70,7 +70,7 @@
     "maxDataFetchDaysDuration": 15
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting__SP_REPORTING_DB_REGION__.os_product_ads_request_report` AS r WHERE r.mcid = '__SP_MARKETPLACE_CLIENT_ID__' AND DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND r.f_cat1 IS NOT NULL AND TRIM(r.f_cat1) != '' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM reporting__SP_REPORTING_DB_REGION__.os_product_ads_request_report AS r WHERE r.mcid = '__SP_MARKETPLACE_CLIENT_ID__' AND DATE(TIMESTAMP(r.timestamp_utc), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND r.f_cat1 IS NOT NULL AND TRIM(r.f_cat1) != '' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

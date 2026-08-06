@@ -64,7 +64,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __METRICS__ FROM `prj-onlinesales-prod-01.reporting.monetize_merchant_facts` AS mmf WHERE mmf.agency_id = '__AGENCY_ID__' AND mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__;",
+    "REPORTING": "SELECT __METRICS__ FROM reporting.monetize_merchant_facts AS mmf WHERE mmf.agency_id = '__AGENCY_ID__' AND mmf.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

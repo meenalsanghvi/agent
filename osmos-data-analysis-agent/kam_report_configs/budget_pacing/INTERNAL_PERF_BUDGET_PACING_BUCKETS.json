@@ -55,7 +55,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_marketplace_budget_pacing_configurations` AS bpc JOIN `prj-onlinesales-prod-01.reporting.clients` AS mc ON SAFE_CAST(bpc.marketplace_client_id AS STRING) = mc.client_id WHERE mc.agency_id = '__AGENCY_ID__' AND bpc.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM reporting.os_ads_marketplace_budget_pacing_configurations AS bpc JOIN reporting.clients AS mc ON SAFE_CAST(bpc.marketplace_client_id AS STRING) = mc.client_id WHERE mc.agency_id = '__AGENCY_ID__' AND bpc.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

@@ -156,8 +156,7 @@
       "key": "program_revenue",
       "selector": "COALESCE(SUM(CASE WHEN f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' THEN f.program_per_click_timestamp_sales ELSE 0 END), 0)",
       "type": "FLOAT",
-      "externalColumnName": "perf_program_gmv",
-      "description": "PROGRAM (ad-attributed, per-click-timestamp) GMV / revenue / sales for this category. Used for roi = program_revenue / spend in the app layer.",
+      "description": "Internal alias of program_gmv, kept for the retired reports that used this name. Identical selector; not exposed externally -- external callers use perf_program_gmv.",
       "filterTags": [
         "report_group:categories",
         "report_group:cost_per_click",
@@ -267,7 +266,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.marketplace_category_level_performance_facts_v2` AS f WHERE f.agency_id = '__AGENCY_ID__' AND f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM reporting.marketplace_category_level_performance_facts_v2 AS f WHERE f.agency_id = '__AGENCY_ID__' AND f.date BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

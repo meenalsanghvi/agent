@@ -171,7 +171,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_search_query_performance_report` AS p LEFT JOIN `prj-onlinesales-prod-01.reporting.clients` AS cl ON cl.client_id = p.client_id JOIN `prj-onlinesales-prod-01.reporting.clients` AS mc ON p.marketplace_client_id = mc.client_id WHERE mc.agency_id = '__AGENCY_ID__' AND p.date >= DATETIME_SUB(DATETIME '__START_DATE_1__', INTERVAL 1 DAY) AND p.date < DATETIME_ADD(DATETIME '__END_DATE_1__', INTERVAL 2 DAY) AND DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM reporting.os_ads_search_query_performance_report AS p LEFT JOIN reporting.clients AS cl ON cl.client_id = p.client_id JOIN reporting.clients AS mc ON p.marketplace_client_id = mc.client_id WHERE mc.agency_id = '__AGENCY_ID__' AND p.date >= DATETIME_SUB(DATETIME '__START_DATE_1__', INTERVAL 1 DAY) AND p.date < DATETIME_ADD(DATETIME '__END_DATE_1__', INTERVAL 2 DAY) AND DATE(TIMESTAMP(p.date, 'UTC'), '__SP_TIMEZONE__') BETWEEN '__START_DATE_1__' AND '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

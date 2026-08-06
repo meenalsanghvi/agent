@@ -100,7 +100,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.os_ads_performance_trend_analysis_report` AS tr WHERE DATE(tr.start_date) = '__START_DATE_1__' AND DATE(tr.end_date) = '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM reporting.os_ads_performance_trend_analysis_report AS tr WHERE DATE(tr.start_date) = '__START_DATE_1__' AND DATE(tr.end_date) = '__END_DATE_1__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },

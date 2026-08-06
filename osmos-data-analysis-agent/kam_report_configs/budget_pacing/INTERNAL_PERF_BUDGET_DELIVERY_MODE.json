@@ -57,7 +57,7 @@
     "maxDataFetchDaysDuration": 31
   },
   "query": {
-    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM `prj-onlinesales-prod-01.reporting.marketing_campaign_dimensions` AS mcd JOIN `prj-onlinesales-prod-01.reporting.clients` AS clients ON clients.client_id = mcd.client_id WHERE clients.agency_id = '__AGENCY_ID__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
+    "REPORTING": "SELECT __ATTRIBUTES__, __METRICS__ FROM reporting.marketing_campaign_dimensions AS mcd JOIN reporting.clients AS clients ON clients.client_id = mcd.client_id WHERE clients.agency_id = '__AGENCY_ID__' AND __FILTER__ GROUP BY __ATTRIBUTES_GROUP_BY__ ORDER BY __ATTRIBUTES_ORDER_BY__ LIMIT __LIMIT__ OFFSET __OFFSET__;",
     "MERCHANT": "",
     "GROUPED": ""
   },
