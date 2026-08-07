@@ -111,15 +111,21 @@ Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see K
         for t in (d.get("filterTags") or ["(untagged)"]):
             groups.setdefault(t.replace("report_group:", ""), []).append(d)
 
+    # The report listing is deliberately NOT reproduced here. The MCP's get_<group>_reports
+    # tools return report_type, description, required_filters, and every attribute and metric
+    # with its description, live from the deployed configs. A copy could only drift - and did:
+    # a report was marked "0 rows" when the test had simply paired a client with a campaign it
+    # does not own.
+    L.append("\n## Finding a report\n")
+    L.append("Call the discovery tool for the group you need. It lists the reports, their")
+    L.append("required filters, and the exact attribute and metric names, from the live config.\n")
+    L.append("| Group | Discovery tool | Reports |")
+    L.append("|---|---|---|")
     for g in sorted(groups):
-        L.append(f"\n## {g}\n")
-        L.append("| Report | Required filters | Attrs | Metrics | |")
-        L.append("|---|---|---|---|---|")
-        for d in sorted(groups[g], key=lambda x: x.get("externalReportType") or ""):
-            req = ", ".join(f"`{r}`" for r in (d.get("externalRequiredFilters") or [])) or "—"
-            ung = "" if "__ATTRIBUTES__" in (d.get("query") or {}).get("REPORTING", "") else " *(ungrouped)*"
-            L.append(f"| `{d.get('externalReportType')}`{ung} | {req} | "
-                     f"{len(d.get('attributes') or {})} | {len(d.get('metrics') or {})} | {mark(d)} |")
+        name = g if g.endswith("s") else g + "s"
+        L.append(f"| {g} | `get_{name}_reports` | {len(groups[g])} |")
+    L.append("\n**Never guess a column name — take it from the discovery tool.** What follows")
+    L.append("is the part that cannot be derived from a config, which is why it lives here.")
 
     L.append("""
 ---
@@ -143,10 +149,15 @@ Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see K
 
 ## Verification state
 
-Reports were fetched against agency 105 (takealot-marketplace, ZAR) for 2026-07-19→21
-requesting every exposed column. The 15 consolidated reports were additionally diffed
-row-by-row against the 42 they replaced: **39/39 runnable pairs identical** — zero rows
-lost, zero gained, zero drift.
+All 43 reports were fetched against agency 105 (takealot, ZAR) requesting every exposed
+column, and the 15 consolidated reports were diffed row-by-row against the 42 they replaced:
+**39/39 runnable pairs identical** — zero rows lost, gained or drifted.
+
+**A report returning no rows is usually the request, not the report.**
+`SEARCH_QUERY_MATCH_PERFORMANCE_REPORT` was recorded here as "0 rows" until the cause was
+found: the test had paired `perf_os_client_id` with a `perf_campaign_id` that client does not
+own. With a matching pair it returns rows normally. Check the filter values before concluding
+a report is broken.
 
 Untested: `is_negative` on `CAMPAIGN_KEYWORDS_REPORT` (no test campaign has keywords) and
 `attributed_sales` (0.00 on every keyword row in the window).

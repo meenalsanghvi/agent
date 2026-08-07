@@ -12,8 +12,10 @@ agent_instructions.py`. Load this once at the start of an investigation.
 >
 > - **Every data call is `run_report`** against the report type the step names. Take
 >   the **columns to request** and the **filters the call must pass** from
->   **`knowledge/tool-map.md`**; full column lists and known issues are in
->   **`knowledge/reports.md`**. Never guess a column name.
+>   **`knowledge/tool-map.md`**. For the authoritative column list call the MCP's
+>   `get_<group>_reports` discovery tool — it returns the report's required filters and every
+>   attribute and metric from the live config. **`knowledge/reports.md`** carries the caveats
+>   that a config cannot express. Never guess a column name.
 > - **"must pass" is not optional.** Several steps use the same report with different
 >   filters (e.g. `AUDIT_EVENTS_REPORT` with `perf_action_type_id` 17 / 16 / 50,51) —
 >   omitting the filter returns the wrong rows, not an error.

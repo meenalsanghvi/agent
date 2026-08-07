@@ -28,158 +28,31 @@ run_report(reportType=<external name>, attributes=[...], metrics=[...],
 Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see Known issues · — untested
 
 
-## budget_pacings
+## Finding a report
 
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `AUDIT_EVENTS_REPORT` | `perf_action_type_id` | 17 | 1 | ✅ |
-| `BUDGET_DELIVERY_MODE_REPORT` | `perf_campaign_id` | 2 | 1 | ✅ |
-| `BUDGET_PACING_BUCKETS_REPORT` | — | 2 | 1 | ✅ |
-| `CAMPAIGN_DAILY_BUDGET_AVG_REPORT` | `perf_campaign_id` | 2 | 1 | ✅ |
-| `CAMPAIGN_DAILY_BUDGET_FLEXI_REPORT` | `perf_campaign_id` | 1 | 1 | ✅ |
-| `MINUTE_LEVEL_CPC_REPORT` | `perf_campaign_id` | 5 | 2 | ✅ |
-| `MINUTE_LEVEL_CPM_REPORT` | — | 3 | 2 | ✅ |
+Call the discovery tool for the group you need. It lists the reports, their
+required filters, and the exact attribute and metric names, from the live config.
 
-## budget_utilisation
+| Group | Discovery tool | Reports |
+|---|---|---|
+| budget_pacings | `get_budget_pacings_reports` | 7 |
+| budget_utilisation | `get_budget_utilisations_reports` | 10 |
+| campaigns | `get_campaigns_reports` | 9 |
+| categories | `get_categories_reports` | 6 |
+| click_through | `get_click_throughs_reports` | 5 |
+| cost_per_click | `get_cost_per_clicks_reports` | 4 |
+| intake | `get_intakes_reports` | 4 |
+| keywords | `get_keywords_reports` | 4 |
+| merchant_breakdowns | `get_merchant_breakdowns_reports` | 5 |
+| page_performances | `get_page_performances_reports` | 1 |
+| relevance | `get_relevances_reports` | 1 |
+| response_rate | `get_response_rates_reports` | 9 |
+| roas | `get_roas_reports` | 6 |
+| search_queries | `get_search_queries_reports` | 5 |
+| skus | `get_skus_reports` | 2 |
 
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `CAMPAIGN_INVENTORY_REPORT` | — | 4 | 7 | ✅ |
-| `CATEGORY_QUADRANT_REPORT` | — | 4 | 7 | ✅ |
-| `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` | — | 3 | 10 | ✅ |
-| `DISPLAY_INVENTORY_CAMPAIGNS_REPORT` | `perf_ad_unit` | 15 | 2 | ✅ |
-| `DISPLAY_QUADRANT_REPORT` | — | 2 | 7 | ✅ |
-| `GMV_ATTRIBUTION_REPORT` *(ungrouped)* | — | 0 | 11 | ✅ |
-| `MERCHANT_PERFORMANCE_REPORT` | — | 4 | 15 | ✅ |
-| `PAGE_PERFORMANCE_PLA_REPORT` | — | 2 | 6 | ✅ |
-| `TRUE_BU_CAMPAIGN_REPORT` | — | 8 | 5 | ✅ |
-| `WALLET_BALANCE_REPORT` | — | 5 | 1 | ✅ |
-
-## campaigns
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `AUDIT_EVENTS_REPORT` | `perf_action_type_id` | 17 | 1 | ✅ |
-| `CAMPAIGNS_IN_CATEGORY_REPORT` | — | 12 | 3 | ✅ |
-| `CAMPAIGN_KEYWORDS_REPORT` | `perf_campaign_id` | 5 | 1 | ✅ |
-| `CAMPAIGN_LOOKUP_REPORT` | — | 10 | 1 | — |
-| `CAMPAIGN_NETWORKS_REPORT` | — | 4 | 1 | ✅ |
-| `CAMPAIGN_PRODUCT_SELECTION_REPORT` | `perf_campaign_id` | 9 | 1 | ✅ |
-| `DISPLAY_INVENTORY_CAMPAIGNS_REPORT` | `perf_ad_unit` | 15 | 2 | ✅ |
-| `INTERNAL_CAMPAIGN_PERFORMANCE_REPORT` | `perf_campaign_id` | 13 | 5 | ✅ |
-| `INTERNAL_KEYWORD_PERFORMANCE_REPORT` | — | 11 | 4 | ✅ |
-
-## categories
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `CAMPAIGNS_IN_CATEGORY_REPORT` | — | 12 | 3 | ✅ |
-| `CATEGORY_PERFORMANCE_REPORT` | — | 7 | 13 | ✅ |
-| `CATEGORY_QUADRANT_REPORT` | — | 4 | 7 | ✅ |
-| `CATEGORY_REQUEST_VOLUME_REPORT` | — | 3 | 1 | ✅ |
-| `MERCHANT_CATEGORY_PERFORMANCE_REPORT` | `perf_os_client_id` | 5 | 5 | ✅ |
-| `RR_PLA_REPORT` | — | 13 | 3 | ✅ |
-
-## click_through
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `CTR_OVERALL_REPORT` *(ungrouped)* | — | 0 | 4 | ✅ |
-| `INTERNAL_SEARCH_QUERY_PERF_REPORT` | — | 4 | 8 | ✅ |
-| `MERCHANT_PERFORMANCE_REPORT` | — | 4 | 15 | ✅ |
-| `SEARCH_QUERY_MATCH_PERFORMANCE_REPORT` | `perf_os_client_id`, `perf_campaign_id` | 5 | 4 | ⚠️ 0 rows |
-| `SKU_PERFORMANCE_REPORT` | `perf_os_client_id` | 8 | 13 | ✅ |
-
-## cost_per_click
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `CAMPAIGN_SUBTYPE_CPC_REPORT` | — | 1 | 7 | ✅ |
-| `CATEGORY_PERFORMANCE_REPORT` | — | 7 | 13 | ✅ |
-| `MERCHANT_PERFORMANCE_REPORT` | — | 4 | 15 | ✅ |
-| `SKU_PERFORMANCE_REPORT` | `perf_os_client_id` | 8 | 13 | ✅ |
-
-## intake
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `CAMPAIGN_LOOKUP_REPORT` | — | 10 | 1 | — |
-| `MARKETPLACE_DIRECTORY_REPORT` | — | 6 | 1 | ✅ |
-| `MERCHANT_LOOKUP_REPORT` | — | 3 | 1 | — |
-| `PROBLEM_METRICS_REPORT` | — | 7 | 1 | ⚠️ 0 rows |
-
-## keywords
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `CAMPAIGN_KEYWORDS_REPORT` | `perf_campaign_id` | 5 | 1 | ✅ |
-| `INTERNAL_KEYWORD_PERFORMANCE_REPORT` | — | 11 | 4 | ✅ |
-| `INTERNAL_SEARCH_QUERY_PERF_REPORT` | — | 4 | 8 | ✅ |
-| `SEARCH_QUERY_REQUESTS_PLA_REPORT` | — | 1 | 4 | ✅ |
-
-## merchant_breakdowns
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `INTERNAL_KEYWORD_PERFORMANCE_REPORT` | — | 11 | 4 | ✅ |
-| `MERCHANT_CATEGORY_PERFORMANCE_REPORT` | `perf_os_client_id` | 5 | 5 | ✅ |
-| `MERCHANT_LOOKUP_REPORT` | — | 3 | 1 | — |
-| `MERCHANT_PERFORMANCE_REPORT` | — | 4 | 15 | ✅ |
-| `WALLET_BALANCE_REPORT` | — | 5 | 1 | ✅ |
-
-## page_performances
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `PAGE_PERFORMANCE_PLA_REPORT` | — | 2 | 6 | ✅ |
-
-## relevance
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `RESPONDED_SKUS_REPORT` | `perf_keyword` | 8 | 3 | ✅ |
-
-## response_rate
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `CATEGORY_REQUEST_VOLUME_REPORT` | — | 3 | 1 | ✅ |
-| `DISPLAY_AD_UNIT_PERFORMANCE_REPORT` | — | 3 | 10 | ✅ |
-| `FILTER_PRESENCE_RR_REPORT` | — | 4 | 34 | ✅ |
-| `MERCHANT_PERFORMANCE_REPORT` | — | 4 | 15 | ✅ |
-| `PAGE_PERFORMANCE_PLA_REPORT` | — | 2 | 6 | ✅ |
-| `RR_DISPLAY_REPORT` | — | 9 | 3 | ✅ |
-| `RR_PLA_REPORT` | — | 13 | 3 | ✅ |
-| `SEARCH_QUERY_CAMPAIGNS_REPORT` | `perf_search_query` | 6 | 1 | ✅ |
-| `SEARCH_QUERY_REQUESTS_PLA_REPORT` | — | 1 | 4 | ✅ |
-
-## roas
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `CATEGORY_PERFORMANCE_REPORT` | — | 7 | 13 | ✅ |
-| `DAILY_ORDER_TRENDS_REPORT` | — | 1 | 11 | ✅ |
-| `GMV_ATTRIBUTION_REPORT` *(ungrouped)* | — | 0 | 11 | ✅ |
-| `MERCHANT_PERFORMANCE_REPORT` | — | 4 | 15 | ✅ |
-| `SKU_PERFORMANCE_REPORT` | `perf_os_client_id` | 8 | 13 | ✅ |
-| `TARGET_ROI_REPORT` | — | 1 | 1 | ✅ |
-
-## search_queries
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `INTERNAL_SEARCH_QUERY_PERF_REPORT` | — | 4 | 8 | ✅ |
-| `RR_DISPLAY_REPORT` | — | 9 | 3 | ✅ |
-| `SEARCH_QUERY_CAMPAIGNS_REPORT` | `perf_search_query` | 6 | 1 | ✅ |
-| `SEARCH_QUERY_MATCH_PERFORMANCE_REPORT` | `perf_os_client_id`, `perf_campaign_id` | 5 | 4 | ⚠️ 0 rows |
-| `SEARCH_QUERY_REQUESTS_PLA_REPORT` | — | 1 | 4 | ✅ |
-
-## skus
-
-| Report | Required filters | Attrs | Metrics | |
-|---|---|---|---|---|
-| `RESPONDED_SKUS_REPORT` | `perf_keyword` | 8 | 3 | ✅ |
-| `SKU_PERFORMANCE_REPORT` | `perf_os_client_id` | 8 | 13 | ✅ |
+**Never guess a column name — take it from the discovery tool.** What follows
+is the part that cannot be derived from a config, which is why it lives here.
 
 ---
 
@@ -202,10 +75,15 @@ Legend: ✅ verified · ⚠️ sound but no data in the test window · ⛔ see K
 
 ## Verification state
 
-Reports were fetched against agency 105 (takealot-marketplace, ZAR) for 2026-07-19→21
-requesting every exposed column. The 15 consolidated reports were additionally diffed
-row-by-row against the 42 they replaced: **39/39 runnable pairs identical** — zero rows
-lost, zero gained, zero drift.
+All 43 reports were fetched against agency 105 (takealot, ZAR) requesting every exposed
+column, and the 15 consolidated reports were diffed row-by-row against the 42 they replaced:
+**39/39 runnable pairs identical** — zero rows lost, gained or drifted.
+
+**A report returning no rows is usually the request, not the report.**
+`SEARCH_QUERY_MATCH_PERFORMANCE_REPORT` was recorded here as "0 rows" until the cause was
+found: the test had paired `perf_os_client_id` with a `perf_campaign_id` that client does not
+own. With a matching pair it returns rows normally. Check the filter values before concluding
+a report is broken.
 
 Untested: `is_negative` on `CAMPAIGN_KEYWORDS_REPORT` (no test campaign has keywords) and
 `attributed_sales` (0.00 on every keyword row in the window).
